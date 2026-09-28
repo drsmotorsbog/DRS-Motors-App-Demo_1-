@@ -4,18 +4,27 @@
    solo tokens de drs.tokens.css por su nombre de rol, nunca un color copiado.
    Geometría de marca: terminales butt, uniones miter, radio 0.
 
-   Zoom. El SVG escala entero con su viewBox. Dos variables en el <svg> permiten
-   compensar al acercar (valor = factor de zoom respecto a la vista base):
+   Zoom. El SVG escala entero con su viewBox. Tres variables en el <svg> permiten
+   compensar (valor = factor de zoom respecto a la vista base):
      --mapa-k   texto   (3 → a 3× las etiquetas conservan su tamaño en pantalla)
      --mapa-kv  trazos  (déjalo en 1 para que las vías engorden al acercar, como
-                         en un mapa real; súbelo si prefieres trazos constantes)
-   Los tamaños de texto (21 · 9 · 8,5 · 7,5) y el tracking están replicados en
-   ESTILO dentro de js/mapa.js para calcular colisiones: se cambian juntos.
+                         en un mapa real; súbelo si prefieres trazos constantes;
+                         por debajo de 1 engruesa los trazos al alejar)
+     --mapa-s   escala real, solo para las etiquetas de conjunto (tamaño fijo en px)
+   Alejado, una clase en el <svg> cambia de juego de etiquetas (DRS.mapa.nivel):
+     .mapa-l2  (≈0,3–0,62)  localidades, municipios, cerros, río y avenidas principales;
+                            sin barrios ni nombres de calles menores
+     .mapa-l1  (< 0,3)      localidades y municipios (menos nombres, sin avenidas), y no se
+                            pintan las calles interiores
+   Los tamaños de texto (21 · 16 · 9 · 8,5 · 7,5 y los px de las de conjunto) y el
+   tracking están replicados en ESTILO dentro de js/mapa.js para calcular
+   colisiones: se cambian juntos.
 ============================================================================= */
 
 .mapa-base{
   --mapa-k:1;
   --mapa-kv:1;
+  --mapa-s:1;
   display:block;width:100%;height:100%;
   background:var(--sup-2);
   overflow:hidden;
@@ -79,7 +88,19 @@
 .mapa-base .m-e-lug{font-size:calc(7.5px / var(--mapa-k))}
 .mapa-base .m-e-agua{font-size:calc(7.5px / var(--mapa-k));letter-spacing:.22em}
 .mapa-base .m-e-cer{font-size:calc(9px / var(--mapa-k));letter-spacing:.3em;stroke:var(--sup-1)}
+.mapa-base .m-e-mun{font-size:calc(16px / var(--mapa-k));letter-spacing:.3em;stroke-width:calc(4px / var(--mapa-k))}
 .mapa-base .m-e-o{stroke:var(--sup-1)}
+
+/* ------------------------------------------------------------ etiquetas de conjunto (alejado) */
+.mapa-base .m-et-l1,.mapa-base .m-et-l2{display:none}
+.mapa-l1 .m-etiquetas,.mapa-l2 .m-etiquetas{display:none}
+.mapa-l1 .m-et-l1,.mapa-l2 .m-et-l2{display:inline}
+.mapa-l1 .m-calle-t{display:none}                     /* a esa escala son una trama: no se pintan */
+.mapa-base .m-e-lmun{font-size:calc(12px / var(--mapa-s));letter-spacing:.3em;stroke-width:calc(4px / var(--mapa-s));fill:var(--txt-2)}
+.mapa-base .m-e-lloc{font-size:calc(10px / var(--mapa-s));letter-spacing:.24em;stroke-width:calc(3.5px / var(--mapa-s))}
+.mapa-base .m-e-lnat{font-size:calc(9px / var(--mapa-s));letter-spacing:.34em;stroke-width:calc(3px / var(--mapa-s));stroke:var(--sup-1)}
+.mapa-base .m-e-lagua{font-size:calc(9px / var(--mapa-s));letter-spacing:.26em;stroke-width:calc(3px / var(--mapa-s))}
+.mapa-base .m-e-lav{font-size:calc(8px / var(--mapa-s));letter-spacing:.2em;stroke:var(--sup-1);stroke-width:calc(3.5px / var(--mapa-s))}
 /* Placa bajo el nombre de una vía: corta el trazo como la cota de un plano. Con
    --mapa-k se acorta junto con el texto; su alto es el del casing y no cambia. */
 .mapa-base .m-placa{transform-box:fill-box;transform-origin:center;transform:scale(calc(1 / var(--mapa-k)),1)}

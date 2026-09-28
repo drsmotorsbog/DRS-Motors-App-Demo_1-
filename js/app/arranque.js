@@ -14,6 +14,13 @@
     ir: (d) => { DRS.tel.cerrarHoja(true); DRS.tel.ir(d.ruta, leerP(d)); },
     atras: () => DRS.tel.atras(),
     tab: (d) => { if (d.tab === 'reservas') DRS.tel.ui.resSeg = null; DRS.tel.tabIr(d.tab); },
+    /* menú + (la otra forma de navegar; ver js/app/tel.js) */
+    mas: () => DRS.tel.mas(),
+    'mas-cerrar': () => DRS.tel.mas(false),
+    'mas-ir': (d) => {
+      DRS.tel.mas(false);
+      if (d.tab) DRS.acciones.tab(d); else DRS.acciones.ir(d);
+    },
     proxima: (d) => DRS.demo.proxima(d.que),
 
     /* hojas */
@@ -82,7 +89,8 @@
     fn(el.dataset, el, ev);
   });
   document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape' && DRS.tel.hojaActual()) DRS.tel.cerrarHoja();
+    if (ev.key === 'Escape' && DRS.tel.masAbierto()) DRS.tel.mas(false);
+    else if (ev.key === 'Escape' && DRS.tel.hojaActual()) DRS.tel.cerrarHoja();
     if (ev.key === 'Enter' && ev.target.id === 'km-in') { const b = U.$('[data-a="km-guardar"]'); if (b) b.click(); }
   });
   // iOS: el pellizco de la página no hace zoom (el mapa tiene el suyo)
@@ -198,9 +206,12 @@
     DRS.demo.pintarLado();
     DRS.tel.intro();
 
-    // Funciona sin internet después de la primera visita (solo servida por https o localhost)
+    // Funciona sin internet después de la primera visita (solo servida por https o localhost).
+    // Al volver a la app (instalada, sigue abierta en segundo plano) busca si hay una versión nueva.
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-      navigator.serviceWorker.register('sw.js').catch(() => { /* sin caché: la demo sigue funcionando en línea */ });
+      navigator.serviceWorker.register('sw.js').then((reg) => {
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+      }).catch(() => { /* sin caché: la demo sigue funcionando en línea */ });
     }
   }
 

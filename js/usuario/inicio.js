@@ -28,7 +28,7 @@
   function tarjetaVehiculo(v, anim) {
     return html`<article class="tarjeta veh">
       <div class="veh-top"><span class="ceja">Tu vehículo</span><span class="cap">${v.clase} · ${v.servicio}</span></div>
-      <div class="veh-plano">${crudo(DRS.bp.vehiculo(v, { ancho: 340, dibujar: anim, retraso: 250 }))}</div>
+      <div class="veh-plano">${crudo(DRS.bp.vehiculo(v, { ancho: 340, dibujar: anim, retraso: 120, modo: anim ? 'llega' : 'ninguno' }))}</div>
       <div class="veh-pie">
         <div><div class="d d-26">${UI.modelo(v)}</div><div class="t13">${v.modelo} · ${v.carroceria} · ${v.color}</div></div>
         <div class="veh-km"><div class="d d-20 num">${num(v.km)} km</div><button class="enlace" data-a="hoja-km" data-v="${v.id}">Actualizar</button></div>

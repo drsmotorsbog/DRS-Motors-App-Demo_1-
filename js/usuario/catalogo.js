@@ -61,7 +61,7 @@
   /* ================= Lista ================= */
   function tarjeta(v, anim, i) {
     return html`<button class="tarjeta cat-tarjeta" ${crudo(UI.irAttrs('catalogo-ficha', { id: v.id }))} aria-label="${nombre(v)} ${v.anio}, ${num(v.km)} km, ${pesos(v.precio)}">
-      <span class="cat-plano srv-rejilla">${crudo(DRS.bp.porForma(v.forma, { ancho: 340, dibujar: anim, retraso: 120 + i * 90 }))}
+      <span class="cat-plano srv-rejilla">${crudo(DRS.bp.porForma(v.forma, { ancho: 340, dibujar: anim, retraso: 60 + i * 110, modo: anim ? 'llega' : 'ninguno' }))}
         ${v.nuevo ? html`<span class="chip chip-luz cat-chip">Recién llegado</span>` : ''}<span class="cap cat-codigo">${v.codigo}</span></span>
       <span class="cat-info">
         <span class="d d-26 cat-modelo">${nombre(v)}</span>
@@ -101,7 +101,7 @@
     const ancho = { perfil: 360, frente: 196, planta: 360 };
     return html`<div class="cat-galeria srv-rejilla">
         <div class="cat-riel">${vistas.map((w, k) => html`<figure class="cat-vista">
-          <span class="cat-lienzo v-${w}">${crudo(DRS.bp.vista(v.forma, w, { ancho: ancho[w], dibujar: anim && k === 0 }))}</span>
+          <span class="cat-lienzo v-${w}">${crudo(DRS.bp.vista(v.forma, w, { ancho: ancho[w], dibujar: anim && k === 0, cotas: w === 'perfil' }))}</span>
           <figcaption class="cap">${String(k + 1).padStart(2, '0')} · ${VISTAS[w]}</figcaption></figure>`)}</div>
         <span class="cap cat-cuenta" aria-live="polite"><b>${i0 + 1}</b> / ${vistas.length}</span>
       </div>

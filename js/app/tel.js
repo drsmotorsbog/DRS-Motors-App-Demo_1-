@@ -1,6 +1,10 @@
-/* DRS Motors · demo — el celular: pila de pantallas, barra inferior de cada demo, hojas y avisos
+/* DRS Motors · demo — el celular: pila de pantallas, barra de la demo, navegación de cada demo, hojas y avisos
    Cada demo (js/variantes/) declara sus pestañas, su botón flotante, su bienvenida y su inicio.
-   Las pantallas de servicio (explorar, reservar, SOAT, informe…) son las mismas en las tres. */
+   Las pantallas de servicio (explorar, reservar, SOAT, informe…) son las mismas en las tres.
+   Navegación: «barra» (pestañas abajo y el botón aparte) o «mas» (un botón + abajo a la derecha que
+   despliega las mismas secciones). Cada demo trae la suya (v.nav) y el menú de la demo la cambia;
+   la elección se guarda en este navegador. Arriba, la barra de la demo vuelve al lanzador o salta a
+   otra demo desde cualquier pantalla (estilos en css/navegacion.css). */
 (function () {
   'use strict';
   const DRS = window.DRS;
@@ -9,7 +13,7 @@
 
   const P = (DRS.pantallas = DRS.pantallas || {});   // P[ruta] = { raiz, render(p, ctx), alMontar?(el,p), alRefrescar?(el,p) }
   const tel = (DRS.tel = { pila: [], tab: null, ui: {}, comoPestana: false });
-  let raiz, vista, nav, capa, reloj;
+  let raiz, vista, nav, capa, reloj, barra;
 
   const V = () => DRS.variante || null;
   const pestanas = () => (V() ? V().tabs : []);
@@ -30,19 +34,90 @@
     nav = U.$('#tel-nav', el);
     capa = U.$('#tel-capa', el);
     reloj = U.$('#tel-hora', el);
+    barra = U.$('#tel-demo', el);
     tel.reloj();
     setInterval(tel.reloj, 15000);
   };
 
-  /** Arma la barra inferior de la demo elegida (o ninguna, en el lanzador y en la demo 3). */
+  /** Arma la barra de la demo y la navegación de la demo elegida (nada en el lanzador; sin barra inferior en la demo 3). */
   tel.configurar = function (variante) {
     DRS.variante = variante || null;
-    raiz.className = 'tel' + (variante ? ` ${variante.clase}` : ' sin-demo');
+    raiz.className = 'tel' + (variante ? ` ${variante.clase} con-barra-demo` : ' sin-demo');
+    pintarBarra();
+    pintarNav();
+  };
+
+  /* ---------------- barra de la demo: volver a las tres propuestas o saltar a otra ---------------- */
+  function pintarBarra() {
+    if (!barra) return;
     const v = V();
+    if (!v) { barra.innerHTML = ''; inerte(barra, true); return; }
+    inerte(barra, false);
+    const vs = Object.values(DRS.variantes || {}).sort((a, b) => a.numero - b.numero);
+    barra.innerHTML = String(html`<button class="td-volver" data-a="demo-lanzador" aria-label="Volver a las tres propuestas">${ico('atras')}<span>Tres demos</span></button>
+      <span class="td-actual" aria-hidden="true">${v.nombre}</span>
+      <span class="td-cambiar" role="group" aria-label="Cambiar de demo">${vs.map((x) => html`<button data-a="demo-abrir" data-v="${x.id}" aria-pressed="${x.id === v.id ? 'true' : 'false'}" aria-label="Demo ${x.numero} · ${x.nombre}">${x.numero}</button>`)}</span>`);
+  }
+
+  /* ---------------- navegación: barra de pestañas o botón + ---------------- */
+  const CLAVE_NAV = 'drs-nav';
+  let prefNav = {};
+  try { prefNav = JSON.parse(localStorage.getItem(CLAVE_NAV) || '{}') || {}; } catch (e) { prefNav = {}; }
+  /** 'barra' o 'mas' para la demo (null si no tiene barra inferior, como la demo 3). */
+  tel.modoNav = (v = V()) => (v && v.tabs.length ? (prefNav[v.id] || v.nav || 'barra') : null);
+  tel.cambiarNav = function (modo) {
+    const v = V();
+    if (!v || !v.tabs.length || (modo !== 'barra' && modo !== 'mas')) return;
+    prefNav[v.id] = modo;
+    try { localStorage.setItem(CLAVE_NAV, JSON.stringify(prefNav)); } catch (e) { /* sin almacenamiento: vale para esta visita */ }
+    pintarNav();
+    tel.nav();
+  };
+  /** Secciones del menú +: las pestañas de la demo y, al final (junto al botón), su acción aparte. */
+  function itemsMas(v) {
+    const xs = v.tabs.map((t) => ({ tab: t.id, nombre: t.nombre, ico: t.ico }));
+    const extra = v.fab || v.masExtra;
+    if (extra) xs.push({ ruta: extra.ruta, p: extra.p || {}, nombre: extra.nombre, ico: extra.ico, etiqueta: extra.etiqueta });
+    return xs;
+  }
+  function pintarNav() {
+    const v = V();
+    nav.classList.remove('nav-mas');
+    delete nav.dataset.abierto;
     if (!v || !v.tabs.length) { nav.innerHTML = ''; nav.classList.add('oculta'); inerte(nav, true); return; }
+    if (tel.modoNav(v) === 'mas') {
+      const xs = itemsMas(v);
+      nav.classList.add('nav-mas');
+      nav.dataset.abierto = 'false';
+      nav.innerHTML = String(html`<div class="mas-velo" data-a="mas-cerrar"></div>
+        <ul class="mas-menu" id="mas-menu" role="menu" aria-label="Secciones" inert>${xs.map((x, i) => html`<li class="mas-item" role="none" style="--i:${xs.length - 1 - i}">${x.tab
+          ? html`<button class="mas-op" role="menuitem" data-a="mas-ir" data-tab="${x.tab}"><span>${x.nombre}</span><i class="mas-ico">${ico(x.ico)}</i></button>`
+          : html`<button class="mas-op mas-extra" role="menuitem" data-a="mas-ir" data-ruta="${x.ruta}" data-p='${JSON.stringify(x.p)}' aria-label="${x.etiqueta || x.nombre}"><span>${x.nombre}</span><i class="mas-ico">${ico(x.ico)}</i></button>`}</li>`)}</ul>
+        <button class="mas-btn" data-a="mas" aria-expanded="false" aria-controls="mas-menu" aria-label="Abrir el menú de secciones">${ico('mas')}</button>`);
+      return;
+    }
     const fab = v.fab;
     nav.dataset.n = String(v.tabs.length);
     nav.innerHTML = String(html`<div class="nav-barra" role="tablist" aria-label="Secciones" style="grid-template-columns:repeat(${v.tabs.length},1fr)">${v.tabs.map((t) => html`<button class="nav-tab" role="tab" data-a="tab" data-tab="${t.id}">${ico(t.ico)}<span>${t.nombre}</span></button>`)}</div>${fab ? html`<button class="fab" data-a="ir" data-ruta="${fab.ruta}" data-p='${JSON.stringify(fab.p || {})}' aria-label="${fab.etiqueta || fab.nombre}">${ico(fab.ico)}<span>${fab.nombre}</span></button>` : ''}`);
+  }
+  tel.masAbierto = () => nav.classList.contains('nav-mas') && nav.dataset.abierto === 'true';
+  /** Abre o cierra el menú + (sin argumento, alterna). Abierto, la pantalla de atrás no recibe foco ni toques. */
+  tel.mas = function (abrir) {
+    if (!nav.classList.contains('nav-mas')) return;
+    const ya = nav.dataset.abierto === 'true';
+    const si = abrir == null ? !ya : !!abrir;
+    if (si === ya) return;
+    const b = U.$('.mas-btn', nav);
+    const focoAdentro = nav.contains(activo());
+    nav.dataset.abierto = si ? 'true' : 'false';
+    inerte(U.$('.mas-menu', nav), !si);                    // cerrado, sus secciones no reciben foco ni toques
+    if (b) { b.setAttribute('aria-expanded', String(si)); b.setAttribute('aria-label', si ? 'Cerrar el menú de secciones' : 'Abrir el menú de secciones'); }
+    inerte(vista, si);
+    if (barra && V()) inerte(barra, si);
+    if (si) {
+      const ops = U.$$('.mas-op', nav);
+      enfocar(ops.find((o) => o.getAttribute('aria-current') === 'page') || ops[ops.length - 1]);
+    } else if (focoAdentro && b) enfocar(b);
   };
 
   tel.reloj = function () {
@@ -158,6 +233,7 @@
   const dosCuadros = (fn) => { void document.body.offsetHeight; fn(); };
 
   tel.ir = function (ruta, p = {}) {
+    tel.mas(false);
     ruta = resolver(ruta);
     const v = V();
     if (v && v.redirigir && v.redirigir(ruta, p)) return;          // p. ej. la Demo 3 abre «explorar» en su propio mapa
@@ -198,6 +274,7 @@
 
   /** Va a una pestaña. Si la demo no tiene esa pestaña, abre su inicio y apila la pantalla encima. */
   tel.tabIr = function (tab, { anim = true } = {}) {
+    tel.mas(false);
     tab = resolver(tab);
     const v = V();
     if (v && !esPestana(tab) && tab !== v.inicio && tab !== v.bienvenida && P[tab] && tab !== 'lanzador') {
@@ -237,9 +314,10 @@
   tel.nav = function () {
     const e = tope();
     const visible = !!(e && tel.pila.length === 1 && esPestana(e.ruta));
+    if (!visible) tel.mas(false);
     nav.classList.toggle('oculta', !visible);
     inerte(nav, !visible || !!hojaAbierta());
-    U.$$('.nav-tab', nav).forEach((b) => b.setAttribute('aria-current', b.dataset.tab === tel.tab ? 'page' : 'false'));
+    U.$$('.nav-tab, .mas-op[data-tab]', nav).forEach((b) => b.setAttribute('aria-current', b.dataset.tab === tel.tab ? 'page' : 'false'));
   };
 
   /* ---------------- hojas (menús que suben) ----------------
@@ -279,6 +357,7 @@
     const antes = hojaAbierta() && vuelta ? vuelta          // una hoja que reemplaza a otra devuelve el foco al mismo lugar
       : { el: a, pantalla: tope() && tope().el, h: tope() ? huella(a, tope().el) : null };
     tel.cerrarHoja(true, { devolver: false });
+    tel.mas(false);
     vuelta = antes;
     nHojas++;
     const velo = document.createElement('div');

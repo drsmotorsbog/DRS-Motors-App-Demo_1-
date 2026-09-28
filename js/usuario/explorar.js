@@ -66,6 +66,8 @@
   const H = () => (DRS.mapa && DRS.mapa.H) || 2600;
   const pt = (pos) => (DRS.mapa && DRS.mapa.pt ? DRS.mapa.pt(pos[0], pos[1]) : [(130 - pos[1]) * 10, (205 - pos[0]) * 10]);
   const uKm = () => { const a = pt([100, 10]), b = pt([100, 20]); return Math.hypot(a[0] - b[0], a[1] - b[1]) || 100; };
+  /** redondea x a pasos parejos en escala logarítmica (n pasos por cada factor e) */
+  const escalon = (x, n) => Math.exp(Math.round(Math.log(x) * n) / n);
   function baseSvg() {
     if (!MAPA.cache) {
       MAPA.cache = DRS.mapa && DRS.mapa.svg ? DRS.mapa.svg({ detalle: 'alto', clase: 'exp-base' })
@@ -78,6 +80,10 @@
    * Monta un mapa interactivo dentro de el (un div de tamaño fijo).
    * cfg: { lugares: [{ id, pos, etq, promo }], sel, yo: pos, ruta: [[x,y]] (unidades del mapa),
    *        vista: {s,tx,ty} para restaurar, ajustar: [pos] para encuadrar, alPin(id), alMover(vista), interactivo }
+   * La vista nunca sale del lienzo (Bogotá entera y sus alrededores): alejado al máximo, el mapa
+   * llena la pantalla justo, sin bordes vacíos. (cfg.alejar ya no aplica: el lienzo alcanza.)
+   * cfg.tapa: { arriba, abajo } px que tapa una pieza OPACA (el panel de la ruta, la hoja de la Demo 3),
+   * o una función que los devuelve: el borde del lienzo puede entrar ahí, así todo el mapa se alcanza a ver.
    */
   function crearMapa(el, cfg) {
     el.innerHTML = `<div class="exp-lienzo" style="width:${W()}px;height:${H()}px">${baseSvg()}</div><svg class="exp-sobre" aria-hidden="true"></svg><div class="exp-pines"></div>`;
@@ -89,13 +95,16 @@
     let sel = cfg.sel || null;
     let rutaDibujada = 1;
 
-    const sMin = () => Math.max(vw() / W(), vh() / H()) * (cfg.alejar || 0.9);   // alejar < 0,9: deja ver trayectos largos
-    const sMax = () => vw() / (0.6 * uKm());
-    // El centro de la vista siempre cae sobre el mapa (vale también cuando el mapa, muy alejado, es más chico que la pantalla)
+    const tapa = () => (typeof cfg.tapa === 'function' ? cfg.tapa() : cfg.tapa) || {};
+    const tA = () => Math.max(0, tapa().arriba || 0), tB = () => Math.max(0, tapa().abajo || 0);
+    const sMin = () => Math.max(vw() / W(), (vh() - tA() - tB()) / H());
+    const sMax = () => Math.max(sMin(), vw() / (0.6 * uKm()));
+    // La vista queda siempre dentro del lienzo: ni al alejar ni al arrastrar se ve espacio vacío
+    // (solo bajo una pieza opaca, cfg.tapa, puede quedar fuera, porque ahí no se ve).
     function limitar() {
       v.s = Math.min(sMax(), Math.max(sMin(), v.s));
-      v.tx = Math.min(vw() / 2, Math.max(vw() / 2 - W() * v.s, v.tx));
-      v.ty = Math.min(vh() / 2, Math.max(vh() / 2 - H() * v.s, v.ty));
+      v.tx = Math.min(0, Math.max(vw() - W() * v.s, v.tx));
+      v.ty = Math.min(tA(), Math.max(vh() - tB() - H() * v.s, v.ty));
     }
     // arriba: lo que tapa la cabecera; derecha: lo que tapan los botones de zoom
     const arriba = cfg.arriba != null ? cfg.arriba : 130, derecha = cfg.derecha || 0;
@@ -106,7 +115,8 @@
       const pad = 1.2 * uKm();
       const anchoUtil = vw() - derecha;
       const altoUtil = vh() * (1 - abajo) - arriba - 20;
-      const s = Math.min(anchoUtil / (x1 - x0 + pad * 2), altoUtil / (y1 - y0 + pad * 2), sMax());
+      // la escala se limita antes de centrar: si el trayecto no cabe ni alejado al máximo, queda centrado igual
+      const s = Math.max(sMin(), Math.min(anchoUtil / (x1 - x0 + pad * 2), altoUtil / (y1 - y0 + pad * 2), sMax()));
       v = { s, tx: anchoUtil / 2 - ((x0 + x1) / 2) * s, ty: arriba + altoUtil / 2 - ((y0 + y1) / 2) * s };
     }
     if (!v) {
@@ -124,11 +134,23 @@
     const destino = capa.querySelector('.mapa-destino');
 
     const base = lienzo.querySelector('svg');
+    const lejos = base ? [...base.querySelectorAll('.m-et-l1, .m-et-l2')] : [];
+    let kAntes = '', kvAntes = '', nivelAntes = '';
     function pintar() {
       lienzo.style.transform = `translate(${v.tx}px, ${v.ty}px) scale(${v.s})`;
       // Al acercar, las etiquetas conservan su tamaño en pantalla y las vías engordan con moderación (css/mapa.css).
-      // Al alejar no se agrandan: las colisiones de etiquetas se calcularon a escala 1.
-      if (base) { base.style.setProperty('--mapa-k', Math.max(1, v.s).toFixed(3)); base.style.setProperty('--mapa-kv', Math.max(1, Math.sqrt(v.s)).toFixed(3)); }
+      // Al alejar, las etiquetas del plano no se agrandan (sus choques se calcularon a escala 1): por debajo de
+      // ≈0,6 el SVG cambia a las de conjunto (localidades, municipios), de tamaño fijo en pantalla (--mapa-s),
+      // y los trazos engruesan hasta el doble para que la ciudad se siga leyendo. Solo se escribe lo que cambia,
+      // y en escalones de ≈4 % (texto) y ≈6 % (trazos): durante el pellizco el SVG se repinta mucho menos.
+      if (base) {
+        const k = escalon(Math.max(1, v.s), 24).toFixed(3), kv = escalon(v.s >= 1 ? Math.sqrt(v.s) : Math.max(0.5, Math.sqrt(v.s)), 16).toFixed(3);
+        if (k !== kAntes) { base.style.setProperty('--mapa-k', k); kAntes = k; }
+        if (kv !== kvAntes) { base.style.setProperty('--mapa-kv', kv); kvAntes = kv; }
+        const n = DRS.mapa && DRS.mapa.nivel ? DRS.mapa.nivel(v.s) : '';
+        if (n !== nivelAntes) { if (nivelAntes) base.classList.remove(nivelAntes); if (n) base.classList.add(n); nivelAntes = n; }
+        if (n) lejos.forEach((g) => g.style.setProperty('--mapa-s', v.s.toFixed(4)));
+      }
       const a = (pos) => { const [x, y] = pt(pos); return [v.tx + x * v.s, v.ty + y * v.s]; };
       pines.forEach((b, i) => { const [x, y] = a(lugares[i].pos); b.style.transform = `translate(${x}px, ${y}px)`; });
       if (yo) { const [x, y] = a(cfg.yo); yo.style.transform = `translate(${x}px, ${y}px)`; }
@@ -151,7 +173,7 @@
     // Arrastrar con un dedo (o el mouse), pellizcar con dos, doble toque para acercar; rueda y botones en computador.
     // Las coordenadas se pasan a píxeles del celular: en computador el iPhone está escalado (--k).
     const dedos = new Map();
-    let gesto = null, toque = null, ultimoToque = null;
+    let gesto = null, toque = null, ultimoToque = null, animacion = 0;
     const local = (x, y) => { const r = el.getBoundingClientRect(); const k = r.width / vw() || 1; return [(x - r.left) / k, (y - r.top) / k]; };
     function iniciarGesto() {
       const ps = [...dedos.values()];
@@ -163,18 +185,27 @@
         gesto = { tipo: 'mover', x: a[0], y: a[1], tx: v.tx, ty: v.ty };
       } else gesto = null;
     }
+    // Un dedo que cae sobre un pin también cuenta para arrastrar o pellizcar (alejado, los pines se juntan):
+    // no se captura, para que el toque siga llegando al pin; si el dedo se movió, ese toque no abre el pin.
+    let arrastro = false, finArrastre = 0, inicio = null;
     el.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.mapa-pin')) return;
+      const enPin = !!e.target.closest('.mapa-pin');
+      animacion++;                                   // el dedo manda: corta cualquier viaje animado del mapa
+      if (!dedos.size) { arrastro = false; inicio = { x: e.clientX, y: e.clientY }; }
       dedos.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      try { el.setPointerCapture(e.pointerId); } catch (_) { /* puntero ya liberado */ }
+      if (!enPin) { try { el.setPointerCapture(e.pointerId); } catch (_) { /* puntero ya liberado */ } }
       el.classList.add('moviendo');
-      toque = dedos.size === 1 ? { x: e.clientX, y: e.clientY, t: Date.now() } : null;
+      toque = dedos.size === 1 && !enPin ? { x: e.clientX, y: e.clientY, t: Date.now() } : null;
       iniciarGesto();
     });
     el.addEventListener('pointermove', (e) => {
       if (!dedos.has(e.pointerId) || !gesto) return;
       dedos.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (toque && Math.hypot(e.clientX - toque.x, e.clientY - toque.y) > 8) toque = null;
+      if (!arrastro && (dedos.size > 1 || (inicio && Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) > 8))) {
+        arrastro = true;
+        for (const id of dedos.keys()) { try { el.setPointerCapture(id); } catch (_) { /* ya se soltó */ } }   // el que empezó en un pin, también
+      }
       const ps = [...dedos.values()];
       if (gesto.tipo === 'pellizco' && ps.length >= 2) {
         const [a, b] = ps.map((q) => local(q.x, q.y));
@@ -200,7 +231,11 @@
         } else ultimoToque = { x: e.clientX, y: e.clientY, t: ahora };
       }
       toque = null;
-      if (!dedos.size) { gesto = null; el.classList.remove('moviendo'); } else iniciarGesto();
+      if (!dedos.size) {
+        gesto = null; el.classList.remove('moviendo');
+        if (arrastro) finArrastre = Date.now();
+        arrastro = false;
+      } else iniciarGesto();
     };
     el.addEventListener('pointerup', soltar);
     el.addEventListener('pointercancel', soltar);
@@ -214,21 +249,26 @@
       const b = e.target.closest('.mapa-pin');
       if (!b) return;
       e.stopPropagation();
+      if (Date.now() - finArrastre < 400) return;    // venía de arrastrar o pellizcar: no es un toque al pin
       if (cfg.alPin) cfg.alPin(b.dataset.pin);
     });
 
     function zoom(f, cx = vw() / 2, cy = vh() * 0.4) {
+      animacion++;
       const s2 = Math.min(sMax(), Math.max(sMin(), v.s * f));
       v.tx = cx - ((cx - v.tx) * s2) / v.s;
       v.ty = cy - ((cy - v.ty) * s2) / v.s;
       v.s = s2; limitar(); pintar();
     }
+    /** Viaje animado a otra vista. Uno nuevo (o un gesto) reemplaza al que iba: nunca pelean dos. */
     function ir(destinoV, ms = 380) {
+      const id = ++animacion;
       if (reducido()) { v = destinoV; limitar(); pintar(); return; }
       const o = { ...v };
       const t0 = performance.now();
-      const fin = setTimeout(() => { v = destinoV; limitar(); pintar(); }, ms + 60);
+      const fin = setTimeout(() => { if (id !== animacion) return; v = destinoV; limitar(); pintar(); }, ms + 60);
       const paso = (t) => {
+        if (id !== animacion) { clearTimeout(fin); return; }
         const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3);
         v = { s: o.s + (destinoV.s - o.s) * e, tx: o.tx + (destinoV.tx - o.tx) * e, ty: o.ty + (destinoV.ty - o.ty) * e };
         limitar(); pintar();
@@ -305,7 +345,8 @@
         </div>
         ${e.modo === 'mapa' ? html`
           <div class="exp-zoom"><button data-a="exp-zoom" data-f="1.5" aria-label="Acercar">${ico('mas')}</button><button data-a="exp-zoom" data-f="0.66" aria-label="Alejar"><svg class="ico" aria-hidden="true"><path d="M4 12h16"/></svg></button><button data-a="exp-yo" aria-label="Centrar en tu ubicación">${ico('ubicacion')}</button></div>
-          <div class="exp-carrusel" data-carrusel>${ls.map((x) => tarjetaLugar(x, tipo, false))}</div>`
+          ${ls.length > 1 ? html`<span class="exp-chip exp-pos num" data-carrusel-pos aria-hidden="true">1 / ${ls.length}</span>` : ''}
+          <div class="exp-carrusel" data-carrusel role="group" aria-label="${t.titulo}: desliza para ver los demás">${ls.map((x) => tarjetaLugar(x, tipo, false))}</div>`
     : html`<div class="exp-lista">${ls.map((x) => tarjetaLugar(x, tipo, true))}<p class="t11" style="text-align:center;margin:14px 0 0">Comercios ficticios · precios de ejemplo</p></div>`}
       </div>`;
     },
@@ -323,27 +364,86 @@
     const ls = lugares(tipo, e);
     if (!e.sel || !ls.find((x) => x.c.id === e.sel)) e.sel = ls.length ? ls[0].c.id : null;
     const cercanos = ls.slice().sort((a, b) => a.c.km - b.c.km).slice(0, 4).map((x) => x.c.pos);
+    // Tarjetas ↔ pines: deslizar elige el lugar (pin resaltado y el mapa va hasta él); tocar un pin lleva a su tarjeta
+    const car = el.querySelector('[data-carrusel]'), pos = el.querySelector('[data-carrusel-pos]');
+    const cc = car && carrusel(car, {
+      alElegir: (id) => {
+        e.sel = id;
+        if (!ctlExp) return;
+        ctlExp.seleccionar(id);
+        const c = DRS.q.comercio(id);
+        if (c) ctlExp.enfocar(c.pos, null, 0.34);
+      },
+      alCambiar: (i, n) => { if (pos) pos.textContent = `${i + 1} / ${n}`; },
+    });
     ctlExp = crearMapa(cont, {
       lugares: ls.map((x) => ({ id: x.c.id, pos: x.c.pos, etq: etiquetaPin(x, e.orden), promo: !!x.precio.promo, nombre: x.c.nombre })),
       sel: e.sel, yo: DRS.estado.casa.pos, vista: e.vista, ajustar: [DRS.estado.casa.pos, ...cercanos], abajo: 0.3, derecha: 64,
-      alPin: (id) => { e.sel = id; ctlExp.seleccionar(id); const card = el.querySelector(`[data-card="${id}"]`); if (card) card.parentNode.scrollTo({ left: card.offsetLeft - 12, behavior: reducido() ? 'auto' : 'smooth' }); },
+      alPin: (id) => { e.sel = id; ctlExp.seleccionar(id); if (cc) cc.ir(id); },
       alMover: (v) => { e.vista = v; },
     });
     // Si el elegido quedó fuera de la vista (por ejemplo al cambiar el orden), el mapa va hasta él
     const elegido = e.sel && DRS.q.comercio(e.sel);
     if (elegido && !ctlExp.visible(elegido.pos)) ctlExp.enfocar(elegido.pos, null, 0.34);
-    const car = el.querySelector('[data-carrusel]');
-    if (car && e.sel) { const card = car.querySelector(`[data-card="${e.sel}"]`); if (card) car.scrollLeft = card.offsetLeft - 12; }
-    let t = null;
-    if (car) car.addEventListener('scroll', () => {
-      clearTimeout(t);
-      t = setTimeout(() => {
-        const cards = [...car.querySelectorAll('[data-card]')];
-        const i = Math.max(0, Math.min(cards.length - 1, Math.round(car.scrollLeft / (cards[0].offsetWidth + 8))));
-        const id = cards[i].dataset.card;
-        if (id !== e.sel) { e.sel = id; ctlExp.seleccionar(id); const c = DRS.q.comercio(id); ctlExp.enfocar(c.pos, null, 0.34); }
-      }, 140);
+    if (cc && e.sel) cc.ir(e.sel, false);
+    // el indicador «2 / 7» va justo encima de las tarjetas, midan lo que midan
+    const exp = el.querySelector('.exp');
+    if (car && exp) exp.style.setProperty('--exp-pie', `${Math.max(0, exp.clientHeight - car.offsetTop)}px`);
+  }
+
+  /**
+   * Carrusel de tarjetas [data-card] sincronizado con el mapa. El CSS encaja una tarjeta por gesto
+   * (scroll-snap); aquí, mientras el dedo desliza, la tarjeta que va quedando a la vista se elige de
+   * inmediato, sin esperar a que el carrusel se detenga. ir(id) lo lleva a una tarjeta (al tocar su
+   * pin) sin elegir las que pasa por el camino.
+   * op: { alElegir(id, i) — el dedo eligió otra tarjeta · alCambiar(i, n) — cambió la tarjeta a la vista }
+   * Lo usan el explorador y la Demo 3 (js/variantes/v3.js).
+   */
+  function carrusel(car, { alElegir, alCambiar } = {}) {
+    const lista = [...car.querySelectorAll('[data-card]')], tarjetas = () => lista;   // el carrusel se rehace con cada repintado
+    const pad = parseFloat(getComputedStyle(car).scrollPaddingLeft) || 0;
+    let actual = -1, destino = -1, tDestino = null;
+    // dónde encaja cada tarjeta: su borde menos el scroll-padding, dentro del recorrido posible
+    function encajes(cs) {
+      const max = car.scrollWidth - car.clientWidth;
+      return cs.map((c) => Math.max(0, Math.min(max, c.offsetLeft - pad)));
+    }
+    function indice(cs) {
+      const e = encajes(cs), x = car.scrollLeft;
+      let m = 0;
+      for (let i = 1; i < e.length; i++) if (Math.abs(e[i] - x) < Math.abs(e[m] - x)) m = i;
+      return m;
+    }
+    function marcar(i, cs, avisar) {
+      if (!cs[i]) return;
+      actual = i;
+      if (alCambiar) alCambiar(i, cs.length);
+      if (avisar && alElegir) alElegir(cs[i].dataset.card, i);
+    }
+    car.addEventListener('scroll', () => {
+      const cs = tarjetas();
+      if (!cs.length) return;
+      const i = indice(cs);
+      if (destino >= 0) { if (i !== destino) return; destino = -1; clearTimeout(tDestino); }
+      if (i !== actual) marcar(i, cs, true);
     }, { passive: true });
+    // si el dedo toca el carrusel en medio de un ir(), deja de esperar esa tarjeta
+    const soltar = () => { destino = -1; clearTimeout(tDestino); };
+    for (const t of ['pointerdown', 'touchstart', 'wheel']) car.addEventListener(t, soltar, { passive: true });
+    return {
+      ir(id, suave = true) {
+        const cs = tarjetas(), i = cs.findIndex((c) => c.dataset.card === id);
+        if (i < 0) return;
+        const x = encajes(cs)[i];
+        marcar(i, cs, false);
+        if (Math.abs(car.scrollLeft - x) < 1) return;
+        destino = i;
+        clearTimeout(tDestino);
+        tDestino = setTimeout(soltar, 900);
+        car.scrollTo({ left: x, behavior: suave && !reducido() ? 'smooth' : 'auto' });
+      },
+      indice: () => actual,
+    };
   }
 
   /* ================================================================ comercio */
@@ -596,7 +696,10 @@
     const casa = DRS.estado.casa;
     const r = DRS.mapa && DRS.mapa.rutear ? DRS.mapa.rutear(casa.pos, c.pos) : { puntos: [pt(casa.pos), pt([casa.pos[0], c.pos[1]]), pt(c.pos)] };
     const cont = el.querySelector('[data-mapa]');
-    ctlRuta = crearMapa(cont, { lugares: [], yo: casa.pos, destino: c.pos, destinoIco: TIPOS[c.tipo].ico, ruta: r.puntos, ajustar: [casa.pos, c.pos], abajo: 0.46, alejar: 0.45 });
+    // el panel de abajo es opaco: el mapa puede meterse debajo y el trayecto se encuadra en lo que queda a la vista
+    const panel = el.querySelector('.ruta-panel'), tapaAbajo = panel ? panel.offsetHeight : 0;
+    const abajo = cont.clientHeight && tapaAbajo ? Math.min(0.62, tapaAbajo / cont.clientHeight + 0.02) : 0.46;
+    ctlRuta = crearMapa(cont, { lugares: [], yo: casa.pos, destino: c.pos, destinoIco: TIPOS[c.tipo].ico, ruta: r.puntos, ajustar: [casa.pos, c.pos], abajo, tapa: { abajo: tapaAbajo } });
     if (animar) ctlRuta.dibujarRuta(1200);
   }
 
@@ -721,5 +824,5 @@
 
   /** Genera el SVG del mapa por adelantado (tarda unos cientos de ms en un celular), para que el primer mapa abra sin espera. */
   const precalentar = () => { baseSvg(); };
-  DRS.explorar = { crearMapa, precioDesde, servicios, promoDe, precalentar };
+  DRS.explorar = { crearMapa, carrusel, precioDesde, servicios, promoDe, precalentar };
 })();

@@ -32,7 +32,7 @@ body.pag-app{
 .esc-lado{
   width:300px;max-height:calc(100dvh - 48px);overflow:auto;flex:none;
   display:flex;flex-direction:column;gap:18px;padding:18px;
-  border:1px solid var(--linea);background:var(--sup-2);scrollbar-width:thin;
+  border:1px solid var(--panel-borde);background:var(--sup-2);scrollbar-width:thin;
 }
 .esc-marca{display:flex;flex-direction:column;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--linea)}
 .esc-marca .logo-dual{width:132px;height:30px}

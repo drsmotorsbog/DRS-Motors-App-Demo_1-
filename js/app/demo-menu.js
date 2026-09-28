@@ -79,6 +79,18 @@
     return html`<div class="dm-demos">${vs.map((v) => html`<button class="dm-demo" data-a="demo-abrir" data-v="${v.id}" aria-pressed="${v.id === actual ? 'true' : 'false'}"><b class="d d-26">${v.numero}</b><span>${v.nombre}</span></button>`)}</div>
       <button class="dm-fila" data-a="demo-lanzador">${ico('servicios')}<span>Ver las tres demos</span>${ico('chevron')}</button>`;
   }
+  /** Barra de pestañas o botón +: se elige por demo, para compararlas en la misma propuesta. */
+  const notaNav = (modo) => (modo === 'mas' ? 'Un botón + abajo a la derecha abre las secciones y el atajo.' : 'Las secciones en una barra abajo y el atajo aparte.');
+  function bloqueNav() {
+    const v = DRS.variante;
+    const modo = DRS.tel.modoNav(v);
+    if (!modo) return '';
+    const op = (k, n) => html`<button type="button" data-a="nav-modo" data-modo="${k}" aria-pressed="${modo === k ? 'true' : 'false'}">${n}</button>`;
+    return html`<div class="dm-grupo"><div class="cap">Navegación de la demo ${v.numero}</div>
+      <div class="tema-sel dm-nav" role="group" aria-label="Navegación">${op('barra', 'Pestañas abajo')}${op('mas', 'Botón +')}</div>
+      <p class="t11 dm-nav-nota">${notaNav(modo)}</p>
+    </div>`;
+  }
   function bloqueLavadero() {
     if (!DRS.variante) return '';
     const x = pasoLavadero();
@@ -93,6 +105,7 @@
     return html`${enHoja ? html`<div class="hoja-cab"><div><div class="ceja">Opciones de la demo</div><h2 class="d d-34" style="margin-top:8px">${v ? `Demo ${v.numero} · ${v.nombre}` : 'DRS Motors'}</h2></div><button class="hoja-cerrar" data-a="hoja-cerrar" aria-label="Cerrar">${ico('cerrar')}</button></div>` : ''}
       <div class="dm-grupo"><div class="cap">Demos</div>${bloqueDemos()}</div>
       <div class="dm-grupo"><div class="cap">Tema</div>${crudo(DRS.tema.selector())}</div>
+      ${bloqueNav()}
       ${bloqueLavadero()}
       ${v ? html`<div class="dm-grupo"><div class="cap">Notificaciones de ejemplo</div>
         <button class="dm-fila" data-a="demo-avisos">${ico('campana')}<span>Lanzar un aviso</span>${ico('chevron')}</button>
@@ -158,6 +171,12 @@
       DRS.tel.tabIr(DRS.variante.inicio, { anim: false });
       demo.pintarLado();
       demo.aviso('Demo reiniciada', `La demo ${DRS.variante.numero} vuelve a su estado inicial.`);
+    },
+    'nav-modo': (d) => {
+      DRS.tel.cambiarNav(d.modo);
+      U.$$('.dm-nav [data-modo]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.modo === d.modo ? 'true' : 'false'));
+      U.$$('.dm-nav-nota').forEach((x) => { x.textContent = notaNav(d.modo); });
+      if (!DRS.demo.enTelefono()) demo.pintarLado();
     },
     'modelo-abrir': () => demo.hojaModelo(),
     instalar: () => demo.hojaInstalar(),

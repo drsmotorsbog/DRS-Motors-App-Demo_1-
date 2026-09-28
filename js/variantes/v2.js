@@ -3,7 +3,8 @@
    ya sabe de él (consulta simulada) antes de pedir la cuenta. El inicio es el plano grande del
    vehículo activo con una llamada por sistema (SOAT, tecnomecánica, aceite, llantas y odómetro),
    el estado general con la acción más urgente, los controles de servicio, la reserva en vivo y
-   «Lo que viene». Barra fija abajo, como un tablero: Mi carro · Servicios · Actividad · Perfil.
+   «Lo que viene». Navegación con el botón + abajo a la derecha: Mi carro · Servicios · Actividad ·
+   Perfil y el atajo Lavar (desde el menú de la demo se cambia a la barra fija de abajo, como un tablero).
    Las pantallas de servicio (explorar, reservar, SOAT, informe, garaje…) son las compartidas.
 
    Rutas propias: v2-bienvenida, v2-inicio, v2-servicios, v2-actividad, v2-perfil.
@@ -114,7 +115,7 @@
     hatch: { soat: [395, 163], tecno: [520, 165], aceite: [722, 238], llantas: [270, 322], km: [730, 322], placa: [150, 292] },
     suv: { soat: [394, 148], tecno: [548, 150], aceite: [772, 228], llantas: [250, 316], km: [755, 316], placa: [90, 288] },
     pickup: { soat: [462, 150], tecno: [582, 150], aceite: [800, 224], llantas: [250, 316], km: [812, 316], placa: [60, 292] },
-    moto: { soat: [472, 186], tecno: [727, 166], aceite: [552, 286], llantas: [255, 300], km: [745, 300], placa: [292, 172] },
+    moto: { soat: [606, 172], tecno: [690, 140], aceite: [552, 300], llantas: [255, 300], km: [745, 300], placa: [272, 254] },
   };
   /** La misma elección de dibujo que DRS.bp.vehiculo. */
   function forma(v) {
@@ -132,7 +133,7 @@
    * las posiciones en % y las guías (SVG) coinciden a cualquier ancho de celular.
    * llamadas: [{ punto, fila: 'arriba'|'abajo', cap, valor, estado, attrs, etiqueta }]
    */
-  function escena(v, llamadas, { alto = 316, dibujar = false, anim = false, apagada = false, extra = '', etiqueta = '' } = {}) {
+  function escena(v, llamadas, { alto = 316, dibujar = false, anim = false, apagada = false, extra = '', etiqueta = '', modo = null, ms = 1500, t0 = null } = {}) {
     const W = 390, H = alto;
     const f = forma(v);
     const vb = VB[f];
@@ -159,8 +160,9 @@
       return `<path d="M${f1(l.cx)} ${f1(l.borde)}V${f1(codo)}L${f1(l.sx)} ${f1(l.sy)}" pathLength="1" class="v2-guia" style="--i:${i}"/>`;
     }).join('');
     const clase = ['v2-escena', apagada ? 'v2-apagada' : '', anim ? 'v2-anima' : ''].filter(Boolean).join(' ');
-    return html`<div class="${clase}" style="aspect-ratio:${W} / ${H}" role="group" aria-label="${etiqueta}">
-      <div class="v2-auto" style="left:${pct(ax, W)};width:${pct(aw, W)};top:${pct(at, H)}">${crudo(DRS.bp.vehiculo(v, { ancho: 380, dibujar, retraso: 60 }))}</div>
+    // modo del plano (css/vehiculos.css): al entrar, el carro llega rodando; t0 retrasa las llamadas hasta que frena
+    return html`<div class="${clase}" style="aspect-ratio:${W} / ${H}${t0 != null ? `;--t0:${t0}ms` : ''}" role="group" aria-label="${etiqueta}">
+      <div class="v2-auto" style="left:${pct(ax, W)};width:${pct(aw, W)};top:${pct(at, H)}">${crudo(DRS.bp.vehiculo(v, { ancho: 380, dibujar, retraso: 60, modo: modo || (dibujar ? 'llega' : 'ninguno'), ms }))}</div>
       ${crudo(`<svg class="v2-guias" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${guias}</svg>`)}
       ${todas.map((l, i) => html`<span class="v2-punto${l.estado ? ` est-${l.estado}` : ''}" style="left:${pct(l.sx, W)};top:${pct(l.sy, H)};--i:${i}" aria-hidden="true"></span>`)}
       ${todas.map((l, i) => {
@@ -234,6 +236,7 @@
       const s = estadoBien();
       const v = s.estado === 'listo' ? DRS.q.vehiculo(s.vid) : null;
       const buscando = s.estado === 'buscando';
+      const vv = buscando ? DRS.q.vehiculo(s.vid) : v;      // mientras consulta, el escaneo ya lee la forma real
       const vacio = buscando ? '…' : '—';
       let llamadas;
       if (v) {
@@ -253,9 +256,10 @@
       const rotulo = html`<span class="v2-rotulo${v ? ' listo' : ''}">${v
         ? html`<span class="cap">${placaTxt(v.placa)} · ${v.modelo} · ${v.carroceria}</span><b class="d d-20">${UI.modelo(v)}</b>`
         : html`<span class="cap">Vehículo</span><b class="d d-20">${buscando ? 'Consultando…' : 'Sin identificar'}</b>`}</span>`;
-      const plano = escena(v || GENERICO, llamadas, {
-        alto: 286, dibujar: !!(v && s.dibujar), anim: !!(v && s.dibujar), apagada: !v,
-        extra: html`${rotulo}${buscando ? html`<span class="escaneo"></span>` : ''}`,
+      const plano = escena(vv || GENERICO, llamadas, {
+        alto: 286, dibujar: false, anim: !!(v && s.dibujar), apagada: !vv,
+        modo: buscando ? 'escaneo' : v && s.dibujar ? 'enciende' : 'ninguno', ms: 1800, t0: 160,
+        extra: html`${rotulo}`,
         etiqueta: v ? `Plano de ${UI.modelo(v)}: lo que la app sabe de este vehículo` : 'Plano del vehículo, aún sin identificar',
       });
       const ejemplos = DRS.q.vehiculos().filter((x) => ['v1', 'v2'].includes(x.id));
@@ -757,7 +761,7 @@
     numero: 2,
     nombre: 'Mi carro',
     lema: 'Tu carro es la app.',
-    descripcion: 'Empieza por la placa. El inicio es el plano de tu carro con el estado de cada sistema, la acción más urgente y lo que viene en los próximos días.',
+    descripcion: 'Empieza por la placa. El inicio es el plano de tu carro con el estado de cada sistema, la acción más urgente y lo que viene. Las secciones se abren con un botón +.',
     bienvenida: 'v2-bienvenida',
     inicio: 'v2-inicio',
     tabs: [
@@ -767,8 +771,10 @@
       { id: 'v2-perfil', nombre: 'Perfil', ico: 'perfil' },
     ],
     fab: null,
+    nav: 'mas',                                              // botón + abajo a la derecha (ver js/app/tel.js)
+    masExtra: { nombre: 'Lavar', etiqueta: 'Reservar lavado', ico: 'detailing', ruta: 'explorar', p: { tipo: 'lavadero' } },
     clase: 'var-v2',
-    /** Plano de la propuesta: el carro grande con sus llamadas, el anillo, la acción y la barra fija abajo. */
+    /** Plano de la propuesta: el carro grande con sus llamadas, el anillo, la acción y el botón + abajo a la derecha. */
     plano: () => `<svg viewBox="0 0 120 200" aria-hidden="true" class="plano-demo">
       <rect x="1" y="1" width="118" height="198" class="pd-marco"/>
       <rect x="10" y="10" width="26" height="5" class="pd-txt"/><rect x="101" y="8" width="9" height="9" class="pd-linea"/>
@@ -784,9 +790,7 @@
       <rect x="10" y="147" width="100" height="11" class="pd-acento"/>
       <path d="M16 165v13" class="pd-trazo"/><rect x="13.5" y="164" width="5" height="5" class="pd-linea"/><rect x="13.5" y="174" width="5" height="5" class="pd-linea"/>
       <rect x="24" y="165" width="46" height="3" class="pd-txt"/><rect x="24" y="175" width="38" height="3" class="pd-txt"/>
-      <rect x="1" y="184" width="118" height="15" class="pd-linea"/>
-      <path d="M11 186.5h14" class="pd-trazo"/><path d="M11 189.5h14" class="pd-acento-trazo"/>
-      <path d="M44 193h8M69 193h8M94 193h8" class="pd-trazo"/>
+      <rect x="94" y="178" width="17" height="17" class="pd-acento"/><path d="M102.5 182v9M98 186.5h9" class="pd-sobre"/>
     </svg>`,
   };
 })();

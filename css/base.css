@@ -101,20 +101,20 @@ a{color:var(--acc-txt)}
 /* ---------------- controles del presentador (fuera de la app) ---------------- */
 .ctl{
   display:flex;align-items:center;gap:7px;padding:8px 11px;min-height:34px;
-  border:1px solid var(--linea);
-  font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.16em;text-transform:uppercase;color:var(--txt-2);
+  border:1px solid var(--ctl-borde);background:var(--ctl-fondo);
+  font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.16em;text-transform:uppercase;color:var(--txt-1);
 }
 .ctl .ico{width:14px;height:14px}
 .ctl[aria-pressed="true"]{color:var(--txt-1);border-color:var(--acc-graf)}
-@media (hover:hover){ .ctl:hover{color:var(--txt-1);border-color:var(--n-4)} }
+@media (hover:hover){ .ctl:hover{color:var(--txt-1);border-color:var(--txt-1)} }
 
 /* Selector de tema: tres opciones en línea */
-.tema-sel{display:inline-grid;grid-auto-flow:column;border:1px solid var(--linea)}
+.tema-sel{display:inline-grid;grid-auto-flow:column;border:1px solid var(--ctl-borde);background:var(--ctl-fondo)}
 .tema-sel button{
   display:flex;align-items:center;gap:6px;padding:8px 10px;min-height:34px;
-  font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);
+  font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2);
 }
-.tema-sel button + button{border-left:1px solid var(--linea)}
+.tema-sel button + button{border-left:1px solid var(--ctl-borde)}
 .tema-sel button .ico{width:14px;height:14px}
 .tema-sel button[aria-pressed="true"]{background:var(--sel-fondo);color:var(--sel-txt)}
 
@@ -127,7 +127,7 @@ a{color:var(--acc-txt)}
 }
 .menu-avisos.ver{opacity:1;transform:none;pointer-events:auto}
 .menu-cab{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px}
-.menu-fila{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px;border:1px solid var(--linea);background:var(--sup-3);margin-bottom:14px}
+.menu-fila{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px;border:1px solid var(--panel-borde);background:var(--panel);margin-bottom:14px}
 .menu-grupo{margin-bottom:12px}
 .menu-grupo .cap{margin-bottom:6px}
 .menu-item{display:grid;grid-template-columns:18px 1fr auto;gap:10px;align-items:center;width:100%;min-height:44px;padding:9px 8px;border-bottom:1px solid var(--linea);font-size:var(--fs-13);color:var(--txt-1);text-align:left}
@@ -143,7 +143,7 @@ a{color:var(--acc-txt)}
 .modelo-fila b{display:block;font-weight:600}
 .modelo-fila .t11{display:block;margin-top:2px}
 .modelo-fases{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.modelo-fases li{display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid var(--linea);background:var(--sup-3)}
+.modelo-fases li{display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid var(--panel-borde);background:var(--panel)}
 .modelo-fases b.d{color:var(--acc-txt)}
 .modelo-fases .t11{display:block;margin-top:2px}
 @media (min-width: 560px){ .modelo-fases{grid-template-columns:repeat(4,minmax(0,1fr))} }

@@ -8,6 +8,8 @@
      inicio      ruta de su pantalla principal (una de sus pestañas)
      tabs        [{ id, nombre, ico }] — [] si la demo no usa barra inferior
      fab         { nombre, etiqueta, ico, ruta, p } o null — botón junto a la barra
+     nav         'barra' (pestañas abajo) o 'mas' (botón + abajo a la derecha); el menú de la demo la cambia
+     masExtra    { nombre, etiqueta, ico, ruta, p } — atajo del menú + cuando la demo no tiene fab
      clase       clase que se agrega al .tel para los estilos propios de la demo
      plano()     dibujo pequeño de la propuesta para la tarjeta del lanzador (SVG en texto) */
 (function () {
@@ -30,6 +32,7 @@
       { id: 'reservas', nombre: 'Reservas', ico: 'reservas' },
     ],
     fab: { nombre: 'Lavar', etiqueta: 'Reservar lavado', ico: 'detailing', ruta: 'explorar', p: { tipo: 'lavadero' } },
+    nav: 'barra',
     clase: 'var-v1',
     /** Plano de la propuesta: tarjetas apiladas y barra con cuatro pestañas y el botón aparte. */
     plano: () => `<svg viewBox="0 0 120 200" aria-hidden="true" class="plano-demo">

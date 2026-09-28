@@ -1,0 +1,152 @@
+/* =============================================================================
+   DRS MOTORS · DEMO — VEHÍCULOS EN BLUEPRINT: los dibujos y sus coreografías
+   Dibujos: js/blueprint.js y js/blueprint-mas.js. Tiempos por trazo y cursor CAD: js/vehiculos.js.
+   Color solo por rol: Platino (silueta), Plata (detalle), Humo (construcción), n-4 (fantasma
+   y rayado), azul gráfico (vidrios, luces, línea de escaneo). Radio 0, terminales butt, uniones miter.
+
+   Sin la clase bp-anim todo está en su estado final (el flap abierto, los vidrios llenos).
+   Cada coreografía es una clase en el <svg> (bp-m-traza, bp-m-llega, bp-m-enciende, bp-m-tecnica)
+   que declara las variables de tiempo que usa; un elemento cuya variable no existe en ese modo
+   no se anima (una var() sin valor invalida la declaración entera de animation). --d0 retrasa
+   todo; --k escala los tiempos (bp-rapido = 0,7); --fin lo escribe vehiculos.js cuando termina
+   de dibujarse el último detalle. Con «reducir movimiento», base.css deja todo en 1 ms.
+============================================================================= */
+
+/* ---------------------------------------------------------------- base: color por rol */
+.bp{display:block;overflow:visible;fill:none;stroke-linecap:butt;stroke-linejoin:miter}
+.bp .bp-t{stroke:var(--txt-1)}
+.bp .bp-s{stroke:var(--txt-2)}
+.bp .bp-x{stroke:var(--txt-3)}
+.bp .bp-n{stroke:var(--n-4)}
+.bp .bp-a{stroke:var(--acc-graf)}
+.bp .bp-eje{stroke:var(--txt-3);stroke-dasharray:12 5 3 5}
+.bp .bp-vidrio-relleno{fill:var(--acc-graf);fill-opacity:.12;stroke:none}
+.bp .bp-haz{fill:var(--acc-2);fill-opacity:.12;stroke:none}                 /* Azul Luz decorativo: vale en los dos modos */
+.bp text{font-family:var(--f-label);font-weight:600;fill:var(--txt-3);stroke:none;letter-spacing:.14em}
+.bp .bp-tx1{fill:var(--txt-1)}
+.bp .bp-txa{fill:var(--acc-txt)}
+.bp .bp-cota-txt{font-size:15px;letter-spacing:.22em;text-transform:uppercase}
+.bp .bp-rotulo-caja{fill:var(--sup-1);stroke:var(--n-4)}
+.bp .bp-rotulo-txt{font-size:14px;letter-spacing:.2em;text-transform:uppercase}
+.bp .bp-lect-caja{fill:var(--sup-1);stroke:var(--txt-2)}
+.bp .bp-lect-txt{font-size:22px;fill:var(--txt-1);letter-spacing:.12em;text-transform:uppercase}
+.bp .bp-rayos-2,.bp .bp-rayos-3{opacity:0}                                    /* copias fantasma: solo se ven al girar */
+.bp .bp-flap{transform:translateY(-8px)}                                     /* el flap abierto (las dos líneas separadas) es el estado final */
+.bp .bp-vel{opacity:0}                                                        /* líneas de velocidad: solo al llegar */
+.bp .bp-cursor{opacity:0;pointer-events:none}
+.bp .bp-cursor rect{fill:var(--acc-graf)}
+
+/* Plano fantasma (debajo del escaneo) y plano apagado (Demo 2, sin identificar): gris de estructura */
+.bp.bp-fantasma :is(.bp-t,.bp-s,.bp-x,.bp-a,.bp-eje){stroke:var(--n-4)}
+.bp.bp-fantasma :is(.bp-vidrio-relleno,.bp-haz){fill-opacity:0}
+.v2-apagada .bp :is(.bp-t,.bp-s,.bp-x,.bp-a){stroke:var(--n-4)}
+.v2-apagada .bp :is(.bp-vidrio-relleno,.bp-haz){fill-opacity:0}
+
+/* ---------------------------------------------------------------- fotogramas */
+@keyframes bp-trazo{to{stroke-dashoffset:0}}
+@keyframes bp-aparece{to{opacity:1}}
+@keyframes bp-surge{from{opacity:0}}
+@keyframes bp-desvanece{to{opacity:0}}
+@keyframes bp-pop{0%{transform:scale(0)}55%{transform:scale(1.22)}100%{transform:scale(1)}}
+@keyframes bp-relleno{from{fill-opacity:0}}
+@keyframes bp-haz-abre{0%{transform:scaleX(0);opacity:0}40%{opacity:1}100%{transform:scaleX(1);opacity:1}}
+@keyframes bp-asienta{0%{transform:translateY(0)}36%{transform:translateY(4.5px)}66%{transform:translateY(-1.8px)}100%{transform:translateY(0)}}
+@keyframes bp-cabecea{0%{transform:rotate(0)}30%{transform:rotate(.3deg)}62%{transform:rotate(1.5deg)}84%{transform:rotate(-.5deg)}100%{transform:rotate(0)}}
+@keyframes bp-llega-x{from{transform:translateX(-640px)}}
+@keyframes bp-gira{from{transform:rotate(var(--giro,-560deg))}}
+@keyframes bp-fantasma-2{0%{opacity:0}6%{opacity:.36}70%{opacity:.14}100%{opacity:0}}
+@keyframes bp-fantasma-3{0%{opacity:0}6%{opacity:.2}60%{opacity:.06}100%{opacity:0}}
+@keyframes bp-flap-abre{from{transform:translateY(0)}}
+@keyframes bp-despliega{from{transform:scaleX(0)}}
+@keyframes bp-sello{from{opacity:0;transform:scale(1.4)}}
+@keyframes bp-vel{0%{opacity:0}15%{opacity:1}70%{opacity:1}100%{opacity:0}}
+
+/* ---------------------------------------------------------------- tiempos de cada coreografía */
+.bp-rapido{--k:.7}
+.bp-m-traza,.bp-m-tecnica{
+  --t-gira:calc(540ms * var(--k, 1));--d-gira:calc(var(--d0, 0ms) + 560ms * var(--k, 1));--e-gira:cubic-bezier(.12,.75,.2,1);
+  --giro-1:-200deg;--giro-2:-222deg;--giro-3:-244deg;
+  --d-vidrio:calc(var(--d0, 0ms) + var(--fin, 800ms) - 40ms);
+  --d-haz:calc(var(--d0, 0ms) + var(--fin, 800ms) + 20ms);
+  --d-asienta:calc(var(--d0, 0ms) + var(--fin, 800ms) + 40ms);
+  --d-cota:calc(var(--d0, 0ms) + var(--fin, 800ms) + 60ms);
+  --d-globo:calc(var(--d0, 0ms) + var(--fin, 800ms) + 200ms);
+  --d-flap:calc(var(--d0, 0ms) + var(--fin, 800ms) + 260ms);
+  --d-rotulo:calc(var(--d0, 0ms) + var(--fin, 800ms) + 320ms);
+}
+.bp-m-llega{
+  --t-gira:calc(760ms * var(--k, 1));--d-gira:var(--d0, 0ms);--e-gira:cubic-bezier(.16,.84,.24,1);
+  --giro-1:-560deg;--giro-2:-600deg;--giro-3:-640deg;
+  --d-vidrio:calc(var(--d0, 0ms) + 840ms * var(--k, 1));
+  --d-haz:calc(var(--d0, 0ms) + 820ms * var(--k, 1));
+  --d-flap:calc(var(--d0, 0ms) + 980ms * var(--k, 1));
+}
+.bp-m-enciende{
+  --d-vidrio:calc(var(--d0, 0ms) + 80ms);--d-haz:calc(var(--d0, 0ms) + 60ms);
+  --d-asienta:var(--d0, 0ms);--d-flap:calc(var(--d0, 0ms) + 260ms);
+}
+
+/* ---------------------------------------------------------------- traza y técnica: el plano se dibuja */
+:is(.bp-m-traza,.bp-m-tecnica) .bp-tr{stroke-dasharray:1 1;stroke-dashoffset:1;animation:bp-trazo var(--dur, .4s) linear calc(var(--d0, 0ms) + var(--d, 0ms)) both}
+:is(.bp-m-traza,.bp-m-tecnica) .bp-suelo{--d:0ms;--dur:calc(260ms * var(--k, 1))}
+:is(.bp-m-traza,.bp-m-tecnica) .bp-sil{--d:calc(80ms * var(--k, 1));--dur:calc(560ms * var(--k, 1))}          /* vehiculos.js afina por longitud */
+:is(.bp-m-traza,.bp-m-tecnica) .bp-det{--d:calc(400ms * var(--k, 1));--dur:calc(520ms * var(--k, 1))}
+:is(.bp-m-traza,.bp-m-tecnica) .bp-llanta{--d:calc(440ms * var(--k, 1));--dur:calc(200ms * var(--k, 1))}
+:is(.bp-m-traza,.bp-m-tecnica) .bp-rin{--d:calc(520ms * var(--k, 1));--dur:calc(160ms * var(--k, 1))}
+:is(.bp-m-traza,.bp-m-tecnica) .bp-cota-ext{--d:calc(var(--fin, 800ms) - 20ms);--dur:calc(150ms * var(--k, 1))}
+:is(.bp-m-traza,.bp-m-tecnica) .bp-globo-guia{--d:calc(var(--fin, 800ms) + 110ms + var(--i, 0) * 90ms * var(--k, 1));--dur:calc(160ms * var(--k, 1))}
+:is(.bp-m-traza,.bp-m-tecnica) :is(.bp-fade,.bp-cubo){animation:bp-surge .3s linear calc(var(--d0, 0ms) + var(--df, 200ms) * var(--k, 1)) both}
+:is(.bp-m-traza,.bp-m-tecnica) .bp-cruz{animation:bp-pop .28s cubic-bezier(.2,.8,.2,1) calc(var(--d0, 0ms) + (60ms + var(--i, 0) * 80ms) * var(--k, 1)) both}
+
+/* ---------------------------------------------------------------- lo que comparten los modos (si la variable no existe, no pasa nada) */
+.bp-anim .bp-rayos-1{--giro:var(--giro-1);animation:bp-gira var(--t-gira) var(--e-gira) var(--d-gira) both, bp-surge .16s linear var(--d-gira) both}
+.bp-anim .bp-rayos-2{--giro:var(--giro-2);animation:bp-gira var(--t-gira) var(--e-gira) var(--d-gira) both, bp-fantasma-2 var(--t-gira) linear var(--d-gira) both}
+.bp-anim .bp-rayos-3{--giro:var(--giro-3);animation:bp-gira var(--t-gira) var(--e-gira) var(--d-gira) both, bp-fantasma-3 var(--t-gira) linear var(--d-gira) both}
+.bp-anim .bp-vidrio-relleno{animation:bp-relleno .28s var(--ease) var(--d-vidrio) both}
+.bp-anim .bp-haz-g{animation:bp-haz-abre .34s cubic-bezier(.2,.8,.2,1) var(--d-haz) both}
+.bp-anim .bp-carroceria{animation:bp-asienta .44s cubic-bezier(.3,.6,.3,1) var(--d-asienta) both}
+.bp-anim .bp-flap{animation:bp-flap-abre .3s cubic-bezier(.34,1.56,.64,1) var(--d-flap) both}
+.bp-anim .bp-cota-lin{animation:bp-despliega .26s cubic-bezier(.2,.8,.2,1) var(--d-cota) both}
+.bp-anim :is(.bp-cota-marca,.bp-cota-txt){animation:bp-surge .2s linear calc(var(--d-cota) + 180ms) both}
+.bp-anim .bp-rotulo{animation:bp-sello .24s cubic-bezier(.2,.8,.2,1) var(--d-rotulo) both}
+.bp-anim .bp-globo-c{animation:bp-pop .26s cubic-bezier(.2,.8,.2,1) calc(var(--d-globo) + var(--i, 0) * 90ms * var(--k, 1)) both}
+.bp-anim :is(.bp-globo-txt,.bp-globo-punto){animation:bp-surge .2s linear calc(var(--d-globo) + var(--i, 0) * 90ms * var(--k, 1) + 80ms) both}
+
+/* ---------------------------------------------------------------- llega: entra rodando, clava los frenos y se asienta */
+.bp-m-llega .bp-vehiculo{animation:bp-llega-x calc(760ms * var(--k, 1)) cubic-bezier(.16,.84,.24,1) var(--d0, 0ms) both}
+.bp-m-llega .bp-cruz{animation:bp-surge .2s linear calc(var(--d0, 0ms) + 720ms * var(--k, 1)) both}
+.bp-m-llega .bp-carroceria{animation:bp-cabecea calc(1000ms * var(--k, 1)) cubic-bezier(.4,0,.2,1) var(--d0, 0ms) both}
+.bp-m-llega .bp-vel{stroke-dasharray:1 1;stroke-dashoffset:1;
+  animation:bp-trazo .24s linear calc(var(--d0, 0ms) + (120ms + var(--i, 0) * 40ms) * var(--k, 1)) both,
+            bp-vel .7s linear calc(var(--d0, 0ms) + (60ms + var(--i, 0) * 40ms) * var(--k, 1)) both}
+
+/* ---------------------------------------------------------------- escaneo: fantasma debajo, brillante revelado por la línea */
+.bp-scan{position:relative;display:block}
+.bp-scan .bp-brillo{position:absolute;left:0;top:0;width:100%;height:100%;clip-path:inset(0 100% 0 0);
+  animation:bp-scan-clip var(--ms, 1.5s) cubic-bezier(.45,0,.2,1) var(--d0, 0ms) forwards}
+.bp-scan-linea{position:absolute;inset:0;pointer-events:none;transform:translateX(-100%);
+  border-right:2px solid var(--acc-graf);box-shadow:inset -16px 0 20px -14px color-mix(in srgb, var(--acc-graf) 70%, transparent);
+  animation:bp-scan-mueve var(--ms, 1.5s) cubic-bezier(.45,0,.2,1) var(--d0, 0ms) forwards, bp-scan-fin var(--ms, 1.5s) linear var(--d0, 0ms) forwards}
+@keyframes bp-scan-clip{to{clip-path:inset(0 0 0 0)}}
+@keyframes bp-scan-mueve{to{transform:translateX(0)}}
+@keyframes bp-scan-fin{0%,90%{opacity:1}100%{opacity:0}}
+
+/* Línea de consulta suelta (ficha de documento): va y viene mientras se consulta */
+.escaneo{position:absolute;top:0;bottom:0;left:0;width:2px;background:var(--acc-graf);box-shadow:0 0 18px 4px color-mix(in srgb, var(--acc-graf) 45%, transparent);animation:escanea 1.3s var(--ease) infinite alternate}
+@keyframes escanea{from{left:4%}to{left:96%}}
+
+/* ---------------------------------------------------------------- dibujos sin motor (bahías): trazo en cascada */
+.bp-dibuja .bp-t,.bp-dibuja .bp-a,.bp-dibuja .bp-x,.bp-dibuja .bp-n{
+  stroke-dasharray:1 1;stroke-dashoffset:1;
+  animation:bp-trazo .65s cubic-bezier(.55,.05,.25,1) forwards;
+  animation-delay:calc(var(--i, 0) * 24ms + var(--d0, 0ms));
+}
+.bp-dibuja text,.bp-dibuja .bp-eje{opacity:0;animation:bp-aparece .35s var(--ease) forwards;animation-delay:calc(var(--d0, 0ms) + 520ms)}
+
+/* ---------------------------------------------------------------- Demo 2: las llamadas llegan después del carro */
+.v2-escena{--t0:900ms}
+.v2-escena.v2-anima .v2-llam{opacity:0;animation:bp-llam .32s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i, 0) * 80ms + var(--t0))}
+.v2-escena.v2-anima .v2-guia{stroke-dasharray:1 1;stroke-dashoffset:1;animation:bp-trazo .36s cubic-bezier(.4,0,.2,1) forwards;animation-delay:calc(var(--i, 0) * 80ms + var(--t0) + 90ms)}
+.v2-escena.v2-anima .v2-punto{opacity:0;animation:v2-punto-pop .3s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i, 0) * 80ms + var(--t0) + 320ms)}
+@keyframes bp-llam{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes v2-punto-pop{0%{opacity:0;transform:scale(0)}60%{opacity:1;transform:scale(1.4)}100%{opacity:1;transform:scale(1)}}

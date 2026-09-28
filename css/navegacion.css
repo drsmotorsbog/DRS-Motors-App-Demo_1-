@@ -1,0 +1,89 @@
+/* =============================================================================
+   DRS MOTORS · APP — NAVEGACIÓN: barra de la demo y menú del botón +
+   Barra de la demo (arriba, solo dentro de una demo): vuelve a las tres propuestas o
+   salta a otra desde cualquier pantalla. No es parte de la app: va en su propia franja,
+   en letra de etiqueta, con los mismos controles de borde claro del resto (tema.css).
+   Botón + (la otra forma de navegar, js/app/tel.js): abajo a la derecha, en Azul
+   Acero —en las pestañas es el único énfasis, como el botón Lavar de la barra—. Al
+   tocarlo gira a ×, el fondo se vela y las secciones suben escalonadas desde el botón;
+   la sección en la que estás va llena en Platino (Negro Carbón en el tema claro).
+============================================================================= */
+
+/* ---------------------------------------------------------------- barra de la demo */
+.tel-demo{display:none}
+.tel.con-barra-demo .tel-demo{
+  position:absolute;left:0;right:0;top:54px;z-index:29;height:40px;       /* bajo la barra de estado del iPhone dibujado (css/ios.css) */
+  display:flex;align-items:center;gap:8px;padding:0 10px 0 8px;
+  background:var(--sup-1);border-bottom:1px solid var(--panel-borde);
+}
+.tel.con-barra-demo .tel-vista{top:94px}
+.td-volver{
+  position:relative;flex:none;display:flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 5px;
+  border:1px solid var(--ctl-borde);background:var(--ctl-fondo);color:var(--txt-1);
+  font:700 var(--fs-9)/1 var(--f-label);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;
+}
+.td-volver .ico{width:16px;height:16px}
+.td-actual{
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;
+  font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.16em;text-transform:uppercase;color:var(--txt-3);
+}
+.td-cambiar{flex:none;display:flex;border:1px solid var(--ctl-borde)}
+.td-cambiar button{
+  position:relative;width:32px;height:26px;display:grid;place-items:center;padding-top:2px;
+  background:var(--ctl-fondo);color:var(--txt-2);font:400 var(--fs-16)/1 var(--f-display);
+}
+.td-cambiar button + button{border-left:1px solid var(--ctl-borde)}
+.td-cambiar button[aria-pressed="true"]{background:var(--btn2-fondo);color:var(--btn2-txt)}
+@media (hover:hover){
+  .td-volver:hover{border-color:var(--txt-1)}
+  .td-cambiar button:not([aria-pressed="true"]):hover{color:var(--txt-1)}
+}
+/* Área de toque de 44 de alto sin cambiar el dibujo; a lo ancho no se pisan entre vecinos */
+.td-volver::after{content:"";position:absolute;left:-4px;right:-4px;top:-8px;bottom:-8px}
+.td-cambiar button::after{content:"";position:absolute;left:0;right:0;top:-9px;bottom:-9px}
+
+/* ---------------------------------------------------------------- botón + */
+#tel-nav.nav-mas{left:0;right:0;top:0;bottom:0;height:auto;display:block;gap:0;pointer-events:none}
+#tel-nav.nav-mas.oculta{transform:translateY(24px);opacity:0}
+.mas-velo{position:absolute;inset:0;background:var(--velo);opacity:0;transition:opacity .22s var(--ease)}
+.nav-mas[data-abierto="true"] .mas-velo{opacity:1;pointer-events:auto}
+.mas-btn{
+  position:absolute;right:16px;bottom:24px;width:60px;height:60px;display:grid;place-items:center;
+  background:var(--acc-1);color:var(--txt-acc);pointer-events:auto;
+  box-shadow:0 18px 34px -16px var(--sombra);transition:filter .15s, transform .1s;
+}
+.mas-btn .ico{width:30px;height:30px;transition:transform .34s cubic-bezier(.3,1.5,.45,1)}
+.nav-mas[data-abierto="true"] .mas-btn .ico{transform:rotate(135deg)}
+.mas-btn:active{transform:translateY(1px)}
+@media (hover:hover){ .mas-btn:hover{filter:brightness(1.12)} }
+
+.mas-menu{
+  position:absolute;right:16px;bottom:96px;margin:0;padding:0;list-style:none;
+  display:flex;flex-direction:column;align-items:flex-end;gap:8px;
+}
+.mas-item{opacity:0;transform:translateY(16px) scale(.96);transform-origin:100% 100%;transition:opacity .14s var(--ease), transform .2s var(--ease)}
+.nav-mas[data-abierto="true"] .mas-item{opacity:1;transform:none;transition:opacity .2s var(--ease), transform .3s cubic-bezier(.2,1.25,.4,1);transition-delay:calc(var(--i) * 32ms)}
+.nav-mas[data-abierto="true"] .mas-menu{pointer-events:auto}
+.mas-op{
+  display:flex;align-items:stretch;min-height:48px;
+  background:var(--panel);border:1px solid var(--ctl-borde);color:var(--txt-1);
+  box-shadow:0 14px 28px -18px var(--sombra);
+  font:700 var(--fs-11)/1 var(--f-label);letter-spacing:.16em;text-transform:uppercase;
+}
+.mas-op>span{display:flex;align-items:center;padding:0 14px 0 16px}
+.mas-ico{display:grid;place-items:center;width:48px;border-left:1px solid var(--panel-borde)}
+.mas-ico .ico{width:22px;height:22px}
+.mas-op[aria-current="page"]{background:var(--btn2-fondo);border-color:var(--btn2-fondo);color:var(--btn2-txt)}
+.mas-op[aria-current="page"] .mas-ico{border-left-color:color-mix(in srgb, var(--btn2-txt) 22%, var(--btn2-fondo))}
+@media (hover:hover){ .mas-op:not([aria-current="page"]):hover{border-color:var(--txt-1)} }
+
+/* Misma condición que css/movil.css: celular vertical, app instalada o celular de lado */
+@media (max-width: 759px), (display-mode: standalone), (pointer: coarse) and (max-height: 500px){
+  .tel.con-barra-demo .tel-demo{top:env(safe-area-inset-top)}
+  .tel.con-barra-demo .tel-vista{top:calc(env(safe-area-inset-top) + 40px)}
+  .mas-btn{bottom:max(18px, calc(env(safe-area-inset-bottom) + 6px))}
+  .mas-menu{bottom:calc(max(18px, calc(env(safe-area-inset-bottom) + 6px)) + 72px)}
+}
+@media (prefers-reduced-motion: reduce){
+  .mas-item,.nav-mas[data-abierto="true"] .mas-item{transform:none}
+}

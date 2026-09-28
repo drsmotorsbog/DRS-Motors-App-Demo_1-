@@ -11,6 +11,18 @@
   const ui = () => (DRS.tel.ui.reg = DRS.tel.ui.reg || { slide: 0, otp: '', enviando: false, checks: {}, consulta: 'nada', paso: 0 });
   const cab = (titulo, atras = true) => html`<header class="cab cab-det">${atras ? html`<button class="cab-atras" data-a="atras" aria-label="Volver">${ico('atras')}</button>` : html`<span class="cab-logo" role="img" aria-label="DRS Motors" style="width:104px">${UI.logoH()}</span>`}<span class="cab-titulo">${titulo}</span></header>`;
   const pasos = (n) => html`<div class="pasos-flujo" aria-label="Paso ${n} de 4">${[1, 2, 3, 4].map((i) => html`<i class="${i < n ? 'ok' : i === n ? 'actual' : ''}"></i>`)}</div>`;
+  /** Marca el paso k de una consulta sin repintar la pantalla: así el escaneo del plano sigue su curso. */
+  function pintarPasos(ruta, k) {
+    const e = DRS.tel.pila[DRS.tel.pila.length - 1];
+    if (!e || e.ruta !== ruta) return;
+    U.$$('.proceso li', e.el).forEach((li, i) => {
+      li.className = i < k ? 'hecho' : i === k ? 'actual' : '';
+      const c = li.querySelector('i');
+      if (c) c.innerHTML = i < k ? String(ico('check')) : '';
+    });
+  }
+  /** Lecturas que «lee» el escaneo del RUNT sobre el plano. */
+  const lecturasRunt = (v, so, te) => DRS.bp.lecturas(v, [`${UI.modeloCorto(v)} · ${v.modelo}`, `SOAT · ${so.dias <= 0 ? 'vencido' : `${so.dias} días`}`, `Tecno · ${te.etiqueta}`]);
 
   const SLIDES = [
     { t: 'Tu vehículo al día', s: 'SOAT, tecnomecánica, aceite y pico y placa. Te avisamos antes de que venza y te decimos qué hacer.', dib: 'carro' },
@@ -21,7 +33,7 @@
   DRS.pantallas.bienvenida = {
     render(p, ctx) {
       const s = ui();
-      const dibujo = (d) => (d === 'carro' ? crudo(DRS.bp.carro({ ancho: 340, dibujar: ctx.anim }))
+      const dibujo = (d) => (d === 'carro' ? crudo(DRS.bp.carro({ ancho: 340, dibujar: ctx.anim, cotas: true, rotulo: 'Plano 01 · Perfil' }))
         : d === 'bahias' ? crudo(DRS.bp.bahias({ n: 3, ocupadas: [1], ancho: 320, dibujar: ctx.anim }))
           : html`<div class="meta-grande" style="margin:30px 10px">${[1, 2, 3, 4, 5].map((i) => html`<span class="${i < 4 ? 'ok' : i === 5 ? 'premio' : ''}"><b class="d d-26">${i}</b>${i === 5 ? html`<i class="cap">50 %</i>` : ''}</span>`)}</div>`);
       return html`${cab('Bienvenida', false)}<div class="onb">
@@ -122,6 +134,11 @@
       const so = DRS.calc.doc(v, 'soat'), te = DRS.calc.doc(v, 'tecno');
       const item = (k, t, hecho) => html`<li class="${hecho ? 'hecho' : s.consulta === 'buscando' ? 'actual' : ''}"><i>${hecho ? ico('check') : ''}</i><span>${t}</span></li>`;
       const paso = s.paso;
+      const enciende = !!s.revelar;         // recién consultado: el plano se enciende una sola vez
+      s.revelar = false;
+      const plano = s.consulta === 'buscando'
+        ? { ancho: 340, modo: 'escaneo', ms: 2000, lecturas: lecturasRunt(v, so, te) }
+        : { ancho: 340, dibujar: false, modo: enciende ? 'enciende' : 'ninguno' };
       return html`${cab('Tu vehículo')}<div class="cuerpo con-cta">
         <div class="titulo"><div class="ceja">Paso 4 de 4</div><h1 class="d d-44">Tu vehículo</h1><p class="t13">Con la placa y el documento del propietario traemos todo lo demás.</p></div>
         ${pasos(4)}
@@ -131,7 +148,7 @@
           <p class="t11" style="margin:0 0 8px">En la demo, la consulta trae un vehículo de ejemplo (KDM 484), escribas la placa que escribas.</p>
           <button class="enlace" data-a="reg-manual" style="margin-top:4px">¿No aparece? Ingresa las fechas a mano ${ico('chevron')}</button>` : ''}
         ${s.consulta !== 'nada' ? html`<article class="tarjeta" style="overflow:hidden">
-          <div class="veh-plano" style="position:relative">${crudo(DRS.bp.carro({ ancho: 340, dibujar: s.consulta === 'buscando' }))}${s.consulta === 'buscando' ? html`<span class="escaneo"></span>` : ''}</div>
+          <div class="veh-plano" style="position:relative">${crudo(DRS.bp.vehiculo(v, plano))}</div>
           <div class="tarjeta-pad" style="border-top:1px solid var(--linea)">
             ${s.consulta === 'buscando' ? html`<ol class="proceso">${item('d', 'Datos del vehículo en el RUNT', paso > 0)}${item('s', 'Vigencia del SOAT', paso > 1)}${item('t', 'Revisión técnico-mecánica', paso > 2)}</ol>` : html`
               <div class="d d-34">${UI.modelo(v)}</div><div class="t13" style="margin-top:6px">${v.modelo} · ${v.carroceria} · ${v.color} · ${num(v.cilindraje)} cc · ${placaTxt(v.placa)}</div>
@@ -159,11 +176,16 @@
       const so = DRS.calc.doc(v, 'soat'), te = DRS.calc.doc(v, 'tecno');
       const item = (t, hecho) => html`<li class="${hecho ? 'hecho' : 'actual'}"><i>${hecho ? ico('check') : ''}</i><span>${t}</span></li>`;
       const ya = DRS.q.vehiculos().some((x) => x.id === 'v3');
+      const enciende = !!s.revelar;
+      s.revelar = false;
+      const plano = s.estado === 'buscando'
+        ? { ancho: 340, modo: 'escaneo', ms: 1900, lecturas: lecturasRunt(v, so, te) }
+        : { ancho: 340, dibujar: false, modo: enciende ? 'enciende' : 'ninguno' };
       return html`${UI.cabDet('Agregar vehículo')}<div class="cuerpo con-cta">
         <div class="titulo"><div class="ceja">Mi garaje</div><h1 class="d d-44">Agregar vehículo</h1><p class="t13">Carro o moto. Con la placa y el documento del propietario traemos el resto.</p></div>
         ${s.estado === 'nada' ? html`<div class="campos-2"><div class="campo"><label class="cap" for="nv-placa">Placa</label><input id="nv-placa" class="reg-placa" value="HTR619" maxlength="6"></div>
           <div class="campo"><label class="cap" for="nv-doc">Documento del propietario</label><input id="nv-doc" value="1020456789" inputmode="numeric"></div></div>` : html`<article class="tarjeta" style="overflow:hidden">
-          <div class="veh-plano" style="position:relative">${crudo(DRS.bp.vehiculo(v, { ancho: 340, dibujar: s.estado === 'buscando' }))}${s.estado === 'buscando' ? html`<span class="escaneo"></span>` : ''}</div>
+          <div class="veh-plano" style="position:relative">${crudo(DRS.bp.vehiculo(v, plano))}</div>
           <div class="tarjeta-pad" style="border-top:1px solid var(--linea)">${s.estado === 'buscando'
     ? html`<ol class="proceso">${item('Datos del vehículo en el RUNT', s.paso > 0)}${item('Vigencia del SOAT', s.paso > 1)}${item('Revisión técnico-mecánica', s.paso > 2)}</ol>`
     : html`<div class="d d-34">${v.marca} ${v.linea}</div><div class="t13" style="margin-top:6px">${v.modelo} · ${v.carroceria} · ${v.color} · ${num(v.cilindraje)} cc · ${placaTxt(v.placa)}</div>
@@ -180,8 +202,8 @@
     'nv-consultar': async () => {
       const s = DRS.tel.ui.nuevoVeh;
       s.estado = 'buscando'; s.paso = 0; DRS.tel.refrescar();
-      for (let i = 1; i <= 3; i++) { await U.espera(600); s.paso = i; DRS.tel.refrescar(); }
-      await U.espera(300); s.estado = 'listo'; DRS.tel.refrescar();
+      for (let i = 1; i <= 3; i++) { await U.espera(600); s.paso = i; pintarPasos('agregar-vehiculo', i); }
+      await U.espera(300); s.estado = 'listo'; s.revelar = true; DRS.tel.refrescar();
     },
     'nv-agregar': () => {
       DRS.cambiar((s) => { if (!s.vehiculos.some((x) => x.id === 'v3')) s.vehiculos.push(JSON.parse(JSON.stringify(NUEVO))); s.vehiculoActivo = 'v3'; }, { tipo: 'vehiculo-nuevo' });
@@ -199,9 +221,9 @@
     'reg-consultar': async () => {
       const s = ui();
       s.consulta = 'buscando'; s.paso = 0; DRS.tel.refrescar();
-      for (let i = 1; i <= 3; i++) { await U.espera(650); s.paso = i; DRS.tel.refrescar(); }
+      for (let i = 1; i <= 3; i++) { await U.espera(650); s.paso = i; pintarPasos('registro-vehiculo', i); }
       await U.espera(350);
-      s.consulta = 'listo'; DRS.tel.refrescar();
+      s.consulta = 'listo'; s.revelar = true; DRS.tel.refrescar();
     },
     'reg-manual': () => DRS.tel.hoja(html`<div class="hoja-cab"><div><div class="ceja">Ingreso manual</div><h2 class="d d-34" style="margin-top:8px">Fechas de vencimiento</h2></div><button class="hoja-cerrar" data-a="hoja-cerrar" aria-label="Cerrar">${ico('cerrar')}</button></div>
       <p class="t13" style="margin:0 0 14px">Si la consulta no responde, escríbelas tú y las verificamos después.</p>

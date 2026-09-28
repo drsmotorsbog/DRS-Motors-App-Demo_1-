@@ -54,7 +54,7 @@
           ${instalada ? '' : html`<button class="lz-fila lz-boton" data-a="instalar"><span><span class="t13 t-1" style="display:block;font-weight:600">Instálala en tu celular</span><span class="t11">Queda con su ícono y abre a pantalla completa.</span></span>${ico('chevron')}</button>`}
           <a class="lz-fila lz-boton" href="crm/"><span><span class="t13 t-1" style="display:block;font-weight:600">Panel del comercio (CRM)</span><span class="t11">La otra cara: para verlo en un computador.</span></span>${ico('chevron')}</a>
         </section>
-        <p class="t11 lz-pie">Demo para inversionistas. Personas, placas, comercios y precios son inventados. En cualquier demo, toca el logo DRS para cambiar de demo, de tema o lanzar avisos de ejemplo.</p>
+        <p class="t11 lz-pie">Demo para inversionistas. Personas, placas, comercios y precios son inventados. Dentro de cada demo, la barra de arriba te trae de vuelta aquí o te lleva a otra; el logo DRS abre sus opciones: tema, navegación y avisos de ejemplo.</p>
       </div>`;
     },
   };

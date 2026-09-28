@@ -30,11 +30,14 @@
   const pasos = (n) => html`<div class="pasos-flujo" aria-label="Paso ${n} de 3">${[1, 2, 3].map((i) => html`<i class="${i < n ? 'ok' : i === n ? 'actual' : ''}"></i>`)}</div>`;
 
   DRS.pantallas['soat-comprar'] = {
-    render(p) {
+    render(p, ctx) {
       const s = ui();
       const u = DRS.q.usuario();
       const v = vehiculoCompra(p);
       const listo = !!v && s.autoriza;
+      const revelar = !!s.revelar;          // recién consultado: el plano se enciende una sola vez
+      s.revelar = false;
+      const modoPlano = revelar ? 'enciende' : ctx && ctx.anim ? 'llega' : 'ninguno';
       return html`${UI.cabDet('Comprar SOAT')}<div class="cuerpo con-cta">
         <div class="titulo"><div class="ceja">Paso 1 de 3 · Datos</div><h1 class="d d-44">Comprar SOAT</h1></div>
         ${pasos(1)}
@@ -43,10 +46,10 @@
           <div class="campos-2"><div class="campo"><label class="cap" for="soat-placa">Placa</label><input id="soat-placa" value="HTR619" autocapitalize="characters" maxlength="6"></div>
           <div class="campo"><label class="cap" for="soat-doc">Documento del propietario</label><input id="soat-doc" value="52.318.774" inputmode="numeric"></div></div>
           <button class="btn btn-borde" data-a="soat-consultar" ${crudo(s.consultando ? 'disabled' : '')}>${ico('runt')}${s.consultando ? 'Consultando el RUNT…' : 'Consultar en el RUNT'}</button>
-          ${s.consultando ? html`<div class="veh-plano" style="position:relative;margin-top:12px;border:1px solid var(--linea)">${crudo(DRS.bp.carro({ ancho: 340, dibujar: true }))}<span class="escaneo"></span></div>` : ''}` : ''}
+          ${s.consultando ? html`<div class="veh-plano" style="position:relative;margin-top:12px;border:1px solid var(--linea)">${crudo(DRS.bp.vehiculo(OTRO, { ancho: 340, modo: 'escaneo', ms: 1500, lecturas: DRS.bp.lecturas(OTRO, [`${OTRO.marca} ${OTRO.linea.split(' ')[0]} · ${OTRO.modelo}`, `${OTRO.clase} · ${OTRO.carroceria}`, `${num(OTRO.cilindraje)} cc`]) }))}</div>` : ''}` : ''}
         ${v ? html`<article class="tarjeta" style="overflow:hidden">
           <div class="veh-top"><span class="ceja">Vehículo</span><span class="chip chip-luz">${ico('runt')}Datos del RUNT</span></div>
-          <div class="veh-plano">${crudo(DRS.bp.vehiculo(v, { ancho: 340, dibujar: false }))}</div>
+          <div class="veh-plano">${crudo(DRS.bp.vehiculo(v, { ancho: 340, dibujar: false, modo: modoPlano }))}</div>
           <div class="tarjeta-pad" style="border-top:1px solid var(--linea)"><dl class="datos" style="margin:0">
             <dt>Placa</dt><dd>${placaTxt(v.placa)}</dd><dt>Vehículo</dt><dd>${v.marca} ${v.linea} · ${v.modelo}</dd>
             <dt>Clase</dt><dd>${v.clase} · ${v.carroceria}</dd><dt>Servicio</dt><dd>${v.servicio}</dd><dt>Cilindraje</dt><dd>${num(v.cilindraje)} cc</dd></dl></div>
@@ -117,7 +120,7 @@
       const s = ui();
       s.consultando = true; DRS.tel.refrescar();
       await U.espera(1700);
-      s.consultando = false; s.consultado = true; DRS.tel.refrescar();
+      s.consultando = false; s.consultado = true; s.revelar = true; DRS.tel.refrescar();
     },
     'soat-autoriza': () => { const s = ui(); s.autoriza = !s.autoriza; DRS.tel.refrescar(); },
     'soat-cotizar': (d) => DRS.tel.ir('soat-cotizacion', { v: d.v }),

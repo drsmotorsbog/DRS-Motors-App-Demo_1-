@@ -16,6 +16,20 @@
    Todo se declara también en [data-modo], porque una variable que usa otra se
    resuelve donde se declara: así un bloque en modo noche dentro de una página
    clara (el iPhone, la pantalla bloqueada) resuelve sus propios valores.
+
+   Contraste (ronda 4, pedido de Miguel: que se vea de un vistazo qué es tarjeta y
+   qué se toca). Tres niveles, de menos a más:
+     --linea                 estructura: filetes internos y rejillas (sin cambio)
+     --panel / --panel-borde tarjetas: un paso más claras que el fondo y con borde de
+                 Humo atenuado (2,96:1 sobre sup-1; el cambio de fondo solo no se veía)
+     --ctl-fondo / --ctl-borde  lo que se toca sin ser el botón principal: botones
+                 secundarios, filtros, selectores. Borde Plata en noche (12:1),
+                 Grafito oscuro en documento
+     --campo-borde           campos de texto: Humo (6:1 noche · 5,38:1 documento)
+     --btn2-fondo / --btn2-txt  botón lleno invertido (Platino en noche, Negro Carbón
+                 en documento). Para pantallas sin Azul Acero y para lo seleccionado;
+                 donde ya hay un botón Azul Acero, lo secundario va con borde, no lleno,
+                 para que el azul siga siendo el único énfasis (09 §8.5.2).
 ============================================================================= */
 
 :root,[data-modo="noche"]{
@@ -25,6 +39,14 @@
   --sel-txt: var(--sup-1);
   --velo: color-mix(in srgb, var(--sup-1) 72%, transparent);
   --sombra: color-mix(in srgb, var(--sup-1) 60%, black);
+  --panel: var(--sup-3);
+  --panel-borde: color-mix(in srgb, var(--txt-3) 55%, var(--sup-3));
+  --panel-linea: var(--n-4);
+  --ctl-fondo: var(--sup-3);
+  --ctl-borde: var(--txt-2);
+  --campo-borde: var(--txt-3);
+  --btn2-fondo: var(--txt-1);
+  --btn2-txt: var(--sup-1);
   color-scheme: dark;
 }
 [data-modo="documento"]{
@@ -34,6 +56,14 @@
   --sel-txt: var(--sup-1);
   --velo: color-mix(in srgb, var(--txt-1) 34%, transparent);
   --sombra: color-mix(in srgb, var(--txt-1) 22%, transparent);
+  --panel: var(--sup-2);
+  --panel-borde: color-mix(in srgb, var(--txt-3) 45%, var(--sup-2));
+  --panel-linea: var(--n-4);
+  --ctl-fondo: var(--sup-1);
+  --ctl-borde: var(--txt-2);
+  --campo-borde: var(--txt-3);
+  --btn2-fondo: var(--txt-1);
+  --btn2-txt: var(--sup-1);
   color-scheme: light;
 }
 

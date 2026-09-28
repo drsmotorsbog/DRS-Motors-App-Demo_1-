@@ -7,15 +7,35 @@
 <meta name="description" content="Demo del panel del comercio aliado de DRS Motors: agenda por bahía, clientes, promociones, pagos, reseñas y métricas. Datos ficticios.">
 <meta name="theme-color" content="#0A0B0D">
 <link rel="icon" type="image/png" sizes="192x192" href="../iconos/icono-192.png">
-<script src="../js/tema.js"></script>
-<link rel="stylesheet" href="../css/fuentes.css">
-<link rel="stylesheet" href="../css/drs.tokens.css">
-<link rel="stylesheet" href="../css/tema.css">
-<link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/app.css">
-<link rel="stylesheet" href="../css/panel.css">
-<link rel="stylesheet" href="../css/panel-mas.css">
-<link rel="stylesheet" href="../css/crm.css">
+<script src="../js/tema.js?v=dc007a37cb"></script>
+<script>
+/* Versión nueva publicada: cuando su service worker toma el control, la página se recarga una vez para
+   quedar entera en la versión nueva. Si ya llevaba un rato abierta, no se recarga sola: avisa abajo. */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  var habia = !!navigator.serviceWorker.controller, hecho = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (!habia || hecho) return;
+    hecho = true;
+    if (performance.now() < 20000) { location.reload(); return; }
+    var a = document.getElementById('aviso-escenario');
+    if (!a) return;
+    a.innerHTML = '<b>Versión nueva</b><span>Toca aquí para verla.</span>';
+    a.style.pointerEvents = 'auto'; a.style.cursor = 'pointer';
+    a.classList.add('ver');
+    a.addEventListener('click', function () { location.reload(); });
+  });
+})();
+</script>
+<link rel="stylesheet" href="../css/fuentes.css?v=480fc5308f">
+<link rel="stylesheet" href="../css/drs.tokens.css?v=045d133d62">
+<link rel="stylesheet" href="../css/tema.css?v=ecfed58884">
+<link rel="stylesheet" href="../css/base.css?v=7f014d5ac7">
+<link rel="stylesheet" href="../css/app.css?v=e049b5e008">
+<link rel="stylesheet" href="../css/vehiculos.css?v=b1dcd13bfc">
+<link rel="stylesheet" href="../css/panel.css?v=8943cefce1">
+<link rel="stylesheet" href="../css/panel-mas.css?v=c316422d1c">
+<link rel="stylesheet" href="../css/crm.css?v=6f4525b869">
 </head>
 <body class="pag-crm">
 <div id="sprites" aria-hidden="true"></div>
@@ -25,19 +45,19 @@
 </div>
 <div class="aviso-escenario" id="aviso-escenario" role="status" aria-live="polite"></div>
 
-<script src="../js/marca.js"></script>
-<script src="../js/iconos-app.js"></script>
-<script src="../js/util.js"></script>
-<script src="../js/reloj.js"></script>
-<script src="../js/datos.js"></script>
-<script src="../js/estado.js"></script>
-<script src="../js/blueprint.js"></script>
-<script src="../js/blueprint-mas.js"></script>
-<script src="../js/modelo.js"></script>
-<script src="../js/usuario/comun.js"></script>
-<script src="../js/comercio/panel.js"></script>
-<script src="../js/comercio/datos-comercio.js"></script>
-<script src="../js/comercio/vistas.js"></script>
-<script src="../js/comercio/crm.js"></script>
+<script src="../js/marca.js?v=bba0e11dc3"></script>
+<script src="../js/iconos-app.js?v=eedd592e22"></script>
+<script src="../js/util.js?v=c4e1ff23bd"></script>
+<script src="../js/reloj.js?v=61b7890076"></script>
+<script src="../js/datos.js?v=83186d2438"></script>
+<script src="../js/estado.js?v=15d0563b6c"></script>
+<script src="../js/blueprint.js?v=7e7349c3d5"></script>
+<script src="../js/blueprint-mas.js?v=a463832d4c"></script>
+<script src="../js/modelo.js?v=68d977b2b4"></script>
+<script src="../js/usuario/comun.js?v=477b94034a"></script>
+<script src="../js/comercio/panel.js?v=d58e2dc7c7"></script>
+<script src="../js/comercio/datos-comercio.js?v=00ec523feb"></script>
+<script src="../js/comercio/vistas.js?v=ffa95df17d"></script>
+<script src="../js/comercio/crm.js?v=cb45a45a59"></script>
 </body>
 </html>

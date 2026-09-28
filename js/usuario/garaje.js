@@ -8,18 +8,19 @@
 
   const cuando = (c) => `${c.d === 0 ? 'hoy' : c.d === -1 ? 'ayer' : U.fechaCorta(DRS.reloj.dia(c.d))}, ${U.horaTxt(c.h)}`;
 
+  // Puntos del plano (unidades de js/blueprint.js): 1 motor, 2 combustible, 3 transmisión, 4 kilometraje
   const GLOBOS = {
     carro: [
-      { x: 175, y: 228, bx: 150, by: 50, n: 2 },
-      { x: 540, y: 296, bx: 380, by: 50, n: 3 },
-      { x: 585, y: 176, bx: 620, by: 50, n: 4 },
-      { x: 720, y: 222, bx: 830, by: 50, n: 1 },
+      { x: 208, y: 268, bx: 150, by: 50, n: 2 },
+      { x: 600, y: 330, bx: 380, by: 50, n: 3 },
+      { x: 604, y: 192, bx: 620, by: 50, n: 4 },
+      { x: 790, y: 214, bx: 830, by: 50, n: 1 },
     ],
     moto: [
-      { x: 360, y: 290, bx: 300, by: 30, n: 3 },
-      { x: 560, y: 290, bx: 500, by: 30, n: 1 },
-      { x: 620, y: 168, bx: 660, by: 30, n: 2 },
-      { x: 690, y: 134, bx: 830, by: 30, n: 4 },
+      { x: 400, y: 300, bx: 300, by: 42, n: 3 },
+      { x: 552, y: 300, bx: 500, by: 42, n: 1 },
+      { x: 618, y: 172, bx: 660, by: 42, n: 2 },
+      { x: 690, y: 138, bx: 830, by: 42, n: 4 },
     ],
   };
 
@@ -130,7 +131,7 @@
       return html`${UI.cabRaiz()}<div class="cuerpo">
         <div class="titulo"><h1 class="d d-44">Mi garaje</h1><p class="t13">Tu vehículo, sus papeles y todo lo que le has hecho, en un solo plano.</p></div>
         <div class="seg" role="tablist" aria-label="Tus vehículos">${vs.map((x) => html`<button role="tab" aria-selected="${x.id === v.id ? 'true' : 'false'}" data-a="vehiculo" data-id="${x.id}">${UI.modeloCorto(x)}</button>`)}<button ${crudo(UI.irAttrs('agregar-vehiculo'))}>+ Agregar</button></div>
-        <div class="plano">${crudo(DRS.bp.vehiculo(v, { ancho: 380, dibujar: ctx.anim, globos: GLOBOS[v.tipo] }))}</div>
+        <div class="plano">${crudo(DRS.bp.vehiculo(v, { ancho: 380, dibujar: ctx.anim, globos: GLOBOS[v.tipo], cotas: true }))}</div>
         ${cajetin(v)}
         <button class="btn btn-fantasma" data-a="hoja-km" data-v="${v.id}" style="margin-top:8px">${ico('kilometraje')}Actualizar kilometraje</button>
         <section class="bloque">${UI.bloqueCab('Documentos', 'Se consultan solos; aquí ves su estado.')}<div class="lista">${filaDoc(v, 'soat')}${filaDoc(v, 'tecno')}</div></section>

@@ -31,7 +31,7 @@
 .campo-sel{position:relative}
 .campo .ayuda{font-size:var(--fs-11);color:var(--txt-3)}
 .campo input[readonly]{color:var(--txt-2);background:var(--sup-2)}
-.aviso-caja{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid var(--linea);background:var(--sup-2);font-size:var(--fs-13);color:var(--txt-2)}
+.aviso-caja{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid var(--panel-borde);background:var(--panel);font-size:var(--fs-13);color:var(--txt-2)}
 .aviso-caja .ico{width:18px;height:18px;color:var(--acc-txt);margin-top:1px}
 
 /* Celebración con el flap abierto (forma abierta: solo en animación, 08 §7) */
@@ -53,8 +53,8 @@
 .pf-barra i{position:absolute;left:0;top:0;bottom:0;background:var(--acc-graf)}
 .pf-nivel-pie{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:8px}
 .pf-nivel-pie .t11{text-align:center}
-.pf-cifras{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:8px;border:1px solid var(--linea)}
-.pf-cifras div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;border-right:1px solid var(--linea)}
+.pf-cifras{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:8px;border:1px solid var(--panel-borde);background:var(--panel)}
+.pf-cifras div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;border-right:1px solid var(--panel-linea)}
 .pf-cifras div:last-child{border-right:0}
 .pf-referido{margin-top:8px;padding:15px}
 .pf-codigo{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:14px;padding:12px 14px;border:1px dashed var(--n-4);background:var(--sup-3)}
@@ -101,7 +101,7 @@
 .cal-nav .d{text-transform:uppercase}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .cal-cab{text-align:center;padding:4px 0 6px}
-.cal-dia{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:50px;border:1px solid var(--linea);color:var(--txt-2)}
+.cal-dia{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:50px;border:1px solid var(--panel-linea);color:var(--txt-2)}
 .cal-dia.vacio{border-color:transparent}
 .cal-dia .d{color:inherit}
 .cal-dia .ico{width:12px;height:12px;stroke-width:3px}
@@ -123,7 +123,7 @@
 .onb-riel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;flex:1}
 .onb-riel::-webkit-scrollbar{display:none}
 .onb-slide{flex:0 0 100%;scroll-snap-align:start;padding:10px 22px 0}
-.onb-dibujo{height:250px;display:flex;align-items:center;justify-content:center;margin:0 -8px 22px;border:1px solid var(--linea);
+.onb-dibujo{height:250px;display:flex;align-items:center;justify-content:center;margin:0 -8px 22px;border:1px solid var(--panel-borde);
   background:
     linear-gradient(color-mix(in srgb, var(--linea) 60%, transparent) 1px, transparent 1px) 0 0/20px 20px,
     linear-gradient(90deg, color-mix(in srgb, var(--linea) 60%, transparent) 1px, transparent 1px) 0 0/20px 20px;}
@@ -133,12 +133,12 @@
 .onb-puntos i{width:22px;height:3px;background:var(--n-4);transition:background .2s,width .2s}
 .onb-puntos i.on{background:var(--txt-1);width:36px}
 .onb-pie{padding:0 15px 34px}
-.reg-cel{display:grid;grid-template-columns:auto 1fr;border:1px solid var(--n-4);background:var(--sup-3)}
+.reg-cel{display:grid;grid-template-columns:auto 1fr;border:1px solid var(--campo-borde);background:var(--sup-3)}
 .reg-cel input{border:0!important;background:transparent!important}
-.reg-prefijo{display:grid;place-items:center;padding:0 14px;border-right:1px solid var(--n-4);font:600 var(--fs-16) var(--f-label);color:var(--txt-1)}
+.reg-prefijo{display:grid;place-items:center;padding:0 14px;border-right:1px solid var(--campo-borde);font:600 var(--fs-16) var(--f-label);color:var(--txt-1)}
 .reg-placa{font:400 var(--fs-26)/1 var(--f-display)!important;letter-spacing:.12em;text-transform:uppercase}
 .otp{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:10px}
-.otp span{display:grid;place-items:center;height:62px;border:1px solid var(--n-4);background:var(--sup-2);font:400 var(--fs-34)/1 var(--f-display);color:var(--txt-1)}
+.otp span{display:grid;place-items:center;height:62px;border:1px solid var(--campo-borde);background:var(--sup-2);font:400 var(--fs-34)/1 var(--f-display);color:var(--txt-1)}
 .otp span.lleno{border-color:var(--txt-2)}
 .otp span.foco{border-color:var(--acc-graf);box-shadow:inset 0 -3px 0 var(--acc-graf)}
 
@@ -153,12 +153,12 @@
 .mapa-pin,.mapa-yo,.mapa-destino{position:absolute;left:0;top:0;width:0;height:0;pointer-events:auto}
 .mapa-pin>span{
   position:absolute;left:0;bottom:9px;transform:translateX(-50%);white-space:nowrap;display:flex;align-items:center;gap:4px;
-  padding:4px 7px 3px;background:var(--sup-1);border:1px solid var(--n-4);
+  padding:4px 7px 3px;background:var(--sup-1);border:1px solid var(--ctl-borde);
   font:400 var(--fs-16)/1 var(--f-display);letter-spacing:.04em;color:var(--txt-1);
   transition:background .15s,color .15s,border-color .15s,transform .15s;
 }
-.mapa-pin>span::after{content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;margin-left:-4px;background:inherit;border-right:1px solid var(--n-4);border-bottom:1px solid var(--n-4);transform:rotate(45deg)}
-@media (hover:hover){ .mapa-pin:hover>span{border-color:var(--txt-3)} }
+.mapa-pin>span::after{content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;margin-left:-4px;background:inherit;border-right:1px solid var(--ctl-borde);border-bottom:1px solid var(--ctl-borde);transform:rotate(45deg)}
+@media (hover:hover){ .mapa-pin:hover>span{border-color:var(--txt-1)} }
 .mapa-pin>span::before{content:"";position:absolute;inset:-9px -5px}   /* área táctil de 44 px (el ::after es la punta) */
 .mapa-pin.sel{z-index:5}
 .mapa-pin.sel>span{background:var(--sel-fondo);border-color:var(--sel-fondo);color:var(--sup-1);transform:translateX(-50%) scale(1.12)}
@@ -178,23 +178,35 @@
   background:linear-gradient(var(--sup-1) 70%, color-mix(in srgb, var(--sup-1) 0%, transparent))}
 .exp-tit{flex:1;min-width:0}
 .exp-tit .ceja{font-size:var(--fs-9);margin-bottom:4px}
-.exp-btn{display:grid;place-items:center;width:40px;height:40px;flex:none;background:var(--sup-1);border:1px solid var(--n-4);color:var(--txt-1)}
+.exp-btn{display:grid;place-items:center;width:40px;height:40px;flex:none;background:var(--sup-1);border:1px solid var(--ctl-borde);color:var(--txt-1)}
 .exp-btn .ico{width:20px;height:20px}
 .exp-chips{position:absolute;left:0;right:0;top:60px;z-index:6;display:flex;gap:6px;overflow-x:auto;padding:6px 12px;scrollbar-width:none}   /* relleno arriba y abajo: el área de toque de los chips no se recorta */
 .exp-chips::-webkit-scrollbar{display:none}
-.exp-chip{flex:none;height:32px;padding:0 12px;background:var(--sup-1);border:1px solid var(--n-4);font:700 var(--fs-9)/1 var(--f-label);letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2)}
+.exp-chip{flex:none;height:32px;padding:0 12px;background:var(--sup-1);border:1px solid var(--ctl-borde);font:700 var(--fs-9)/1 var(--f-label);letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2)}
 .exp-chip[aria-pressed="true"]{background:var(--txt-1);border-color:var(--txt-1);color:var(--sup-1)}
-.exp-zoom{position:absolute;right:12px;top:118px;z-index:6;display:flex;flex-direction:column;border:1px solid var(--n-4);background:var(--sup-1)}
-.exp-zoom button{display:grid;place-items:center;width:44px;height:44px;color:var(--txt-1);border-bottom:1px solid var(--linea)}   /* apilados sin espacio: 44 de verdad */
+.exp-zoom{position:absolute;right:12px;top:118px;z-index:6;display:flex;flex-direction:column;border:1px solid var(--ctl-borde);background:var(--sup-1)}
+.exp-zoom button{display:grid;place-items:center;width:44px;height:44px;color:var(--txt-1);border-bottom:1px solid var(--panel-borde)}   /* apilados sin espacio: 44 de verdad */
 .exp-zoom button:last-child{border-bottom:0}
 .exp-zoom .ico{width:18px;height:18px}
-.exp-carrusel{position:absolute;left:0;right:0;bottom:28px;z-index:6;display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:12px;padding:0 12px;scrollbar-width:none}
+/* Carrusel: solo del alto de las tarjetas (no tapa el mapa) y con sus propios eventos. En Safari de iOS el
+   desplazamiento lo lleva una vista nativa que WebKit deja sin interacción si el contenedor con scroll tiene
+   pointer-events:none, aunque sus tarjetas lo tengan en auto: por eso no se deslizaba con el dedo (en Chrome
+   sí). Encaja una tarjeta por gesto (snap-stop) y se asoma la siguiente; el ::after deja que la última
+   también encaje al principio. El indicador «2 / 7» (.exp-pos) va encima; --exp-pie lo mide el JS. */
+.exp-carrusel{position:absolute;left:0;right:0;bottom:max(28px, calc(env(safe-area-inset-bottom, 0px) + 12px));z-index:6;
+  display:flex;align-items:stretch;gap:8px;padding:0 12px;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scroll-padding-inline:12px;overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
 .exp-carrusel::-webkit-scrollbar{display:none}
-.exp-carrusel{pointer-events:none}                 /* los huecos del carrusel no tapan el mapa ni el zoom; las tarjetas sí reciben el toque */
-.exp-carrusel>*{pointer-events:auto}
+.exp-carrusel>.exp-card{flex:0 0 min(340px, calc(100% - 36px));width:auto;scroll-snap-stop:always}
+.exp-carrusel::after{content:"";flex:0 0 calc(100% - min(340px, calc(100% - 36px)) - 8px)}
+.exp-pos{position:absolute;left:12px;bottom:calc(var(--exp-pie, 150px) + 8px);z-index:6;display:flex;align-items:center;height:24px;padding:0 9px;letter-spacing:.2em;pointer-events:none}
 @media (max-height: 500px){ .exp-zoom{top:106px} } /* celular de lado: el zoom no queda debajo del carrusel */
-.exp-card{flex:none;width:300px;display:grid;grid-template-columns:96px 1fr;gap:10px;padding:10px;text-align:left;scroll-snap-align:start;background:var(--sup-2)}
-.exp-card-plano{position:relative;display:block;height:96px;border:1px solid var(--linea);background:var(--sup-1)}
+/* Celular de lado con la barra de la demo arriba: no caben los tres botones sobre las tarjetas; se acerca y aleja
+   con los dedos y queda solo «centrar en tu ubicación» */
+@media (pointer: coarse) and (max-height: 500px){ .exp-zoom button:not([data-a="exp-yo"]){display:none} }
+.exp-card{flex:none;width:300px;display:grid;grid-template-columns:96px 1fr;gap:10px;padding:10px;text-align:left;scroll-snap-align:start;background:var(--panel)}
+.exp-card-plano{position:relative;display:block;height:96px;border:1px solid var(--panel-linea);background:var(--sup-1)}
 .exp-card-plano svg{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px)}
 .exp-card-plano .chip{position:absolute;left:-1px;top:-1px;height:18px;padding:0 5px;font-size:var(--fs-9)}
 .exp-card-info{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -218,14 +230,14 @@
 .com-acciones .btn:first-child{grid-column:1 / -1}
 .com-srv{grid-template-columns:auto 1fr auto}
 .com-resena{padding:12px 0;border-bottom:1px solid var(--linea)}
-.com-mini{display:block;width:100%;padding:0;border:1px solid var(--linea)}
+.com-mini{display:block;width:100%;padding:0;border:1px solid var(--panel-borde)}
 .com-mini [data-minimapa]{position:relative;height:190px;overflow:hidden;background:var(--sup-2);pointer-events:none}
 
 /* ---------------- reservar ---------------- */
 .res-bloque{margin-top:22px}
 .res-bloque>.ceja{margin-bottom:10px}
 .res-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-.res-dia{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 9px;border:1px solid var(--linea);color:var(--txt-2)}
+.res-dia{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 9px;border:1px solid var(--panel-borde);color:var(--txt-2)}
 .res-dia .d{color:inherit}
 .res-dia .cap{font-size:var(--fs-9)}
 .res-dia i{font-style:normal;color:var(--neg)}
@@ -233,7 +245,7 @@
 .res-dia[aria-pressed="true"]{background:var(--txt-1);border-color:var(--txt-1);color:var(--sup-1)}
 .res-dia[aria-pressed="true"] .cap,.res-dia[aria-pressed="true"] i{color:var(--sup-1)}
 .res-horas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
-.res-hora{position:relative;height:40px;border:1px solid var(--linea);font:600 var(--fs-11)/1 var(--f-label);letter-spacing:.06em;color:var(--txt-1)}
+.res-hora{position:relative;height:40px;border:1px solid var(--panel-borde);font:600 var(--fs-11)/1 var(--f-label);letter-spacing:.06em;color:var(--txt-1)}
 .res-hora[disabled]{color:var(--txt-3);opacity:.45;text-decoration:line-through;cursor:not-allowed}
 .res-hora.promo{border-color:color-mix(in srgb, var(--pos) 70%, var(--linea))}
 .res-hora i{position:absolute;right:-1px;top:-1px;padding:2px 3px;background:var(--pos);color:var(--sup-1);font:700 var(--fs-7_5)/1 var(--f-label);font-style:normal}
@@ -241,7 +253,7 @@
 
 /* ---------------- cómo llegar ---------------- */
 .ruta .exp-mapa{bottom:0}
-.ruta-panel{position:absolute;left:0;right:0;bottom:0;z-index:7;max-height:48%;overflow:auto;padding:14px 15px 30px;background:var(--sup-2);border-top:1px solid var(--n-4);scrollbar-width:none}
+.ruta-panel{position:absolute;left:0;right:0;bottom:0;z-index:7;max-height:48%;overflow:auto;padding:14px 15px 30px;background:var(--sup-2);border-top:1px solid var(--panel-borde);scrollbar-width:none}
 .ruta-top{display:flex;justify-content:space-between;align-items:flex-end}
 .ruta-pasos{list-style:none;margin:14px 0 12px;padding:0;display:flex;flex-direction:column}
 .ruta-pasos li{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--linea);font-size:var(--fs-13);color:var(--txt-1)}

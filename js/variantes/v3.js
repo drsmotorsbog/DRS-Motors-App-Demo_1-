@@ -282,9 +282,10 @@
           <div class="v3-flota">
             <div class="v3-flota-fila">
               <div class="v3-escala" aria-hidden="true"><i data-v3-escala-barra></i><span class="cap" data-v3-escala-txt></span></div>
+              ${ls.length > 1 ? html`<span class="v3-escala v3-pos cap num" data-v3-pos aria-hidden="true">1 / ${ls.length}</span>` : ''}
               <button class="v3-yo" data-a="v3-yo" aria-label="Centrar el mapa en tu casa">${ico('ubicacion')}</button>
             </div>
-            <div class="v3-carrusel" data-v3-carrusel aria-label="Lugares en el mapa">${ls.map(tarjeta)}</div>
+            <div class="v3-carrusel" data-v3-carrusel role="group" aria-label="Lugares en el mapa: desliza para ver los demás">${ls.map(tarjeta)}</div>
           </div>
           <div class="v3-hoja-cab">
             <button class="v3-asa" data-v3-alternar aria-controls="v3-cuerpo" aria-expanded="${e.hoja === 'subida' ? 'true' : 'false'}" aria-label="Subir o bajar la hoja"><i></i></button>
@@ -357,6 +358,9 @@
     return { arriba: H.m.tope, abajo: H.m.cabH + H.m.seguro + (fl ? fl.offsetHeight : 60), alto: H.m.alto };
   }
   const altoLibre = () => { const f = franja(); return (f.arriba + (f.alto - f.abajo)) / 2 / f.alto; };
+  /** Lo que tapan piezas opacas (la parte llena de la cabecera y la hoja plegada): el borde del mapa
+      puede meterse ahí, así se alcanza a ver todo Bogotá sin que aparezca espacio vacío. */
+  const tapaInicio = () => { const H = st().h; return H ? { arriba: Math.max(0, H.m.tope - 50), abajo: H.m.cabH + H.m.seguro } : {}; };
 
   function montarMapa(raiz, e) {
     const hueco = raiz.querySelector('[data-v3-mapa]');
@@ -376,7 +380,7 @@
     e.encuadrar = false;
     const ctl = DRS.explorar.crearMapa(hueco, {
       lugares: ls.map((x) => ({ id: x.c.id, pos: x.c.pos, etq: etqPin(x), promo: !!x.p.promo, nombre: x.c.nombre })),
-      sel: e.sel, yo: DRS.estado.casa.pos, vista: { s: vista.s, tx: vista.tx, ty: vista.ty }, arriba: f.arriba,
+      sel: e.sel, yo: DRS.estado.casa.pos, vista: { s: vista.s, tx: vista.tx, ty: vista.ty }, arriba: f.arriba, tapa: tapaInicio,
       alPin: (id) => elegir(id, { desdeMapa: true }),
       alMover: (v) => { st().vista = v; pintarEscala(hueco, v.s); },
     });
@@ -433,11 +437,7 @@
     e.mapa.ctl.seleccionar(id);
     H.raiz.classList.add('v3-con-sel');
     if (e.hoja === 'subida') ponerHoja('plegada', H);
-    const card = H.car && H.car.querySelector(`[data-card="${id}"]`);
-    if (card) {
-      H.car.dataset.auto = '1';
-      H.car.scrollTo({ left: card.offsetLeft - 15, behavior: antes ? 'smooth' : 'auto' });
-    }
+    if (H.cc) H.cc.ir(id, antes);          // el carrusel va a su tarjeta sin elegir las del camino
     const c = DRS.q.comercio(id);
     if (!c) return;
     const ctl = e.mapa.ctl;
@@ -510,36 +510,25 @@
   }
 
   /* ---------------- tarjetas de los lugares, sincronizadas con los pines ---------------- */
+  // Deslizar elige de inmediato la tarjeta que queda a la vista: pin resaltado y el mapa va hasta él
+  // (DRS.explorar.carrusel, el mismo del explorador). Tocar un pin lleva el carrusel a su tarjeta (elegir).
   function activarCarrusel(H) {
     const car = H.car;
     const e = st();
     if (!car) return;
-    if (e.sel) {
-      const card = car.querySelector(`[data-card="${e.sel}"]`);
-      if (card) car.scrollLeft = card.offsetLeft - 15;
-    }
-    let t = null;
-    car.addEventListener('scroll', () => {
-      clearTimeout(t);
-      t = setTimeout(() => {
+    const pos = H.raiz.querySelector('[data-v3-pos]');
+    H.cc = DRS.explorar.carrusel(car, {
+      alElegir: (id) => {
         const x = st();
         if (!x.sel || !x.mapa) return;
-        const cards = [...car.querySelectorAll('[data-card]')];
-        if (!cards.length) return;
-        let card = cards[cards.length - 1];
-        if (car.scrollLeft + car.clientWidth < car.scrollWidth - 4) {
-          const izq = car.scrollLeft + 15;
-          card = cards.reduce((m, c) => (Math.abs(c.offsetLeft - izq) < Math.abs(m.offsetLeft - izq) ? c : m), cards[0]);
-        }
-        const id = card.dataset.card;
-        delete car.dataset.auto;
-        if (id === x.sel) return;
         x.sel = id;
         x.mapa.ctl.seleccionar(id);
         const c = DRS.q.comercio(id);
-        if (c && !x.mapa.ctl.visible(c.pos, franja().abajo / franja().alto)) x.mapa.ctl.enfocar(c.pos, null, altoLibre());
-      }, 140);
-    }, { passive: true });
+        if (c) x.mapa.ctl.enfocar(c.pos, null, altoLibre());
+      },
+      alCambiar: (i, n) => { if (pos) pos.textContent = `${i + 1} / ${n}`; },
+    });
+    if (e.sel) H.cc.ir(e.sel, false);
   }
 
   /* ================================================================ buscador */
@@ -687,6 +676,8 @@
       const ctl = DRS.explorar.crearMapa(hueco, {
         lugares: ls.map((x) => ({ id: x.c.id, pos: x.c.pos, etq: etqPin(x), promo: !!x.p.promo, nombre: x.c.nombre })),
         yo: DRS.estado.casa.pos, vista: { s: vista.s, tx: vista.tx, ty: vista.ty }, arriba: b.m.arriba,
+        // cabecera llena hasta el 55 % y panel lleno salvo sus 56 px de arriba (css/v3.css): ahí el mapa puede terminar
+        tapa: () => { const m = stBv().m; return m ? { arriba: m.arriba * 0.55, abajo: Math.max(0, m.abajo - 56) } : {}; },
         alPin: (id) => {
           const bb = stBv();
           if (bb.paso !== 'listo') return;
