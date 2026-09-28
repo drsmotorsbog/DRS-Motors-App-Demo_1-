@@ -34,7 +34,7 @@
         <div class="onb-puntos">${SLIDES.map((_, i) => html`<i class="${i === s.slide ? 'on' : ''}"></i>`)}</div>
         <div class="onb-pie">
           <button class="btn btn-acero" data-a="reg-empezar">Crear cuenta</button>
-          <button class="btn btn-fantasma" data-a="reg-empezar" style="margin-top:8px">Ya tengo cuenta</button>
+          <button class="btn btn-fantasma" data-a="reg-entrar" style="margin-top:8px">Ya tengo cuenta</button>
           <p class="t11" style="text-align:center;margin-top:12px">Datos ficticios para la demo.</p>
         </div>
       </div>`;
@@ -111,7 +111,7 @@
           ${chk('runt', 'Autorizo de forma expresa consultar la información de mis vehículos (RUNT, SOAT y tecnomecánica).')}
         </div>
       </div>
-      <div class="pie-cta"><button class="btn btn-acero" ${crudo(UI.irAttrs('registro-vehiculo'))} ${crudo(listo ? '' : 'disabled')}>Continuar</button><p class="t11">${listo ? 'Puedes cambiar estas autorizaciones en tu perfil.' : 'Marca las tres autorizaciones para continuar.'}</p></div>`;
+      <div class="pie-cta"><button class="btn btn-acero" data-a="reg-datos-ok" ${crudo(listo ? '' : 'disabled')}>Continuar</button><p class="t11">${listo ? 'Puedes cambiar estas autorizaciones en tu perfil.' : 'Marca las tres autorizaciones para continuar.'}</p></div>`;
     },
   };
 
@@ -128,6 +128,7 @@
         ${s.consulta === 'nada' ? html`
           <div class="campos-2"><div class="campo"><label class="cap" for="reg-placa">Placa</label><input id="reg-placa" value="KDM484" maxlength="6" autocapitalize="characters" class="reg-placa"></div>
           <div class="campo"><label class="cap" for="reg-prop">Documento del propietario</label><input id="reg-prop" value="1020456789" inputmode="numeric"></div></div>
+          <p class="t11" style="margin:0 0 8px">En la demo, la consulta trae un vehículo de ejemplo (KDM 484), escribas la placa que escribas.</p>
           <button class="enlace" data-a="reg-manual" style="margin-top:4px">¿No aparece? Ingresa las fechas a mano ${ico('chevron')}</button>` : ''}
         ${s.consulta !== 'nada' ? html`<article class="tarjeta" style="overflow:hidden">
           <div class="veh-plano" style="position:relative">${crudo(DRS.bp.carro({ ancho: 340, dibujar: s.consulta === 'buscando' }))}${s.consulta === 'buscando' ? html`<span class="escaneo"></span>` : ''}</div>
@@ -208,12 +209,31 @@
       <div class="campo"><label class="cap" for="man-tecno">Vence la tecnomecánica</label><input id="man-tecno" type="date" value="${U.isoDia(DRS.reloj.dia(214))}"></div>
       <button class="btn btn-luz" data-a="reg-manual-ok">Guardar y continuar</button>`),
     'reg-manual-ok': () => { DRS.tel.cerrarHoja(); const s = ui(); s.consulta = 'listo'; DRS.tel.refrescar(); },
+    'reg-datos-ok': () => {
+      const s = ui();
+      const val = (id) => String((U.$('#' + id) || {}).value || '').trim();
+      s.datos = { nombre: val('reg-nombre'), apellido: val('reg-apellido'), correo: val('reg-correo') };
+      DRS.tel.ir('registro-vehiculo');
+    },
     'reg-fin': () => {
       const km = Number(String((U.$('#reg-km') || {}).value || '').replace(/\D/g, ''));
       if (km) DRS.acc.kmActualizar('v1', Math.max(km, DRS.q.vehiculo('v1').km));
+      const d = (ui().datos || {});
+      if (d.nombre || d.apellido || d.correo) {
+        DRS.cambiar((st) => {
+          if (d.nombre) st.usuario.nombre = d.nombre;
+          if (d.apellido) st.usuario.apellido = d.apellido;
+          if (d.correo) st.usuario.correo = d.correo;
+        }, { tipo: 'registro' });
+      }
       DRS.tel.ui.reg = null;
       DRS.tel.tabIr('inicio');
-      setTimeout(() => DRS.tel.tostada('Listo, Andrés. Tu Mazda 2 ya está en tu garaje'), 500);
+      setTimeout(() => DRS.tel.tostada(`Listo, ${DRS.q.usuario().nombre}. Tu ${UI.modeloCorto(DRS.q.vehiculo('v1'))} ya está en tu garaje`), 500);
+    },
+    'reg-entrar': () => {
+      DRS.tel.ui.reg = null;
+      DRS.tel.tabIr('inicio');
+      setTimeout(() => DRS.tel.tostada(`Hola de nuevo, ${DRS.q.usuario().nombre} · cuenta de ejemplo`), 500);
     },
   });
 })();

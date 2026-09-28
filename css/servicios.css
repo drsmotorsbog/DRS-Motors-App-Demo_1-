@@ -32,10 +32,13 @@
 .sello-unicornio{color:var(--txt-1)}
 
 /* ---------------------------------------------------------------- WhatsApp simulado */
-.wa{display:flex;flex-direction:column;height:100%;background:var(--sup-1)}
+.wa{display:flex;flex-direction:column;height:calc(100% - var(--teclado, 0px));background:var(--sup-1)}   /* con teclado, el campo queda justo encima */
 .wa-cab{flex:none;gap:10px}
 .wa-avatar{display:grid;place-items:center;width:36px;height:36px;flex:none;background:var(--sup-2);border:1px solid var(--linea)}
 .wa-avatar svg{display:block;width:24px;height:24px}
+/* La foto de perfil de DRS en WhatsApp es su ícono de app, oscuro en los dos temas: sobre panel
+   claro, el monograma para fondo oscuro desaparecía y solo quedaba el flap */
+[data-modo="documento"] .wa-avatar{background:var(--txt-1);border-color:var(--txt-1)}
 .wa-quien{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .wa-nombre{display:flex;align-items:center;gap:5px;font:700 var(--fs-13)/1.2 var(--f-body);color:var(--txt-1)}
 .wa-nombre .ico{width:14px;height:14px;color:var(--acc-txt)}
@@ -62,6 +65,7 @@
 .wa-msg.wa-ellos{align-self:flex-start;background:var(--sup-2)}
 .wa-msg.wa-yo{align-self:flex-end;background:color-mix(in srgb, var(--acc-graf) 14%, var(--sup-2));border-color:color-mix(in srgb, var(--acc-graf) 40%, var(--linea))}
 .wa-meta{display:flex;justify-content:flex-end;align-items:center;gap:4px;margin-top:3px;font-size:var(--fs-9);line-height:1;color:var(--txt-3);font-variant-numeric:tabular-nums}
+[data-modo="documento"] .wa-msg.wa-yo .wa-meta{color:var(--txt-2)}   /* sobre la burbuja teñida de azul, txt-3 daba 4,1:1 */
 .wa-checks{display:inline-flex;color:var(--txt-3);transition:color .2s}
 .wa-checks .ico{width:13px;height:13px;stroke-width:2.5px}
 .wa-checks .ico+.ico{margin-left:-8px}
@@ -73,11 +77,11 @@
 .wa-escribe i:nth-child(2){animation-delay:.15s}
 .wa-escribe i:nth-child(3){animation-delay:.3s}
 @keyframes wa-punto{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
-.wa-pie{flex:none;display:flex;align-items:flex-end;gap:8px;padding:10px 12px 30px;background:var(--sup-1);border-top:1px solid var(--linea)}
-.wa-txt{flex:1;min-width:0;height:44px;min-height:44px;max-height:104px;padding:11px 12px;resize:none;overflow-y:auto;
-  background:var(--sup-3);border:1px solid var(--n-4);color:var(--txt-1);font-size:var(--fs-13);line-height:1.5;scrollbar-width:none}
+.wa-pie{flex:none;display:flex;align-items:flex-end;gap:8px;padding:10px 12px max(10px, calc(30px - var(--teclado, 0px)));background:var(--sup-1);border-top:1px solid var(--linea)}
+.wa-txt{flex:1;min-width:0;height:44px;min-height:44px;max-height:104px;padding:9px 12px;resize:none;overflow-y:auto;
+  background:var(--sup-3);border:1px solid var(--n-4);color:var(--txt-1);font-size:var(--fs-16);line-height:1.5;scrollbar-width:none}
 .wa-txt::placeholder{color:var(--txt-3)}
-.wa-txt:focus{outline:none;border-color:var(--acc-graf)}
+.wa-txt:focus{outline:2px solid var(--acc-txt);outline-offset:-1px;border-color:var(--acc-graf)}
 .wa-enviar{flex:none;display:grid;place-items:center;width:44px;height:44px;background:var(--acc-1);color:var(--txt-acc)}
 .wa-enviar:hover{filter:brightness(1.12)}
 .wa-enviar .ico{width:20px;height:20px}
@@ -123,7 +127,7 @@
 .inf-reg{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
 /* Estado general de la vista previa */
-.inf-hallazgos{display:grid;grid-template-columns:repeat(3,1fr)}
+.inf-hallazgos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .inf-hallazgos>div{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 12px;border-right:1px solid var(--linea)}
 .inf-hallazgos>div:last-child{border-right:0}
 .inf-hallazgos .cap{line-height:1.35}
@@ -145,7 +149,7 @@
 .inf-pagado{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
 .inf-banda{margin-top:4px}
 .inf-banda .t13{margin-top:4px}
-.inf-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inf-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .inf-tile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px 12px 13px;min-height:132px}
 .inf-tile .etq{font-size:var(--fs-9);letter-spacing:.2em;color:var(--txt-3)}
 .inf-tile .d{margin-top:2px}
@@ -162,6 +166,9 @@
 .inf-tl text{font-family:var(--f-label);font-weight:600;font-size:9px;letter-spacing:.12em;fill:var(--txt-3)}
 .inf-tl .tl-ano{letter-spacing:.04em}
 .inf-tl .tl-p{fill:var(--sup-1);font-weight:700;letter-spacing:.1em}
+/* En documento, Platino sobre ser-4 da 4,2:1: el rótulo lleva un halo de ser-2 (10:1 con el
+   texto) para que se lea contra su propio borde, como las etiquetas del mapa (6.9) */
+[data-modo="documento"] .inf-tl rect[style*="--ser-4"] + .tl-p{paint-order:stroke;stroke:var(--ser-2);stroke-width:2px;stroke-linejoin:miter;stroke-miterlimit:1}
 .inf-tl .tl-nada{font-weight:500;letter-spacing:.02em}
 .inf-tl .tl-hoy-t{fill:var(--txt-1)}
 .inf-tl .tl-rej{stroke:var(--linea);stroke-width:1}
@@ -198,7 +205,7 @@
 .inf-leyenda .lg-banda{border:1px solid var(--ser-3);background-image:repeating-linear-gradient(135deg, var(--ser-4) 0 1px, transparent 1px 4px)}
 
 /* Estudio de mercado */
-.inf-rango{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.inf-rango{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .inf-rango>div{display:flex;flex-direction:column;gap:6px}
 .inf-graf{display:block;width:100%;height:auto;margin-top:14px;overflow:visible}
 .inf-graf text{font-family:var(--f-label);font-weight:600;font-size:9px;letter-spacing:.04em;fill:var(--txt-3)}

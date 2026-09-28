@@ -1,1 +1,303 @@
-/* Demo 3 · en construcción: se publica cuando esté lista. */
+/* =============================================================================
+   DRS MOTORS · APP — DEMO 3 · «MAPA» (js/variantes/v3.js)
+   Bogotá es la pantalla principal: el mapa a todo el celular, la cabecera con el
+   buscador y las fichas, y una hoja que sube y baja. Radio 0, color solo por rol,
+   tamaños solo de la escala. Azul Acero: un solo elemento por pantalla (en la
+   bienvenida, el botón principal; en el mapa no hay: lo elegido usa --sel-*).
+   Dentro de la hoja (sup-2) todo lo azul es --acc-graf / --acc-txt (bloqueo 2).
+   Las piezas comunes que se tocan van bajo .tel.var-v3.
+============================================================================= */
+
+.tel.var-v3 .pantalla[data-ruta="v3-inicio"],
+.tel.var-v3 .pantalla[data-ruta="v3-bienvenida"]{overflow:hidden}
+.v3-inicio,.v3-bv{position:absolute;inset:0;overflow:hidden;background:var(--sup-2)}
+.v3-sonda{position:absolute;left:0;bottom:0;width:0;height:0;padding-bottom:env(safe-area-inset-bottom, 0px);pointer-events:none;visibility:hidden}
+.v3-linea{display:block}
+
+/* ---------------------------------------------------------------- pines con el tipo */
+.tel.var-v3 .mapa-pin>span{gap:5px;padding-left:6px}
+.tel.var-v3 .mapa-pin>span::before{content:"";position:absolute;inset:-9px -5px}   /* área táctil de 44 px */
+.v3-pin-ico{width:14px;height:14px;flex:none;stroke-width:2.2px}
+.tel.var-v3 .mapa-pin.sel>span .v3-pin-ico{color:inherit}
+.tel.var-v3 .mapa-pin:not(.sel)>span .v3-pin-ico{color:var(--acc-graf)}
+.v3-aparece .mapa-pin>span{animation:v3-pin .42s var(--ease) both;animation-delay:calc(var(--v3-i, 0) * 45ms + 120ms)}
+@keyframes v3-pin{from{opacity:0;translate:0 10px}}
+
+/* ---------------------------------------------------------------- cabecera del mapa */
+.v3-cab{
+  position:absolute;left:0;right:0;top:0;z-index:7;display:flex;flex-direction:column;gap:8px;padding:6px 15px 6px;
+  background:linear-gradient(var(--sup-1) 0, var(--sup-1) calc(100% - 50px), color-mix(in srgb, var(--sup-1) 0%, transparent) 100%);
+  pointer-events:none;
+}
+.v3-cab>*{pointer-events:auto}
+.v3-cab-fila{display:flex;align-items:center;gap:8px;height:44px}
+.v3-logo{display:block;width:104px;height:44px;padding:10px 0;margin-right:auto;color:var(--txt-1)}
+.v3-logo .logo-dual{height:24px}
+.v3-placa{
+  display:flex;align-items:center;gap:6px;height:44px;padding:0 10px 0 9px;
+  border:1px solid var(--txt-2);background:var(--sup-1);color:var(--txt-1);
+}
+.v3-placa .ico{width:16px;height:16px;color:var(--txt-2)}
+.v3-placa .ico.s-flecha{width:12px;height:12px}
+.v3-perfil{display:grid;place-items:center;width:44px;height:44px;margin-right:-5px}
+.v3-perfil .avatar{width:34px;height:34px}
+.v3-buscar{
+  display:flex;align-items:center;gap:12px;width:100%;height:48px;padding:0 14px;
+  background:var(--sup-2);border:1px solid var(--n-4);color:var(--txt-2);
+  font:500 var(--fs-16)/1 var(--f-body);text-align:left;
+}
+.v3-buscar .ico{width:20px;height:20px;color:var(--txt-1)}
+.v3-chips{display:flex;align-items:center;gap:6px;margin:0 -15px;padding:0 15px 2px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+.v3-chips::-webkit-scrollbar{display:none}
+.v3-chip{
+  flex:none;display:flex;align-items:center;gap:7px;height:44px;padding:0 13px;
+  background:var(--sup-1);border:1px solid var(--n-4);color:var(--txt-1);
+  font:700 var(--fs-11)/1 var(--f-label);letter-spacing:.12em;text-transform:uppercase;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.v3-chip .ico{width:16px;height:16px}
+.v3-chip[aria-pressed="true"]{background:var(--sel-fondo);border-color:var(--sel-fondo);color:var(--sel-txt)}
+.v3-chip-flujo{color:var(--txt-2)}
+.v3-chip-flujo .ico:first-child{color:var(--txt-1)}
+.v3-chip .v3-chip-ir{width:12px;height:12px;margin-left:-2px;color:var(--txt-3)}
+.v3-chips-sep{flex:none;width:1px;height:24px;margin:0 4px;background:var(--n-4)}
+
+/* ---------------------------------------------------------------- la hoja */
+.v3-hoja{
+  position:absolute;left:0;right:0;bottom:0;top:var(--v3-tope, 170px);z-index:8;
+  display:flex;flex-direction:column;background:var(--sup-2);border-top:1px solid var(--n-4);
+  box-shadow:0 -20px 40px -28px var(--sombra);
+  transition:transform .34s var(--ease);will-change:transform;
+}
+.v3-hoja.v3-arrastrando{transition:none}
+.v3-entrada .v3-hoja{animation:v3-sube .55s var(--ease) both}
+@keyframes v3-sube{from{translate:0 100%}}
+.v3-hoja-cab{flex:none;padding:0 15px 12px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.v3-arrastrando .v3-hoja-cab{cursor:grabbing}
+.v3-asa{display:grid;place-items:center;width:100%;height:22px}
+.v3-asa i{display:block;width:40px;height:4px;background:var(--n-4)}
+.v3-hoja-tit{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;text-align:left}
+.v3-tit-txt{min-width:0}
+.v3-hoja-tit .ceja{display:block;font-size:var(--fs-9)}
+.v3-tit-linea{display:flex;align-items:baseline;gap:8px;margin-top:5px;font-size:var(--fs-13);color:var(--txt-2);white-space:nowrap}
+.v3-tit-linea .d{color:var(--txt-1)}
+.v3-tit-linea b.t-1{font-weight:600}
+.v3-tit-ico{display:grid;place-items:center;flex:none;width:44px;height:44px;border:1px solid var(--linea);color:var(--txt-1)}
+.v3-tit-ico .ico{width:18px;height:18px;transform:rotate(180deg);transition:transform .3s var(--ease)}
+.v3-inicio[data-hoja="subida"] .v3-tit-ico .ico{transform:none}
+
+/* Estado del carro en una línea: el color va siempre con su glifo */
+.v3-estado{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.v3-est{
+  position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;min-height:56px;
+  padding:9px 10px 8px;background:var(--sup-1);border:1px solid var(--linea);text-align:left;
+}
+.v3-est-top{display:flex;align-items:center;gap:6px;min-width:0}
+.v3-est-top .cap{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.1em}
+.v3-est-glifo{display:grid;place-items:center;flex:none;width:16px;height:16px;border:1px solid currentColor}
+.v3-est-glifo .ico{width:10px;height:10px;stroke-width:3px}
+.v3-est b{color:var(--txt-1);white-space:nowrap;line-height:1}
+.v3-est[data-e="pos"] .v3-est-glifo{color:var(--pos)}
+.v3-est[data-e="warn"] .v3-est-glifo{color:var(--warn)}
+.v3-est[data-e="neg"] .v3-est-glifo{color:var(--neg)}
+.v3-est[data-e="warn"],.v3-est[data-e="neg"]{border-color:color-mix(in srgb, var(--warn) 55%, var(--linea))}
+.v3-est[data-e="neg"]{border-color:color-mix(in srgb, var(--neg) 55%, var(--linea))}
+.v3-est[data-e="warn"]::after,.v3-est[data-e="neg"]::after{content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:3px;background:var(--warn)}
+.v3-est[data-e="neg"]::after{background:var(--neg)}
+
+/* Reserva activa */
+.v3-activa{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;min-height:52px;margin-top:6px;
+  padding:8px 10px 8px 13px;background:var(--sup-1);border:1px solid var(--linea);border-left:3px solid var(--acc-graf);text-align:left;
+}
+.v3-activa-txt{min-width:0}
+.v3-activa .ceja{display:block;font-size:var(--fs-9);letter-spacing:.2em;color:var(--acc-txt)}
+.v3-activa .t13{display:block;margin-top:3px;color:var(--txt-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v3-activa>.ico{width:16px;height:16px;color:var(--txt-3)}
+.v3-activa.listo{border-left-color:var(--pos)}
+.v3-activa.listo .ceja{color:var(--pos)}
+.v3-activa-ok{display:grid;place-items:center;width:18px;height:18px;border:1px solid var(--pos);color:var(--pos)}
+.v3-activa-ok .ico{width:12px;height:12px;stroke-width:3px}
+
+/* Cuerpo: se ve al subir la hoja */
+.v3-hoja-cuerpo{
+  flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  padding:14px 15px calc(30px + env(safe-area-inset-bottom, 0px));border-top:1px solid var(--linea);scrollbar-width:none;
+  transition:opacity .2s var(--ease);
+}
+.v3-hoja-cuerpo::-webkit-scrollbar{display:none}
+.v3-inicio[data-hoja="plegada"]:not(.v3-arrastrando) .v3-hoja-cuerpo{visibility:hidden;opacity:0}
+.v3-orden{display:flex;gap:6px;margin:0 -15px 12px;padding:0 15px;overflow-x:auto;scrollbar-width:none}
+.v3-orden::-webkit-scrollbar{display:none}
+.v3-orden-b{
+  flex:none;display:flex;align-items:center;gap:6px;height:44px;padding:0 12px;border:1px solid var(--n-4);
+  font:700 var(--fs-9)/1 var(--f-label);letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2);
+}
+.v3-orden-b .ico{width:14px;height:14px}
+.v3-orden-b[aria-pressed="true"]{background:var(--txt-1);border-color:var(--txt-1);color:var(--sup-1)}
+
+.v3-extra{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.v3-cta{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;min-height:60px;padding:10px 12px;
+  background:var(--sup-1);border:1px solid var(--linea);text-align:left;
+}
+.v3-cta-ico{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--linea);color:var(--acc-graf)}
+.v3-cta-ico .ico{width:20px;height:20px}
+.v3-cta-txt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.v3-cta-txt b{font:600 var(--fs-13)/1.3 var(--f-body);color:var(--txt-1)}
+.v3-cta>.ico{width:16px;height:16px;color:var(--txt-3)}
+.v3-cta.v3-e-pos .v3-cta-ico{color:var(--pos);border-color:var(--pos)}
+.v3-cta.v3-e-warn .v3-cta-ico{color:var(--warn);border-color:var(--warn)}
+.v3-cta.v3-e-neg .v3-cta-ico{color:var(--neg);border-color:var(--neg)}
+
+.v3-lista{border-top:1px solid var(--linea)}
+.v3-fila{display:grid;grid-template-columns:1fr 44px;align-items:center;gap:6px;border-bottom:1px solid var(--linea)}
+.v3-fila-main{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:12px;min-width:0;padding:12px 4px 12px 0;text-align:left}
+.v3-fila-ico{display:grid;place-items:center;width:40px;height:40px;background:var(--sup-1);border:1px solid var(--linea);color:var(--txt-1)}
+.v3-fila-ico .ico{width:20px;height:20px}
+.v3-fila-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+.v3-fila-info .d{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v3-fila-precio{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
+.v3-fila-precio .chip{height:18px;padding:0 5px;font-size:var(--fs-9);letter-spacing:.1em}
+.v3-fila-precio .chip .ico{width:11px;height:11px}
+.v3-fila-mapa{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--linea);color:var(--acc-graf)}
+.v3-fila-mapa .ico{width:20px;height:20px}
+.v3-vacio{padding:16px 0}
+
+.v3-bloque{margin-top:24px}
+.v3-bloque>.ceja{margin-bottom:10px}
+.v3-accesos{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.v3-acceso{
+  display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:96px;padding:12px;
+  background:var(--sup-1);border:1px solid var(--linea);text-align:left;
+}
+.v3-acceso-ico{position:relative;display:block;margin-bottom:auto;padding-bottom:10px;color:var(--txt-1)}
+.v3-acceso-ico .ico{width:22px;height:22px}
+.v3-acceso .badge{top:-6px;right:-14px}
+.v3-acceso-t{font:600 var(--fs-13)/1.3 var(--f-body);color:var(--txt-1)}
+.v3-fila-fin{display:flex;align-items:center;gap:6px}
+.v3-hoja-cuerpo .fila .ico.s16{color:var(--txt-3)}
+.v3-nota{margin-top:18px;text-align:center}
+
+/* ---------------------------------------------------------------- sobre la hoja: escala, ubicación y tarjetas */
+.v3-flota{
+  position:absolute;left:0;right:0;bottom:100%;display:flex;flex-direction:column;gap:8px;padding-bottom:10px;
+  pointer-events:none;transition:opacity .2s var(--ease), visibility .2s;
+}
+.v3-inicio[data-hoja="subida"] .v3-flota,.v3-inicio.v3-arrastrando .v3-flota{opacity:0;visibility:hidden}
+.v3-flota-fila{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:0 15px}
+.v3-escala{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:6px 8px;background:color-mix(in srgb, var(--sup-1) 82%, transparent)}
+.v3-escala i{display:block;height:6px;border:1px solid var(--txt-1);border-top:0;transition:width .12s linear}
+.v3-escala .cap{color:var(--txt-1);letter-spacing:.14em}
+.v3-yo{display:grid;place-items:center;width:44px;height:44px;background:var(--sup-1);border:1px solid var(--n-4);color:var(--acc-graf);pointer-events:auto}
+.v3-yo .ico{width:20px;height:20px}
+.v3-carrusel{
+  display:none;gap:8px;padding:0 15px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:15px;
+  scrollbar-width:none;overscroll-behavior-x:contain;pointer-events:auto;
+}
+.v3-carrusel::-webkit-scrollbar{display:none}
+.v3-con-sel .v3-carrusel{display:flex}
+.v3-card{
+  flex:none;display:grid;grid-template-columns:78px 1fr 16px;align-items:center;gap:12px;width:calc(100% - 44px);max-width:340px;
+  padding:10px;background:var(--sup-2);border:1px solid var(--n-4);text-align:left;scroll-snap-align:start;
+  box-shadow:0 16px 30px -20px var(--sombra);
+}
+.v3-card:last-child{margin-right:15px}
+.v3-card-plano{position:relative;display:block;height:78px;background:var(--sup-1);border:1px solid var(--linea)}
+.v3-card-plano svg{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px)}
+.v3-card-plano .chip{position:absolute;left:-1px;top:-1px;height:18px;padding:0 5px;font-size:var(--fs-9);letter-spacing:.08em;background:var(--sup-2)}
+.v3-card-info{display:flex;flex-direction:column;gap:4px;min-width:0}
+.v3-card-info .ceja{font-size:var(--fs-9)}
+.v3-card-nom{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v3-card-precio{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 6px;margin-top:2px}
+.v3-card-ir .ico{width:16px;height:16px;color:var(--txt-3)}
+
+/* ---------------------------------------------------------------- buscador */
+.v3-bus{min-height:100%;background:var(--sup-1)}
+.v3-bus-cab{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:6px;padding:8px 15px 10px 5px;background:var(--sup-1);border-bottom:1px solid var(--linea)}
+.v3-bus-atras{display:grid;place-items:center;flex:none;width:44px;height:44px;color:var(--txt-1)}
+.v3-bus-campo{flex:1;display:flex;align-items:center;gap:10px;min-width:0;height:48px;padding:0 12px;background:var(--sup-2);border:1px solid var(--n-4)}
+.v3-bus-campo:focus-within{border-color:var(--acc-graf)}
+.v3-bus-campo .ico{width:20px;height:20px;color:var(--txt-1)}
+.v3-bus-campo input{flex:1;min-width:0;height:100%;padding:0;border:0;background:transparent;font:500 var(--fs-16)/1.2 var(--f-body);color:var(--txt-1);outline:none;-webkit-appearance:none;appearance:none}
+.v3-bus-campo input::placeholder{color:var(--txt-3)}
+.v3-bus-res{padding:4px 15px calc(40px + env(safe-area-inset-bottom, 0px))}
+.v3-bus-grupo{margin-top:20px}
+.v3-bus-grupo>.ceja{margin-bottom:8px}
+.v3-bus-grupo .fila>.ico{width:16px;height:16px;color:var(--txt-3)}
+.v3-bus-vacio{padding:28px 0;max-width:34ch}
+
+/* ---------------------------------------------------------------- bienvenida */
+.v3-bv-cab{
+  position:absolute;left:0;right:0;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:6px 15px 18px;background:linear-gradient(var(--sup-1) 55%, color-mix(in srgb, var(--sup-1) 0%, transparent));pointer-events:none;
+}
+.v3-bv-cab>*{pointer-events:auto}
+.v3-bv-lugar{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--linea);background:var(--sup-1);color:var(--txt-2)}
+.v3-bv-lugar .ico{width:14px;height:14px;color:var(--acc-graf)}
+.v3-bv-panel{
+  position:absolute;left:0;right:0;bottom:0;z-index:6;padding:56px 15px calc(22px + env(safe-area-inset-bottom, 0px));
+  background:linear-gradient(to top, var(--sup-1) calc(100% - 56px), color-mix(in srgb, var(--sup-1) 0%, transparent));
+}
+.v3-bv-panel h1{margin:10px 0 12px;max-width:14ch}
+.v3-bv-panel .t16{margin:0 0 18px;max-width:36ch}
+.v3-bv-panel .btn+.btn{margin-top:8px}
+.v3-bv-nota{margin-top:12px;text-align:center}
+.v3-bv-proceso{margin:6px 0 4px}
+.v3-bv-elegido{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;margin:0 0 18px;padding:12px;background:var(--sup-2);border:1px solid var(--linea);border-left:3px solid var(--sel-fondo)}
+.v3-bv-elegido-ico{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--linea);color:var(--txt-1)}
+.v3-bv-elegido-ico .ico{width:20px;height:20px}
+.v3-bv-elegido .ceja{display:block;font-size:var(--fs-9)}
+.v3-bv-elegido .d{margin:5px 0 3px}
+.v3-bv-panel>*{animation:v3-panel .4s var(--ease) both}
+.v3-bv-panel>:nth-child(2){animation-delay:40ms}
+.v3-bv-panel>:nth-child(3){animation-delay:80ms}
+.v3-bv-panel>:nth-child(n+4){animation-delay:120ms}
+@keyframes v3-panel{from{opacity:0;translate:0 8px}}
+
+/* Antes de ubicarte, el mapa es solo la ciudad: sin pines ni casa, y sin las etiquetas menudas */
+.v3-bv-mapa .mapa-pin{visibility:hidden}
+.v3-bv-mapa:not(.v3-ubicado) .mapa-yo{visibility:hidden}
+.v3-bv-mapa.v3-precios .mapa-pin{visibility:visible}
+.v3-bv-mapa.v3-precios:not(.v3-quietos) .mapa-pin>span{animation:v3-pin .45s var(--ease) both;animation-delay:calc(var(--v3-i, 0) * 70ms + 200ms)}
+.v3-bv[data-paso="inicio"] .mapa-base .m-e-bar,
+.v3-bv[data-paso="inicio"] .mapa-base .m-e-art,
+.v3-bv[data-paso="inicio"] .mapa-base .m-e-lug,
+.v3-bv[data-paso="inicio"] .mapa-base .m-e-agua{opacity:0}
+.v3-bv[data-paso="ubicando"] .mapa-yo::before,
+.v3-bv[data-paso="ubicando"] .mapa-yo::after{
+  content:"";position:absolute;left:-44px;top:-44px;width:88px;height:88px;border:1px solid var(--acc-graf);
+  animation:v3-radar 1.4s var(--ease) infinite;
+}
+.v3-bv[data-paso="ubicando"] .mapa-yo::after{animation-delay:.7s}
+@keyframes v3-radar{from{transform:scale(.15);opacity:1}to{transform:scale(1.5);opacity:0}}
+
+/* Hoja de la dirección escrita */
+.v3-hoja-dir .v3-hoja-h{margin-top:8px}
+.v3-hoja-dir .opcion>.ico:last-child{width:16px;height:16px;color:var(--txt-3)}
+.v3-hoja-dir .btn{margin-top:6px}
+
+/* ---------------------------------------------------------------- pantallas bajas (iPhone SE, 667 pt) */
+@media (max-height: 740px){
+  .v3-cab{gap:6px}
+  .v3-buscar{height:44px}
+  .v3-asa{height:16px}
+  .v3-hoja-tit{min-height:44px}
+  .v3-tit-linea{margin-top:3px}
+  .v3-estado{margin-top:6px}
+  .v3-est{min-height:48px;gap:4px;padding:7px 9px 6px}
+  .v3-activa{min-height:46px;padding-top:5px;padding-bottom:5px}
+  .v3-bv-panel{padding-top:44px}
+  .v3-bv-panel h1{font-size:var(--fs-34);margin:8px 0 10px}
+  .v3-bv-panel .t16{font-size:var(--fs-13);margin-bottom:14px}
+  .v3-bv-elegido{margin-bottom:14px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .v3-hoja{transition:none}
+  .v3-aparece .mapa-pin>span,.v3-bv-mapa.v3-precios .mapa-pin>span,.v3-bv-panel>*,.v3-entrada .v3-hoja{animation:none}
+}
+
+/* Las tostadas comunes salen abajo y taparían la hoja plegada: en esta demo aparecen arriba, bajo las fichas */
+.tel.var-v3 .tostada{bottom:auto;top:150px;transform:translateY(-12px)}
+.tel.var-v3 .tostada.ver{transform:none}

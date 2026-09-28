@@ -34,11 +34,12 @@
 .mapa-base .m-verde{stroke:var(--linea);stroke-width:calc(.8px / var(--mapa-kv))}
 .mapa-base .m-pv-f{fill:var(--sup-2)}
 .mapa-base .m-pv-p{fill:var(--n-4)}
-.mapa-base .m-agua{fill:var(--acc-1);fill-opacity:.25;stroke:var(--acc-1);stroke-opacity:.5;stroke-width:calc(.8px / var(--mapa-kv))}
-.mapa-base .m-rio{fill:none;stroke:var(--acc-1);stroke-opacity:.5;stroke-width:calc(3px / var(--mapa-kv))}
+/* El agua va sobre panel (sup-2): nunca Azul Acero (bloqueo 2). El azul gráfico del modo, muy tenue */
+.mapa-base .m-agua{fill:var(--acc-graf);fill-opacity:.16;stroke:var(--acc-graf);stroke-opacity:.35;stroke-width:calc(.8px / var(--mapa-kv))}
+.mapa-base .m-rio{fill:none;stroke:var(--acc-graf);stroke-opacity:.35;stroke-width:calc(3px / var(--mapa-kv))}
 .mapa-base .m-rio-b{stroke-width:calc(5px / var(--mapa-kv))}
-.mapa-base .m-canal{fill:none;stroke:var(--acc-1);stroke-opacity:.5;stroke-width:calc(1.4px / var(--mapa-kv))}
-.mapa-base .m-queb{fill:none;stroke:var(--acc-1);stroke-opacity:.4;stroke-width:calc(1px / var(--mapa-kv))}
+.mapa-base .m-canal{fill:none;stroke:var(--acc-graf);stroke-opacity:.35;stroke-width:calc(1.4px / var(--mapa-kv))}
+.mapa-base .m-queb{fill:none;stroke:var(--acc-graf);stroke-opacity:.28;stroke-width:calc(1px / var(--mapa-kv))}
 
 /* ------------------------------------------------------------ equipamientos */
 .mapa-base .m-aero{stroke:var(--n-4);stroke-width:calc(.8px / var(--mapa-kv))}

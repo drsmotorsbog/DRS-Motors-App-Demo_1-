@@ -214,6 +214,8 @@
   DRS.extenderSemilla((estado) => {
     estado.informes = estado.informes || [];
     if (!estado.informes.length) estado.informes.push({ id: 'INF-2291', placa: 'NBQ84E', d: -23, h: '20:14', ref: 'DRS-P318204', medio: 'Nequi', total: PRECIO });
+    estado.pagos = estado.pagos || [];
+    if (!estado.pagos.some((x) => x.rel === 'INF-2291')) estado.pagos.push({ id: 'p-inf-2291', d: -23, h: '20:14', concepto: 'Informe vehicular · NBQ 84E', ref: 'DRS-P318204', medio: 'Nequi', total: PRECIO, tipo: 'informe', rel: 'INF-2291' });
   });
 
   /* ================= 1 · Entrada: la placa ================= */
@@ -435,7 +437,9 @@
       alPagar: (medio, ref) => {
         DRS.cambiar((s) => {
           s.informes = s.informes || [];
-          s.informes.unshift({ id: `INF-${String(Date.now()).slice(-4)}`, placa, d: 0, h: horaAhora(), ref, medio: MEDIO[medio] || medio, total: PRECIO });
+          const id = `INF-${String(Date.now()).slice(-4)}`;
+          s.informes.unshift({ id, placa, d: 0, h: horaAhora(), ref, medio: MEDIO[medio] || medio, total: PRECIO });
+          (s.pagos = s.pagos || []).unshift({ id: `p${Date.now()}`, d: 0, h: horaAhora(), concepto: `Informe vehicular · ${placaTxt(placa)}`, ref, medio: MEDIO[medio] || medio, total: PRECIO, tipo: 'informe', rel: id });
         }, { tipo: 'informe', placa });
         DRS.tel.ir('informe-ver', { placa, nuevo: true });
         setTimeout(() => DRS.tel.tostada('Informe desbloqueado · quedó guardado en tu cuenta'), 400);

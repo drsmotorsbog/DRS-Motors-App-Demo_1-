@@ -24,7 +24,7 @@
 
   /* ---------------- ¿abierta como app instalada? ---------------- */
   demo.instalada = () => !!(window.navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches));
-  demo.enTelefono = () => !!(window.matchMedia && window.matchMedia('(max-width: 759px), (display-mode: standalone)').matches);
+  demo.enTelefono = () => !!(window.matchMedia && window.matchMedia('(max-width: 759px), (display-mode: standalone), (pointer: coarse) and (max-height: 500px)').matches);   // la misma condición de css/movil.css
   const esIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   let promptInstalar = null;                         // Android/Chrome ofrece su propio botón de instalar
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); promptInstalar = e; });
@@ -42,6 +42,9 @@
     DRS.tel.tabIr(v.bienvenida);
     try { history.replaceState(null, '', `?demo=${v.numero}`); } catch (e) { /* file:// */ }
     demo.pintarLado();
+    // Mientras se ve la bienvenida, se prepara el mapa de Bogotá
+    const ocio = window.requestIdleCallback || ((fn) => setTimeout(fn, 900));
+    ocio(() => { if (DRS.explorar && DRS.explorar.precalentar) DRS.explorar.precalentar(); });
   };
   demo.lanzador = function () {
     DRS.tel.cerrarHoja(true);

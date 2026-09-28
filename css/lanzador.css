@@ -53,7 +53,7 @@
 /* ---------------- opciones de la demo (hoja en el celular y panel en computador) ---------------- */
 .dm-grupo{display:flex;flex-direction:column;gap:8px}
 .hoja-demo .dm-grupo{margin-bottom:20px}
-.dm-demos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.dm-demos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .dm-demo{
   display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:64px;padding:10px;
   border:1px solid var(--linea);background:var(--sup-3);

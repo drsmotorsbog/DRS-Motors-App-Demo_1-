@@ -100,6 +100,69 @@
     document.documentElement.style.setProperty('--k', k.toFixed(4));
   }
 
+  /* ---------------- teclado del celular ----------------
+     En iOS (y en Chrome de Android) el teclado no achica la página: tapa la parte de abajo de
+     la vista visual. Se mide con visualViewport y se pasa a --teclado en .tel; .hoja, .pie-cta
+     y .pantalla lo usan (css/app.css) para que el campo y el botón de la hoja queden encima. */
+  const CAMPO = 'input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]), textarea, select, [contenteditable="true"]';
+  let tapaAntes = 0;
+  function campoActivo() {
+    const f = document.activeElement;
+    const tel = U.$('#tel');
+    return f && tel && f.matches && f.matches(CAMPO) && tel.contains(f) ? f : null;
+  }
+  function medirTeclado() {
+    const tel = U.$('#tel');
+    const vv = window.visualViewport;
+    if (!tel) return;
+    let tapa = 0;
+    // Solo con la app a pantalla completa, un campo enfocado y sin zoom (el pellizco también achica la vista visual)
+    if (vv && DRS.demo.enTelefono() && campoActivo() && Math.abs(vv.scale - 1) < 0.02) {
+      tapa = Math.round(window.innerHeight - vv.height - vv.offsetTop);
+      if (tapa < 80) tapa = 0;                     // barras del navegador o redondeos: un teclado mide más
+    }
+    if (tapa === tapaAntes) return;
+    tel.style.setProperty('--teclado', `${tapa}px`);
+    tel.classList.toggle('con-teclado', tapa > 0);
+    if (!tapa && (window.scrollX || window.scrollY)) window.scrollTo(0, 0);   // iOS deja la página corrida al cerrar el teclado
+    tapaAntes = tapa;
+    if (tapa) setTimeout(asomar, 30);
+  }
+  /** Con el teclado abierto: el campo enfocado a la vista y, en una hoja, también el botón que le sigue. */
+  function asomar() {
+    const f = campoActivo();
+    if (!f) return;
+    const cont = f.closest('.hoja, .pantalla');
+    if (!cont) return;
+    const vv = window.visualViewport;
+    const rc = cont.getBoundingClientRect();
+    let arriba = Math.max(rc.top, vv ? vv.offsetTop : 0) + 8;
+    let abajo = Math.min(rc.bottom, vv ? vv.offsetTop + vv.height : window.innerHeight) - 8;
+    if (cont.classList.contains('pantalla')) {
+      const cab = U.$('.cab, .exp-cab', cont);
+      if (cab) arriba = Math.max(arriba, cab.getBoundingClientRect().bottom + 8);
+      const pie = U.$('.pie-cta', cont);
+      if (pie) abajo = Math.min(abajo, pie.getBoundingClientRect().top - 8);
+    }
+    const rf = f.getBoundingClientRect();
+    let d = rf.bottom > abajo ? rf.bottom - abajo : rf.top < arriba ? rf.top - arriba : 0;
+    if (cont.classList.contains('hoja')) {
+      const siguen = U.$$('.btn', cont).filter((b) => f.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const btn = siguen.find((b) => b.matches('.btn-luz, .btn-acero')) || siguen[0];     // el botón principal de la hoja
+      if (btn) {
+        const extra = btn.getBoundingClientRect().bottom - d - abajo;
+        if (extra > 0) d += Math.min(extra, Math.max(0, rf.top - d - arriba));   // sin sacar el campo por arriba
+      }
+    }
+    if (d) cont.scrollTop += d;
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', medirTeclado);
+    window.visualViewport.addEventListener('scroll', medirTeclado);
+  }
+  document.addEventListener('focusin', () => setTimeout(medirTeclado, 60));
+  document.addEventListener('focusout', () => setTimeout(medirTeclado, 60));
+
   function arrancar() {
     U.$('#sprites').innerHTML = window.DRS_MARCA.iconos + window.DRS_MARCA.logos + window.DRS_ICONOS_APP;
     DRS.tema.aplicar();

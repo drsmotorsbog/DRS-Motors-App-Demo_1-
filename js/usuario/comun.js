@@ -78,7 +78,7 @@
     informe: ['informe', {}], tramites: ['tramites', {}], catalogo: ['catalogo', {}], beneficios: ['beneficios', {}], calendario: ['calendario-pyp', {}],
   };
   /** Atributos para abrir un servicio; si la pantalla aún no existe, el escenario avisa «próxima entrega». */
-  const servAttrs = (que) => (que === 'soat' ? 'data-a="soat-iniciar" data-v="v1"' : SERV_RUTA[que] ? irAttrs(SERV_RUTA[que][0], SERV_RUTA[que][1]) : proxAttrs(que));
+  const servAttrs = (que) => (que === 'soat' ? `data-a="soat-iniciar" data-v="${(DRS.estado && DRS.estado.vehiculoActivo) || 'v1'}"` : SERV_RUTA[que] ? irAttrs(SERV_RUTA[que][0], SERV_RUTA[que][1]) : proxAttrs(que));
 
   DRS.ui = { chipEstado, listaY, modelo, modeloCorto, datosP, logoH, cabRaiz, cabDet, bloqueCab, enlace, irAttrs, proxAttrs, servAttrs, GLIFO };
 })();

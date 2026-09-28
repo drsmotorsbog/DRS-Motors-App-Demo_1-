@@ -153,9 +153,9 @@
         <div class="tarjeta tarjeta-pad" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px">
           <div><span class="cap">Pagado en la app</span><div class="d d-44 num" style="margin-top:6px">${pesos(total)}</div></div><span class="t11">${ps.length} pagos</span></div>
         <div class="lista">${ps.map((p) => html`<button class="fila" data-a="pf-comprobante" data-id="${p.id}">
-          <span class="fila-ico">${ico(p.tipo === 'soat' ? 'garantia' : p.tipo === 'informe' ? 'peritaje' : p.tipo === 'tecno' ? 'certificado' : 'detailing')}</span>
+          <span class="fila-ico">${ico(p.tipo === 'soat' ? 'garantia' : p.tipo === 'informe' ? 'peritaje' : p.tipo === 'tecno' ? 'certificado' : p.tipo === 'reembolso' ? 'pago' : 'detailing')}</span>
           <span><span class="t13" style="display:block">${p.concepto}</span><span class="t11" style="display:block">${U.fechaCorta(DRS.reloj.dia(p.d))} · ${p.medio}</span></span>
-          <span style="text-align:right"><span class="d d-20 num" style="display:block">${pesos(p.total)}</span><span class="enlace" style="margin-top:4px">Comprobante</span></span>
+          <span style="text-align:right"><span class="d d-20 num" style="display:block">${p.total < 0 ? '−' + pesos(-p.total) : pesos(p.total)}</span><span class="enlace" style="margin-top:4px">Comprobante</span></span>
         </button>`)}</div>
       </div>`;
     },
@@ -172,7 +172,7 @@
         <dt>Referencia</dt><dd>${p.ref}</dd>
         <dt>Fecha</dt><dd>${U.fechaCorta(DRS.reloj.dia(p.d))}, ${U.horaTxt(p.h)}</dd>
         <dt>Medio</dt><dd>${p.medio}</dd>
-        <dt>Estado</dt><dd><span class="chip chip-pos">${ico('check')}Aprobado</span></dd>
+        <dt>Estado</dt><dd><span class="chip chip-pos">${ico('check')}${p.tipo === 'reembolso' ? 'Reembolsado' : 'Aprobado'}</span></dd>
         ${p.rel ? html`<dt>Reserva</dt><dd>${p.rel}</dd>` : ''}
       </dl>
       <p class="t11" style="margin-top:16px">Comprobante de ejemplo generado por la demo. Sin validez tributaria.</p>
@@ -205,7 +205,7 @@
         <section class="pf-grupo"><div class="ceja">Anticipación de vencimientos</div>
           <div class="seg" role="tablist">${[30, 15, 7].map((n) => html`<button role="tab" aria-selected="${A.anticipacion === n ? 'true' : 'false'}" data-a="pf-antic" data-n="${n}">${n} días</button>`)}</div></section>
         <section class="pf-grupo"><div class="bloque-cab" style="margin-bottom:10px"><div><div class="ceja">Así te llegan</div><p class="t13" style="margin:6px 0 0;color:var(--txt-3)">Toca uno para verlo en el celular.</p></div></div>
-          <div class="lista">${ejemplos.map((id) => { const e = DRS.avisos.ESCENARIOS.find((x) => x.id === id); return html`<button class="fila" data-a="pf-probar" data-id="${id}"><span class="fila-ico">${ico(e.ico)}</span><span class="t13">${e.titulo({ modelo: 'Mazda 2', venceSoat: '', hora: '10:30 a. m.', ac: DRS.calc.aceite(DRS.q.vehiculo('v1')) })}</span>${e.canal === 'whatsapp' ? html`<span class="chip">WhatsApp</span>` : ico('chevron', 's16')}</button>`; })}</div>
+          <div class="lista">${ejemplos.map((id) => { const e = DRS.avisos.ESCENARIOS.find((x) => x.id === id); return html`<button class="fila" data-a="pf-probar" data-id="${id}"><span class="fila-ico">${ico(e.ico)}</span><span class="t13">${e.titulo(DRS.avisos.ctx())}</span>${e.canal === 'whatsapp' ? html`<span class="chip">WhatsApp</span>` : ico('chevron', 's16')}</button>`; })}</div>
           <button class="btn btn-borde" data-a="pf-bloqueado" style="margin-top:12px">${ico('campana')}Ver en la pantalla bloqueada</button>
         </section>
       </div>`;
@@ -236,7 +236,10 @@
 
   /* ---------------- acciones ---------------- */
   Object.assign(DRS.acciones, {
-    'pf-copiar': () => DRS.tel.tostada('Código copiado: ANDRES-7Q2', 'copiar'),
+    'pf-copiar': () => {
+      const ok = () => DRS.tel.tostada('Código copiado: ANDRES-7Q2', 'copiar');
+      try { navigator.clipboard.writeText('ANDRES-7Q2').then(ok, () => DRS.tel.tostada('Tu código: ANDRES-7Q2', 'copiar')); } catch (e) { DRS.tel.tostada('Tu código: ANDRES-7Q2', 'copiar'); }
+    },
     'pf-compartir': () => {
       if (DRS.pantallas.whatsapp) DRS.tel.ir('whatsapp', { contacto: 'Camila', sub: 'últ. vez hoy', mensajes: [], borrador: 'Te regalo 500 puntos en la app de DRS Motors para lavar el carro o renovar el SOAT. Usa mi código ANDRES-7Q2.', respuesta: '¡Gracias! Ya me la bajé.' });
       else DRS.tel.tostada('Enlace de invitación listo para compartir', 'compartir');

@@ -22,7 +22,7 @@ a.ctl{text-decoration:none}
   .crm-acciones .ctl-texto{display:none}
   .crm-acciones .ctl-fuerte .ctl-texto{display:inline}
 }
-@media (max-width: 759px){
+@media (max-width: 759px), (pointer: coarse) and (max-height: 500px){
   body.pag-crm{overflow:auto}
   .crm-marca .cap{display:none}
   .crm-barra{padding:8px 12px;padding-top:max(8px, env(safe-area-inset-top))}

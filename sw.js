@@ -1,7 +1,7 @@
 /* GENERADO por herramientas/publicar.py — no editar. */
 /* Caché de las demos: la app y el CRM funcionan sin internet después de la primera visita.
    Páginas: primero la red (si hay internet se ve lo último); archivos: primero la caché. */
-const VERSION = 'drs-demos-120f6bd20469';
+const VERSION = 'drs-demos-098ab19e0939';
 const ARCHIVOS = [
   "./",
   "crm/",

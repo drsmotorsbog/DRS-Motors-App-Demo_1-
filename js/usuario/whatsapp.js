@@ -2,7 +2,7 @@
    Uso:
      DRS.tel.ir('whatsapp', {
        contacto: 'DRS Motors',                              // nombre en la cabecera
-       sub: 'Cuenta de empresa',                            // subtítulo
+       sub: 'DRS Motors · Bogotá',                            // subtítulo
        mensajes: [{ de: 'yo' | 'ellos', texto, h: 'HH:MM' }], // conversación previa (opcional)
        borrador: 'texto prellenado',                        // queda en la caja, editable
        respuesta: 'texto de respuesta',                     // opcional; por defecto responde Santiago
@@ -26,7 +26,7 @@
   function normalizar(p) {
     if (p._listo) return;
     p.contacto = p.contacto || 'DRS Motors';
-    p.sub = p.sub || 'Cuenta de empresa';
+    p.sub = p.sub || 'DRS Motors · Bogotá';
     p.mensajes = (p.mensajes || []).map((m) => ({ estado: 'leido', ...m }));
     p.borrador = p.borrador || '';
     p._listo = true;

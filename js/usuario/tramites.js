@@ -121,7 +121,7 @@
       const rol = p.traspaso ? (p.rol === 'vendedor' ? ' Soy el vendedor.' : ' Soy el comprador.') : '';
       const borrador = `Hola, DRS. Quiero hacer ${que} de ${vehiculoTxt(p)} en Bogotá.${rol} La cotización previa de la app me da ${pesos(c.total)}${c.pendiente ? ' más los derechos del levantamiento' : ''}. ¿Me confirman el valor y los documentos?`;
       DRS.tel.ir('whatsapp', {
-        contacto: 'DRS Motors', sub: 'Cuenta de empresa', mensajes: [], borrador,
+        contacto: 'DRS Motors', sub: 'DRS Motors · Bogotá', mensajes: [], borrador,
         respuesta: `Hola, ${nombreUsuario()}. Soy Santiago, de DRS Motors. Con gusto te ayudamos con ${que}. En un momento te confirmo el valor y la lista de documentos; ten a mano la tarjeta de propiedad.`,
       });
     },

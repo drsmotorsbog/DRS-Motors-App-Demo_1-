@@ -4,9 +4,12 @@
    teléfono ya tiene los suyos. Respeta el notch y la barra de inicio.
    Instalada, la barra de estado de iOS es translúcida con texto blanco: por eso
    su franja va siempre en noche (data-modo="noche"), también en el tema claro.
+   Un celular de lado (táctil y de menos de 500 px de alto) también usa este diseño y
+   no el iPhone dibujado del computador: la app va en una columna centrada.
+   DRS.demo.enTelefono() (js/app/demo-menu.js) debe usar esta misma condición.
 ============================================================================= */
 
-@media (max-width: 759px), (display-mode: standalone){
+@media (max-width: 759px), (display-mode: standalone), (pointer: coarse) and (max-height: 500px){
   html,body{overscroll-behavior:none}
   body{touch-action:pan-x pan-y}
   body.pag-app{background:var(--sup-1)}
@@ -21,9 +24,14 @@
   .nav{bottom:max(10px, env(safe-area-inset-bottom))}
   .cuerpo{padding-bottom:calc(132px + env(safe-area-inset-bottom))}
   .cuerpo.con-cta{padding-bottom:28px}
-  .pie-cta{padding-bottom:max(18px, calc(env(safe-area-inset-bottom) + 8px))}
-  .hoja{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+  .pie-cta{padding-bottom:max(18px, calc(env(safe-area-inset-bottom) + 8px - var(--teclado, 0px)))}
+  .hoja{padding-bottom:max(16px, calc(40px + env(safe-area-inset-bottom) - var(--teclado, 0px)))}   /* con teclado, sin el margen de la barra de inicio */
   .aviso{top:calc(env(safe-area-inset-top) + 8px)}
   .lanzador{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
   .aviso-escenario{bottom:calc(96px + env(safe-area-inset-bottom))}
+}
+
+/* De lado: una columna del ancho de un celular, centrada y fuera del notch */
+@media (pointer: coarse) and (max-height: 500px) and (orientation: landscape){
+  .tel{left:max(env(safe-area-inset-left), calc(50% - 240px));right:max(env(safe-area-inset-right), calc(50% - 240px));box-shadow:0 0 0 1px var(--linea)}
 }

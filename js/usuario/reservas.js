@@ -43,7 +43,7 @@
       return html`${UI.cabRaiz()}<div class="cuerpo">
         <div class="titulo"><h1 class="d d-44">Reservas</h1></div>
         <div class="seg" role="tablist" aria-label="Reservas">${tabs.map(([k, t]) => html`<button role="tab" aria-selected="${k === sel ? 'true' : 'false'}" data-a="res-seg" data-k="${k}">${t}${g[k].length ? ` · ${g[k].length}` : ''}</button>`)}</div>
-        ${lista.length ? lista.map(tarjeta) : html`<div class="vacio"><div class="d d-26">${vacio[0]}</div><p class="t13">${vacio[1]}</p><button class="btn btn-borde" ${crudo(UI.proxAttrs('lavaderos'))}>${ico('detailing')}Reservar lavado</button></div>`}
+        ${lista.length ? lista.map(tarjeta) : html`<div class="vacio"><div class="d d-26">${vacio[0]}</div><p class="t13">${vacio[1]}</p><button class="btn btn-borde" ${crudo(UI.servAttrs('lavaderos'))}>${ico('detailing')}Reservar lavado</button></div>`}
       </div>`;
     },
   };
@@ -51,6 +51,9 @@
   DRS.pantallas.reserva = {
     render(p) {
       const r = DRS.q.reserva(p.id);
+      if (!r) {   // p. ej. un aviso de una reserva que ya no existe en esta demo
+        return html`${UI.cabDet('Reserva')}<div class="cuerpo"><div class="vacio"><div class="d d-26">Esta reserva ya no existe</div><p class="t13">Puede que la demo se haya reiniciado. Tus reservas están en Reservas.</p><button class="btn btn-borde" data-a="tab" data-tab="reservas">${ico('reservas')}Ver mis reservas</button></div></div>`;
+      }
       const c = DRS.q.comercio(r.comercio);
       const v = DRS.q.vehiculo(r.vehiculo);
       const idx = Math.max(0, DRS.ESTADOS.findIndex((e) => e.id === r.estado));
@@ -62,7 +65,7 @@
       return html`${UI.cabDet(`Reserva ${r.id}`)}<div class="cuerpo con-cta">
         <div class="titulo"><div class="ceja">${c.nombre} · ${c.zona}</div><h1 class="d d-44">${r.servicio}</h1>
           <p class="t13">${fechaRes(r)} · ${U.horaTxt(r.hora)} · bahía ${r.bahia} · ${UI.modeloCorto(v)} ${placaTxt(r.placa)}</p></div>
-        ${r.estado === 'cancelada' ? html`<div class="banda est-neg"><span class="pyp-glifo">${ico('cerrar')}</span><div><div class="d d-34" style="color:inherit">Reserva cancelada</div><div class="t13">Devolvimos ${pesos(r.total)} a tu medio de pago (reembolso simulado).</div></div></div>` : ''}
+        ${r.estado === 'cancelada' ? html`<div class="banda est-neg"><span class="pyp-glifo">${ico('cerrar')}</span><div><div class="d d-34" style="color:inherit">Reserva cancelada</div><div class="t13">${r.reembolso === 0 ? 'Cancelada fuera de plazo: según la política de ejemplo del comercio, no hay reembolso.' : `Devolvimos ${pesos(r.reembolso || r.total)} a tu medio de pago (reembolso simulado).`}</div></div></div>` : ''}
         ${listo ? html`<div class="banda est-pos"><span class="pyp-glifo">${ico('check')}</span><div><div class="d d-34" style="color:inherit">Listo para recoger</div><div class="t13">Pasa por tu ${UI.modeloCorto(v)} a ${c.nombre}.${r.puntos ? ` Sumaste ${num(r.puntos)} puntos.` : ''}</div></div></div>` : ''}
         <div class="tarjeta tarjeta-pad">
           <div class="estados" aria-label="Seguimiento">${DRS.ESTADOS.map((e, i) => {
@@ -84,7 +87,7 @@
           <p class="t11" style="margin-top:10px">Puedes reprogramar o cancelar sin costo hasta 2 horas antes. Después aplica la política del comercio.</p>
         </section>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
-          <button class="btn btn-fantasma btn-chico" ${crudo(UI.proxAttrs('mapa'))}>${ico('ubicacion', 's16')}Cómo llegar</button>
+          <button class="btn btn-fantasma btn-chico" ${crudo(UI.irAttrs('ruta', { id: r.comercio }))}>${ico('ubicacion', 's16')}Cómo llegar</button>
           <button class="btn btn-fantasma btn-chico" data-a="res-cambios" data-id="${r.id}" ${crudo(['confirmada'].includes(r.estado) ? '' : 'disabled')}>${ico('calendario', 's16')}Reprogramar o cancelar</button>
         </div>
       </div>
@@ -110,10 +113,30 @@
       }
     }
     DRS.tel.hoja(html`<div class="hoja-cab"><div><div class="ceja">Reserva ${r.id}</div><h2 class="d d-34" style="margin-top:8px">Cambiar tu reserva</h2></div><button class="hoja-cerrar" data-a="hoja-cerrar" aria-label="Cerrar">${ico('cerrar')}</button></div>
-      <p class="t13" style="margin:0 0 12px">${c.nombre} · hoy puedes reprogramar sin costo. Cancelar es gratis hasta 2 horas antes; después aplica la política del comercio.</p>
+      <p class="t13" style="margin:0 0 12px">${c.nombre} · puedes reprogramar sin costo. Cancelar es gratis hasta 2 horas antes; después aplica la política del comercio.</p>
       <div class="ceja" style="margin-bottom:8px">Nuevas franjas</div>
-      <div class="res-horas" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">${opciones.map((o) => html`<button class="res-hora" data-a="res-reprogramar" data-id="${r.id}" data-d="${o.d}" data-h="${o.h}">${o.d === 0 ? 'Hoy' : 'Mañana'} ${U.horaTxt(o.h).replace(/ ([ap])\. m\./, '$1')}</button>`)}</div>
-      <button class="btn btn-borde" data-a="res-cancelar" data-id="${r.id}" style="border-color:var(--neg);color:var(--neg)">${ico('cerrar')}${gratis ? 'Cancelar sin costo' : 'Cancelar fuera de plazo'}</button>`);
+      <div class="res-horas" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">${opciones.map((o) => html`<button class="res-hora" data-a="res-reprogramar" data-id="${r.id}" data-d="${o.d}" data-h="${o.h}">${diaCorto(o.d)} ${U.horaTxt(o.h).replace(/ ([ap])\. m\./, '$1')}</button>`)}</div>
+      <button class="btn btn-borde" data-a="res-cancelar" data-id="${r.id}" data-gratis="${gratis ? '1' : '0'}" style="border-color:var(--neg);color:var(--neg)">${ico('cerrar')}${gratis ? 'Cancelar sin costo' : 'Cancelar fuera de plazo'}</button>`);
+  }
+  /** «Hoy», «Mañana» o el día con su fecha: la franja dice cuándo es de verdad. */
+  function diaCorto(d) {
+    if (d === 0) return 'Hoy';
+    if (d === 1) return 'Mañana';
+    const f = DRS.reloj.dia(d);
+    return `${U.DIAS[f.getDay()].slice(0, 3)} ${f.getDate()}`;
+  }
+  const cuandoTxt = (d) => (d === 0 ? 'hoy' : d === 1 ? 'mañana' : U.fechaLarga(DRS.reloj.dia(d)));
+
+  /** Confirmación antes de cancelar: dice qué pasa con el pago. */
+  function hojaCancelar(id, gratis) {
+    const r = DRS.q.reserva(id);
+    const c = DRS.q.comercio(r.comercio);
+    DRS.tel.hoja(html`<div class="hoja-cab"><div><div class="ceja">Reserva ${r.id}</div><h2 class="d d-34" style="margin-top:8px">¿Cancelar la reserva?</h2></div><button class="hoja-cerrar" data-a="hoja-cerrar" aria-label="Cerrar">${ico('cerrar')}</button></div>
+      <p class="t13" style="margin:0 0 16px">${gratis
+    ? `Faltan más de 2 horas: te devolvemos ${pesos(r.total)} a tu medio de pago (reembolso simulado).`
+    : `Faltan menos de 2 horas. Según la política de ejemplo de ${c.nombre}, no hay reembolso.`}</p>
+      <button class="btn btn-borde" data-a="res-cancelar-ok" data-id="${r.id}" data-gratis="${gratis ? '1' : '0'}" style="border-color:var(--neg);color:var(--neg)">${ico('cerrar')}Sí, cancelar</button>
+      <button class="btn btn-fantasma" data-a="hoja-cerrar" style="margin-top:8px">No, mantener la reserva</button>`);
   }
   Object.assign(DRS.acciones, {
     'res-cambios': (d) => hojaCambios(d.id),
@@ -122,15 +145,26 @@
       DRS.cambiar((s) => {
         const r = s.reservas.find((x) => x.id === d.id);
         r.d = Number(d.d); r.hora = d.h;
-        s.notificaciones.unshift({ id: `n${Date.now()}`, d: 0, h: ahoraTxt, ico: 'calendario', titulo: 'Reserva reprogramada', texto: `${r.servicio}: ${Number(d.d) === 0 ? 'hoy' : 'mañana'} a las ${U.horaTxt(d.h)}. Mismo código ${r.id}.`, leida: true, ir: { ruta: 'reserva', p: { id: r.id } }, accion: 'Ver reserva' });
+        s.notificaciones.unshift({ id: `n${Date.now()}`, d: 0, h: ahoraTxt, ico: 'calendario', titulo: 'Reserva reprogramada', texto: `${r.servicio}: ${cuandoTxt(Number(d.d))} a las ${U.horaTxt(d.h)}. Mismo código ${r.id}`, leida: true, ir: { ruta: 'reserva', p: { id: r.id } }, accion: 'Ver reserva' });
       }, { tipo: 'reprogramar', id: d.id });
       DRS.tel.cerrarHoja();
-      DRS.tel.tostada(`Reprogramada: ${Number(d.d) === 0 ? 'hoy' : 'mañana'} a las ${U.horaTxt(d.h)}`, 'calendario');
+      DRS.tel.tostada(`Reprogramada: ${cuandoTxt(Number(d.d))} a las ${U.horaTxt(d.h)}`, 'calendario');
     },
-    'res-cancelar': (d) => {
-      DRS.cambiar((s) => { const r = s.reservas.find((x) => x.id === d.id); r.estado = 'cancelada'; }, { tipo: 'cancelar', id: d.id });
+    'res-cancelar': (d) => hojaCancelar(d.id, d.gratis === '1'),
+    'res-cancelar-ok': (d) => {
+      const gratis = d.gratis === '1';
+      const ahoraTxt = (() => { const a = DRS.reloj.ahora(); return U.deMin(a.getHours() * 60 + a.getMinutes()); })();
+      DRS.cambiar((s) => {
+        const r = s.reservas.find((x) => x.id === d.id);
+        r.estado = 'cancelada';
+        r.reembolso = gratis ? r.total : 0;
+        if (gratis) {
+          const c = s.comercios.find((x) => x.id === r.comercio);
+          (s.pagos = s.pagos || []).unshift({ id: `p${Date.now()}`, d: 0, h: ahoraTxt, concepto: `Reembolso · ${r.servicio} · ${c ? c.nombre : ''}`, ref: r.id, medio: r.medio, total: -r.total, tipo: 'reembolso', rel: r.id });
+        }
+      }, { tipo: 'cancelar', id: d.id });
       DRS.tel.cerrarHoja();
-      DRS.tel.tostada('Reserva cancelada · reembolso simulado', 'informacion');
+      DRS.tel.tostada(gratis ? 'Reserva cancelada · reembolso simulado' : 'Reserva cancelada · sin reembolso', 'informacion');
     },
   });
 

@@ -44,7 +44,7 @@
   }
 
   const chatInteres = (v) => ({
-    contacto: 'DRS Motors', sub: 'Cuenta de empresa',
+    contacto: 'DRS Motors', sub: 'DRS Motors · Bogotá',
     borrador: `Hola, DRS. Me interesa el ${nombre(v)} ${v.anio} del catálogo (${v.codigo}). ¿Sigue disponible? ¿Cuándo lo puedo ver?`,
     respuesta: `Hola, ${nombreUsuario()}. Soy Santiago, de DRS Motors. El ${nombre(v)} sigue disponible. ¿Te queda bien verlo esta semana en Bogotá? Te comparto la ficha completa y los papeles.`,
   });
@@ -52,7 +52,7 @@
     const x = DRS.q.vehiculo();
     const mio = x ? `mi ${UI.modeloCorto(x)} ${x.modelo}` : 'mi vehículo';
     return {
-      contacto: 'DRS Motors', sub: 'Cuenta de empresa',
+      contacto: 'DRS Motors', sub: 'DRS Motors · Bogotá',
       borrador: `Hola, DRS. Quiero vender ${mio}. ¿Cómo funciona la consignación con ustedes?`,
       respuesta: `Hola, ${nombreUsuario()}. Soy Santiago, de DRS Motors. Con gusto te explico cómo funciona y agendamos la revisión de tu vehículo. ¿Dónde lo tienes en Bogotá?`,
     };
@@ -180,7 +180,8 @@
       const e = tope();
       const riel = e && U.$('.cat-riel', e.el);
       if (!riel) return;
-      riel.scrollTo({ left: Number(d.k) * riel.clientWidth, behavior: 'smooth' });
+      const reducido = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      riel.scrollTo({ left: Number(d.k) * riel.clientWidth, behavior: reducido ? 'auto' : 'smooth' });
     },
   });
 

@@ -127,7 +127,6 @@
           // Mantenimiento certificado y puntos: 1 punto por cada $ 100 pagados en la app (valor de ejemplo)
           puntos = Math.round(res.total / 100);
           s.usuario.puntos += puntos;
-          s.usuario.meta.hechos = Math.min(s.usuario.meta.total, s.usuario.meta.hechos + 1);
           s.mantenimientos.push({ id: `m${Date.now()}`, vehiculo: res.vehiculo, d: 0, tipo: 'lavado', titulo: res.servicio, lugar: com.nombre,
             km: veh.km, costo: res.total, cert: true, nuevo: true, reserva: res.id });
           res.puntos = puntos;

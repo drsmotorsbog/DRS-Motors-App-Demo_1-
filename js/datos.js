@@ -87,10 +87,10 @@
         servicio: srv.nombre, extras: [], cliente: o.cli, placa: o.placa, tipoVeh: o.tipo,
         origen: o.app ? 'app' : 'propio', total, medio: o.app ? 'Tarjeta' : 'En el local', estado, usuario: null,
       };
-    }).filter((r) => { const i = U.aMin(r.hora); return i >= 7 * 60 && i + r.min <= cierreHoy; });
+    }).filter((r) => { const i = U.aMin(r.hora); return i >= 8 * 60 && i + r.min <= Math.min(cierreHoy, 18 * 60); });   // dentro de la agenda del panel (8:00 a. m. – 6:00 p. m.)
   }
 
-  DRS.SEMILLA_VERSION = 5;   // súbela cuando cambie la forma de los datos: lo guardado en el navegador se descarta
+  DRS.SEMILLA_VERSION = 6;   // súbela cuando cambie la forma de los datos: lo guardado en el navegador se descarta
 
   /** Los módulos agregan sus datos de ejemplo: DRS.extenderSemilla((estado, demo) => { estado.x = … }) */
   DRS._extSemilla = DRS._extSemilla || [];
@@ -135,9 +135,9 @@
     ];
 
     const notificaciones = demo.sinReserva ? [] : [
-      { id: 'n2', d: -1, h: '19:42', ico: 'calendario', titulo: 'Reserva confirmada', texto: `Lavado completo en Espuma 127, hoy a las ${U.horaTxt(U.deMin(S))}. Código DRS-4821.`, leida: false, ir: { ruta: 'reserva', p: { id: 'DRS-4821' } }, accion: 'Ver reserva' },
+      { id: 'n2', d: -1, h: '19:42', ico: 'calendario', titulo: 'Reserva confirmada', texto: `Lavado completo en Espuma 127, hoy a las ${U.horaTxt(U.deMin(S))} · código DRS-4821`, leida: false, ir: { ruta: 'reserva', p: { id: 'DRS-4821' } }, accion: 'Ver reserva' },
       { id: 'n3', d: -1, h: '08:00', ico: 'certificado', titulo: 'Tu SOAT vence en 13 días', texto: 'Renuévalo a tiempo para no quedarte sin cobertura.', leida: true, ir: { ruta: 'documento', p: { v: 'v1', doc: 'soat' } }, accion: 'Ver opciones' },
-      { id: 'n4', d: -3, h: '12:10', ico: 'precio', titulo: 'Promo cerca: −20 % en Espuma 127', texto: 'Lavado sencillo de martes a jueves, de 9:00 a 11:00 a. m.', leida: true, proxima: 'lavaderos', accion: 'Reservar' },
+      { id: 'n4', d: -3, h: '12:10', ico: 'precio', titulo: 'Promo cerca: −20 % en Espuma 127', texto: 'Lavado sencillo de martes a jueves, de 9:00 a 11:00 a. m.', leida: true, ir: { ruta: 'comercio', p: { id: 'c1' } }, accion: 'Reservar' },
     ];
     if (demo.sinReserva) notificaciones.push(
       { id: 'n3', d: -1, h: '08:00', ico: 'certificado', titulo: 'Tu SOAT vence en 13 días', texto: 'Renuévalo a tiempo para no quedarte sin cobertura.', leida: true, ir: { ruta: 'documento', p: { v: 'v1', doc: 'soat' } }, accion: 'Ver opciones' });
@@ -161,7 +161,7 @@
         { id: 'm5', vehiculo: 'v2', d: -60, tipo: 'aceite', titulo: 'Cambio de aceite', lugar: 'Taller de barrio', km: 10000, costo: 65000, cert: false },
         { id: 'm6', vehiculo: 'v2', d: -71, tipo: 'lavado', titulo: 'Lavado sencillo', lugar: 'Punto Neutro', km: 9700, costo: 18000, cert: true },
       ],
-      alertas: { soat: true, tecno: true, aceite: true, llantas: true, pyp: true, km: true, anticipacion: 30 },
+      alertas: { soat: true, tecno: true, aceite: true, llantas: true, pyp: true, km: true, promos: true, anticipacion: 30 },
       comercios: [...COMERCIOS, ...TALLERES, ...CDAS].map((c) => ({ ...c, km: kmDesdeCasa(c.pos) })),
       casa: CASA,
       serviciosTaller: SERVICIOS_TALLER,

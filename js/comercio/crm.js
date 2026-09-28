@@ -90,7 +90,11 @@
   /* ---------------- acciones ---------------- */
   Object.assign(DRS.acciones, {
     proxima: (d) => proxima(d.que),
-    'pl-sel': (d) => { DRS.panel.sel = d.id; DRS.panel.llega = null; DRS.panel.render(); },
+    'pl-sel': (d) => {
+      DRS.panel.sel = d.id; DRS.panel.llega = null; DRS.panel.render();
+      const m = document.querySelector('.pl-main'), det = document.querySelector('.pl-det');
+      if (m && det && window.matchMedia('(max-width: 759px), (pointer: coarse) and (max-height: 500px)').matches) m.scrollTop = det.offsetTop - 8;
+    },
     'pl-avanzar': (d) => { DRS.panel.pulsar = false; DRS.panel.llega = null; DRS.acc.reservaAvanzar(d.id); },
     'pl-vista': (d) => DRS.panel.ir(d.v || 'hoy'),
     'crm-simular': () => crm.simularReserva(),

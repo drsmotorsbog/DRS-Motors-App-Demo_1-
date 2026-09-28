@@ -87,7 +87,7 @@
     const ui = (DRS.tel.ui.mant = { tipo: 'aceite', foto: false });
     const pintar = () => html`<div class="hoja-cab"><div><div class="ceja">${placaTxt(v.placa)} · ${UI.modelo(v)}</div><h2 class="d d-34" style="margin-top:8px">Registrar mantenimiento</h2></div><button class="hoja-cerrar" data-a="hoja-cerrar" aria-label="Cerrar">${ico('cerrar')}</button></div>
       <div class="fichas">${TIPOS_MANT.map(([k, n]) => html`<button class="ficha" aria-pressed="${ui.tipo === k ? 'true' : 'false'}" data-a="mant-tipo" data-k="${k}">${n}</button>`)}</div>
-      <div class="campos-2"><div class="campo"><label class="cap" for="mant-fecha">Fecha</label><input id="mant-fecha" type="date" value="${U.isoDia(DRS.reloj.hoy())}"></div>
+      <div class="campos-2"><div class="campo"><label class="cap" for="mant-fecha">Fecha</label><input id="mant-fecha" type="date" value="${U.isoDia(DRS.reloj.hoy())}" max="${U.isoDia(DRS.reloj.hoy())}"></div>
         <div class="campo"><label class="cap" for="mant-km">Kilometraje</label><input id="mant-km" value="${num(v.km)}" inputmode="numeric"></div></div>
       <div class="campos-2"><div class="campo"><label class="cap" for="mant-lugar">Lugar</label><input id="mant-lugar" value="Taller de barrio"></div>
         <div class="campo"><label class="cap" for="mant-costo">Costo</label><input id="mant-costo" value="180.000" inputmode="numeric"></div></div>
@@ -105,7 +105,8 @@
     'mant-guardar': (d) => {
       const h = DRS.tel.hojaActual();
       const val = (id) => (U.$('#' + id, h) || {}).value || '';
-      const fecha = U.deIso(val('mant-fecha') || U.isoDia(DRS.reloj.hoy()));
+      let fecha = U.deIso(val('mant-fecha') || U.isoDia(DRS.reloj.hoy()));
+      if (fecha > DRS.reloj.hoy()) fecha = DRS.reloj.hoy();   // un mantenimiento no puede quedar en el futuro
       const km = Number(val('mant-km').replace(/\D/g, '')) || DRS.q.vehiculo(d.v).km;
       const costo = Number(val('mant-costo').replace(/\D/g, '')) || 0;
       const tipo = DRS.tel.ui.mant.tipo;

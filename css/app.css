@@ -10,6 +10,7 @@
   background:var(--sup-1);color:var(--txt-2);
   font-size:var(--fs-13);line-height:1.5;
   isolation:isolate;
+  --teclado:0px;          /* lo que tapa el teclado del celular; lo mide js/app/arranque.js */
 }
 
 /* ------------------------------------------------------------ barra de estado */
@@ -32,6 +33,9 @@
   scrollbar-width:none;overscroll-behavior:contain;
   transition:transform .26s var(--ease), opacity .26s var(--ease);
 }
+/* Con el teclado abierto, un espacio del alto del teclado al final: todo se puede subir por encima
+   de él. Va como ::after y no como padding, porque el padding también correría el .pie-cta pegajoso */
+.pantalla::after{content:"";display:block;height:var(--teclado, 0px)}
 .pantalla::-webkit-scrollbar{display:none}
 .pantalla.entra{transform:translateX(100%)}
 .pantalla.debajo{transform:translateX(-24%);opacity:.35;pointer-events:none}
@@ -104,10 +108,11 @@
 .bloque-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
 .bloque-cab .t13{margin-top:6px;color:var(--txt-3)}
 .enlace{
-  display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
-  font:700 var(--fs-11)/1 var(--f-label);letter-spacing:.16em;text-transform:uppercase;color:var(--acc-txt);
-}
+  display:inline-flex;align-items:center;gap:4px;text-align:left;
+  font:700 var(--fs-11)/1.1 var(--f-label);letter-spacing:.16em;text-transform:uppercase;color:var(--acc-txt);
+}                                               /* un enlace largo baja de línea en vez de salirse (360 px) */
 .enlace .ico{width:14px;height:14px}
+.bloque-cab>.enlace::after{top:calc(50% - 25px);bottom:calc(50% - 19px)}   /* el área de toque no pisa la tarjeta de abajo */
 
 /* ------------------------------------------------------------ superficies */
 .tarjeta{background:var(--sup-2);border:1px solid var(--linea)}
@@ -215,10 +220,12 @@
 @keyframes escanea{from{left:4%}to{left:96%}}
 
 /* ------------------------------------------------------------ al día: tacómetros */
-.rejilla-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.tile{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:12px 12px 13px;text-align:left;min-height:168px}
-.tile:hover{border-color:var(--n-4)}
-.tile-top{display:flex;align-items:flex-start;justify-content:space-between;width:100%;margin-bottom:8px}
+.rejilla-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:12px 12px 13px;text-align:left;min-height:168px;min-width:0;container-type:inline-size}
+@media (hover:hover){ .tile:hover{border-color:var(--n-4)} }
+.tile-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:6px 0;width:100%;margin-bottom:8px}
+/* Si el chip más largo («Por vencer», 108 px) no cabe junto al tacómetro (56 px), va debajo en las cuatro tarjetas y no solo en la que no cabe: hasta 390 px de ancho */
+@container (max-width: 163px){ .tile-top{flex-direction:column} }
 .tile .etq{color:var(--txt-3);letter-spacing:.2em;font-size:var(--fs-9);margin-top:auto}
 .tile .d-34{margin-top:6px}
 .tile .t11{margin-top:4px}
@@ -238,15 +245,21 @@
 .pyp-estado{display:flex;align-items:center;gap:10px;margin:12px 0 8px}
 .pyp-glifo{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid currentColor}
 .pyp-glifo .ico{width:18px;height:18px;stroke-width:2.5px}
-.semana{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:14px 0}
+.semana{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin:14px 0}
 .dia{
   position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 7px;
   border:1px solid var(--linea);color:var(--txt-2);
 }
 .dia .cap{font-size:var(--fs-9);letter-spacing:.1em}
 .dia .d-20{color:inherit}
-.dia.restringido{color:var(--neg);border-color:color-mix(in srgb, var(--neg) 55%, var(--linea))}
-.dia.restringido::after{content:"";position:absolute;left:0;right:0;top:-1px;height:3px;background:var(--neg)}
+/* Día sin carro: el color nunca va solo (09 §8.5). Barra roja arriba y el mismo ✕ del calendario del mes */
+.dia.restringido{color:var(--neg);border-color:color-mix(in srgb, var(--neg) 55%, var(--linea));border-top:3px solid var(--neg);padding-top:4px}
+.dia.restringido::after{
+  content:"";position:absolute;top:3px;right:3px;width:9px;height:9px;
+  background:
+    linear-gradient(45deg, transparent calc(50% - 1px), currentColor calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(-45deg, transparent calc(50% - 1px), currentColor calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+}
 .dia.libre{color:var(--txt-3)}
 .dia.hoy{outline:1px solid var(--txt-1);outline-offset:-1px}
 .fuente{margin-top:12px;font-size:var(--fs-9);letter-spacing:.06em;color:var(--txt-3)}
@@ -263,7 +276,7 @@
 .serv{position:relative;width:112px;height:104px;display:flex;flex-direction:column;justify-content:space-between;padding:12px 10px;text-align:left}
 .serv .ico{width:26px;height:26px;color:var(--txt-1)}
 .serv .cap{color:var(--txt-2);letter-spacing:.08em;line-height:1.25}
-.serv .chip{position:absolute;top:-1px;right:-1px;height:18px;padding:0 5px;font-size:8px}
+.serv .chip{position:absolute;top:-1px;right:-1px;height:18px;padding:0 5px;font-size:var(--fs-9)}
 .serv:hover{border-color:var(--n-4)}
 .promo{width:250px;text-align:left}
 .promo-plano{position:relative;height:132px;border-bottom:1px solid var(--linea);background:
@@ -282,7 +295,7 @@
 /* ------------------------------------------------------------ beneficios */
 .benef{padding:15px}
 .benef-num{display:flex;align-items:baseline;gap:8px;margin:10px 0 14px}
-.meta-seg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:10px 0 8px}
+.meta-seg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:10px 0 8px}
 .meta-seg i{height:8px;border:1px solid var(--n-4)}
 .meta-seg i.ok{background:var(--acc-graf);border-color:var(--acc-graf)}
 .meta-seg i.ultimo{border-color:var(--acc-graf);border-style:dashed}
@@ -312,13 +325,13 @@
 
 /* ------------------------------------------------------------ capas: hoja, velo, aviso */
 .tel-capa{position:absolute;inset:0;z-index:35;pointer-events:none}
-.velo{position:absolute;inset:0;background:color-mix(in srgb, var(--sup-1) 72%, transparent);opacity:0;transition:opacity .22s;pointer-events:auto}
+.velo{position:absolute;inset:0;background:var(--velo);opacity:0;transition:opacity .22s;pointer-events:auto}
 .velo.ver{opacity:1}
 .hoja{
-  position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow:auto;
-  padding:10px 15px 40px;background:var(--sup-2);border-top:1px solid var(--n-4);
+  position:absolute;left:0;right:0;bottom:var(--teclado, 0px);max-height:calc((100% - var(--teclado, 0px)) * .88);overflow:auto;
+  padding:10px 15px max(16px, calc(40px - var(--teclado, 0px)));background:var(--sup-2);border-top:1px solid var(--n-4);
   transform:translateY(100%);transition:transform .3s var(--ease);pointer-events:auto;
-}
+}                                   /* con el teclado abierto la hoja sube y se acorta: su botón queda a la vista */
 .hoja.ver{transform:none}
 .hoja-asa{width:36px;height:4px;background:var(--n-4);margin:0 auto 14px}
 .hoja-cab{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px}
@@ -338,8 +351,8 @@
   width:100%;height:52px;padding:0 14px;background:var(--sup-3);border:1px solid var(--n-4);
   font-size:var(--fs-16);color:var(--txt-1);
 }
-.campo textarea{height:84px;padding:12px 14px;resize:none;font-size:var(--fs-13)}
-.campo input:focus,.campo textarea:focus{outline:none;border-color:var(--acc-graf)}
+.campo textarea{height:84px;padding:12px 14px;resize:none;font-size:var(--fs-16)}
+.campo input:focus,.campo textarea:focus{outline:2px solid var(--acc-txt);outline-offset:-1px;border-color:var(--acc-graf)}
 .campo .d-34{background:transparent}
 
 .aviso{
@@ -400,11 +413,11 @@
 .inter[aria-checked="true"]::after{transform:translateX(20px);background:var(--acc-graf)}
 
 /* Cajetín: la ficha técnica como rótulo de plano */
-.cajetin{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--n-4);background:var(--sup-1)}
+.cajetin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--n-4);background:var(--sup-1)}
 .cajetin div{padding:9px 10px;border-right:1px solid var(--linea);border-bottom:1px solid var(--linea)}
 .cajetin div:nth-child(2n){border-right:0}
 .cajetin div:nth-last-child(-n+2){border-bottom:0}
-.cajetin .cap{display:block;margin-bottom:4px;font-size:8px}
+.cajetin .cap{display:block;margin-bottom:4px;font-size:var(--fs-9)}
 .cajetin b{font:600 var(--fs-13)/1.2 var(--f-body);color:var(--txt-1)}
 .cajetin .ancho{grid-column:1 / -1;border-right:0}
 
@@ -434,21 +447,27 @@
 .est time{font-size:var(--fs-11);color:var(--txt-3)}
 
 .qr-caja{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding:15px}
+/* Un QR se lee oscuro sobre claro en los dos modos: Negro Carbón sobre Platino, con su margen */
 .qr{width:112px;height:112px;background:var(--txt-1);padding:7px}
 .qr svg{display:block;width:100%;height:100%}
+.qr svg path{fill:var(--sup-1)}
+[data-modo="documento"] .qr{background:var(--sup-1)}
+[data-modo="documento"] .qr svg path{fill:var(--txt-1)}
+[data-modo="documento"] [data-modo="noche"] .qr{background:var(--txt-1)}
+[data-modo="documento"] [data-modo="noche"] .qr svg path{fill:var(--sup-1)}
 
 /* Pie con el botón principal (pantallas de detalle) */
 .pie-cta{
-  position:sticky;bottom:0;z-index:12;padding:14px 15px 34px;margin-top:-8px;
+  position:sticky;bottom:var(--teclado, 0px);z-index:12;padding:14px 15px max(18px, calc(34px - var(--teclado, 0px)));margin-top:-8px;
   background:linear-gradient(to top, var(--sup-1) 72%, color-mix(in srgb, var(--sup-1) 0%, transparent));
-}
+}                                   /* con el teclado abierto, el botón principal queda justo encima */
 .pie-cta .t11{text-align:center;margin-top:8px}
 
 /* Calificación 1–5 */
-.escala{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:6px 0 18px}
+.escala{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:6px 0 18px}
 .escala button{height:58px;border:1px solid var(--n-4);font:400 var(--fs-26)/1 var(--f-display);color:var(--txt-2);padding-top:3px}
 .escala button[aria-checked="true"]{border-color:var(--sel-fondo);color:var(--sup-1);background:var(--sel-fondo)}
-.fichas{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.fichas{display:flex;flex-wrap:wrap;gap:10px 6px;margin-bottom:18px}   /* 10 px entre filas: el área de toque de cada ficha llega a 44 sin pisar la de arriba */
 .ficha{height:34px;padding:0 12px;border:1px solid var(--n-4);font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2)}
 .ficha[aria-pressed="true"]{border-color:var(--acc-graf);color:var(--acc-txt)}
 
@@ -481,12 +500,15 @@
   transition:opacity .35s var(--ease);
 }
 .intro.fuera{opacity:0;pointer-events:none}
-.intro-logo{position:relative;width:250px;height:92px}
-.intro-logo .palabra{position:absolute;left:0;right:0;top:0;text-align:center;font:400 64px/1 var(--f-display);letter-spacing:.06em;color:var(--txt-1);clip-path:inset(100% 0 0 0);animation:intro-sube .5s .45s var(--ease) forwards}
+/* «DRS MOTORS» a 56 px mide 247 px: cabe en una línea y las líneas del flap tienen su ancho (a 64 px se partía en dos) */
+.intro-logo{position:relative;width:250px;height:84px}
+.intro-logo .palabra{position:absolute;left:0;right:0;top:0;text-align:center;white-space:nowrap;font:400 var(--fs-56)/1 var(--f-display);letter-spacing:.06em;color:var(--txt-1);clip-path:inset(100% 0 0 0);animation:intro-sube .5s .45s var(--ease) forwards}
 .intro-logo .l1,.intro-logo .l2{position:absolute;left:0;right:0;transform-origin:center}
-.intro-logo .l1{top:70px;height:1.5px;background:var(--txt-2);animation:intro-l1 .9s var(--ease) both}
-.intro-logo .l2{top:76px;height:2.5px;background:var(--acc-1);animation:intro-l2 .9s var(--ease) both}
-.intro-sub{position:absolute;left:0;right:0;top:100px;text-align:center;opacity:0;animation:bp-aparece .4s .9s forwards}
+.intro-logo .l1{top:62px;height:1.5px;background:var(--txt-2);animation:intro-l1 .9s var(--ease) both}
+.intro-logo .l2{top:68px;height:2.5px;background:var(--acc-1);animation:intro-l2 .9s var(--ease) both}
+.intro-sub{position:absolute;left:0;right:0;top:92px;text-align:center;opacity:0;animation:bp-aparece .4s .9s forwards}
+/* Con «reducir movimiento» la presentación de marca no se muestra */
+@media (prefers-reduced-motion: reduce){ .intro{display:none} }
 @keyframes intro-l1{0%{transform:scaleX(0) translateY(4px)}45%{transform:scaleX(1) translateY(4px)}100%{transform:scaleX(1) translateY(0)}}
 @keyframes intro-l2{0%{transform:scaleX(0) translateY(-2px)}45%{transform:scaleX(1) translateY(-2px)}100%{transform:scaleX(1) translateY(0)}}
 @keyframes intro-sube{to{clip-path:inset(0 0 0 0)}}
@@ -494,10 +516,11 @@
 /* Números que suben */
 .sube{display:inline-block;animation:aparece .5s var(--ease)}
 
-@media (max-width: 759px){
+/* Misma condición que css/movil.css: celular vertical, app instalada o celular de lado */
+@media (max-width: 759px), (display-mode: standalone), (pointer: coarse) and (max-height: 500px){
   .tel{width:100%;height:100%}
   .tel-estado,.tel-home{display:none}
   .tel-vista{top:0}
   .nav{bottom:max(12px, env(safe-area-inset-bottom))}
-  .pie-cta{padding-bottom:max(18px, env(safe-area-inset-bottom))}
+  .pie-cta{padding-bottom:max(18px, calc(env(safe-area-inset-bottom) - var(--teclado, 0px)))}
 }

@@ -144,8 +144,8 @@
           }, { tipo: 'soat' });
           const desde = U.sumarDias(DRS.reloj.hoy(), inicio);
           DRS.tel.ui.soat = null;
-          DRS.tel.ir('soat-listo', { placa: v.placa, aseg: a.id, poliza, valor: t.valor, propio: !s.otro, desde: U.fechaCorta(desde), hasta: U.fechaCorta(U.sumarDias(desde, 364)) });
-          setTimeout(() => DRS.avisos.lanzar('soatOk'), 1400);
+          DRS.tel.saltar(s.otro ? 'inicio' : 'garaje', 'soat-listo', { placa: v.placa, aseg: a.id, poliza, valor: t.valor, propio: !s.otro, desde: U.fechaCorta(desde), hasta: U.fechaCorta(U.sumarDias(desde, 364)) });
+          setTimeout(() => DRS.avisos.lanzar('soatOk', { otro: s.otro, placa: v.placa }), 1400);
         },
       });
     },

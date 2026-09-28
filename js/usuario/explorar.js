@@ -57,6 +57,9 @@
     return { valor: min.valor };
   }
 
+  /** Con «reducir movimiento» en el sistema, el mapa salta en vez de animarse. */
+  const reducido = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
   /* ================================================================ mapa */
   const MAPA = { cache: null };
   const W = () => (DRS.mapa && DRS.mapa.W) || 1400;
@@ -221,6 +224,7 @@
       v.s = s2; limitar(); pintar();
     }
     function ir(destinoV, ms = 380) {
+      if (reducido()) { v = destinoV; limitar(); pintar(); return; }
       const o = { ...v };
       const t0 = performance.now();
       const fin = setTimeout(() => { v = destinoV; limitar(); pintar(); }, ms + 60);
@@ -240,6 +244,7 @@
       /** ¿El punto se ve entre la cabecera, los botones y la franja de abajo? */
       visible(pos, abajo = 0.3) { const [x, y] = pt(pos); const sx = v.tx + x * v.s, sy = v.ty + y * v.s; return sx > 24 && sx < vw() - derecha - 24 && sy > arriba + 16 && sy < vh() * (1 - abajo) - 24; },
       dibujarRuta(ms = 1100) {
+        if (reducido()) { rutaDibujada = 1; pintar(); return; }
         const t0 = performance.now();
         rutaDibujada = 0; pintar();
         const fin = setTimeout(() => { rutaDibujada = 1; pintar(); }, ms + 80);
@@ -321,7 +326,7 @@
     ctlExp = crearMapa(cont, {
       lugares: ls.map((x) => ({ id: x.c.id, pos: x.c.pos, etq: etiquetaPin(x, e.orden), promo: !!x.precio.promo, nombre: x.c.nombre })),
       sel: e.sel, yo: DRS.estado.casa.pos, vista: e.vista, ajustar: [DRS.estado.casa.pos, ...cercanos], abajo: 0.3, derecha: 64,
-      alPin: (id) => { e.sel = id; ctlExp.seleccionar(id); const card = el.querySelector(`[data-card="${id}"]`); if (card) card.parentNode.scrollTo({ left: card.offsetLeft - 12, behavior: 'smooth' }); },
+      alPin: (id) => { e.sel = id; ctlExp.seleccionar(id); const card = el.querySelector(`[data-card="${id}"]`); if (card) card.parentNode.scrollTo({ left: card.offsetLeft - 12, behavior: reducido() ? 'auto' : 'smooth' }); },
       alMover: (v) => { e.vista = v; },
     });
     // Si el elegido quedó fuera de la vista (por ejemplo al cambiar el orden), el mapa va hasta él
@@ -376,7 +381,7 @@
           <button class="btn btn-fantasma btn-chico" data-a="com-llamar">${ico('telefono', 's16')}Llamar</button>
           <button class="btn btn-fantasma btn-chico" data-a="com-guardar">${ico('guardar', 's16')}Guardar</button>
         </div>
-        <dl class="datos tarjeta tarjeta-pad" style="margin:14px 0 0"><dt>Dirección</dt><dd>${c.direccion}</dd><dt>Horario</dt><dd>${c.horario || 'Lun–sáb 7:00 a. m. – 7:00 p. m.'}</dd>${c.bahias ? html`<dt>Capacidad</dt><dd>${c.bahias} bahías</dd>` : html`<dt>Líneas de revisión</dt><dd>${c.lineas}</dd>`}</dl>
+        <dl class="datos tarjeta tarjeta-pad" style="margin:14px 0 0"><dt>Dirección</dt><dd>${c.direccion}</dd><dt>Horario</dt><dd>${c.horario || HORARIO_LAVADERO}</dd>${c.bahias ? html`<dt>Capacidad</dt><dd>${c.bahias} bahías</dd>` : html`<dt>Líneas de revisión</dt><dd>${c.lineas}</dd>`}</dl>
         ${pr ? html`<div class="aviso-caja" style="margin-top:8px">${ico('precio')}<span><b class="t-1">−${pr.pct} % en ${DRS.estado.servicios.find((s) => s.id === pr.servicio).nombre.toLowerCase()}</b> · ${pr.dias}, ${pr.franja}. ${pr.cupos} cupos. Vigente hasta el ${U.fechaCorta(DRS.reloj.dia(pr.hasta || 30))}.</span></div>` : ''}
         <section class="bloque">${UI.bloqueCab(esTaller ? 'Servicios' : 'Elige el servicio', `Precios para ${v.tipo === 'moto' ? 'moto' : 'automóvil'} · ${placaTxt(v.placa)}`)}
           <div role="radiogroup" aria-label="Servicio">${ss.map((s) => html`<button class="opcion com-srv" role="radio" aria-checked="${s.id === sel.id ? 'true' : 'false'}" data-a="com-srv" data-c="${c.id}" data-s="${s.id}">
@@ -391,7 +396,7 @@
       </div>
       <div class="pie-cta">${esTaller
     ? html`<button class="btn btn-acero" ${crudo(UI.irAttrs('cotizar', { v: v.id, taller: c.id, necesidad: sel.id }))}>${sel.valor ? `Pedir cotización · desde ${pesos(sel.valor)}` : 'Pedir cotización'}</button><p class="t11">El taller responde con un valor antes de que reserves.</p>`
-    : html`<button class="btn btn-acero" ${crudo(UI.irAttrs('reservar', { id: c.id, servicio: sel.id }))}>Reservar · ${pesos(pr ? redondear(precioSel * (1 - pr.pct / 100)) : precioSel)}</button><p class="t11">Pagas en la app y llegas con tu código.</p>`}</div>`;
+    : html`<button class="btn btn-acero" ${crudo(UI.irAttrs('reservar', { id: c.id, servicio: sel.id }))}>${pr && pr.servicio === sel.id ? `Reservar · desde ${pesos(redondear(precioSel * (1 - pr.pct / 100)))}` : `Reservar · ${pesos(precioSel)}`}</button><p class="t11">${pr && pr.servicio === sel.id ? 'El descuento aplica en las franjas marcadas. ' : ''}Pagas en la app y llegas con tu código.</p>`}</div>`;
     },
     alMontar(el, p) { minimapa(el, p); },
     alRefrescar(el, p) { minimapa(el, p); },
@@ -409,8 +414,23 @@
 
   /* ================================================================ reservar */
   const estadoRes = () => (DRS.tel.ui.res = DRS.tel.ui.res || {});
-  /** Hora de cierre (minutos) del comercio ese día; los domingos cierran a las 3:00 p. m. */
-  const cierre = (c, dia) => (dia.getDay() === 0 ? (c.tipo === 'lavadero' ? 15 * 60 : 0) : 18 * 60 + 30);
+  /** Hora de cierre (minutos) del comercio ese día, leída de su horario; 0 si ese día no abre.
+      Los lavaderos abren los domingos hasta las 3:00 p. m.; talleres y CDA no abren los domingos. */
+  const HORARIO_LAVADERO = 'Lun–sáb 7:00 a. m. – 7:00 p. m. · dom 8:00 a. m. – 3:00 p. m.';
+  const aMinTxt = (h, m, ap) => (Number(h) % 12 + (ap === 'p' ? 12 : 0)) * 60 + Number(m);
+  function cierre(c, dia) {
+    const dow = dia.getDay();
+    if (c.tipo === 'lavadero') return dow === 0 ? 15 * 60 : 18 * 60;          // franjas de la app: de 8:00 a. m. a 6:00 p. m., como la agenda del panel
+    if (dow === 0) return 0;
+    const h = c.horario || '';
+    if (dow === 6) {
+      if (/^Lun–vie/.test(h) && !/sáb/.test(h)) return 0;
+      const sab = h.match(/sáb hasta la (\d{1,2}):(\d{2}) ([ap])\. m\./);
+      if (sab) return aMinTxt(sab[1], sab[2], sab[3]);
+    }
+    const fin = h.match(/–\s*(\d{1,2}):(\d{2}) ([ap])\. m\./);
+    return fin ? aMinTxt(fin[1], fin[2], fin[3]) : 18 * 60 + 30;
+  }
   function franjas(c, dia, servMin) {
     const out = [];
     const agenda = c.id === 'c1' && U.isoDia(dia) === U.isoDia(DRS.reloj.hoy()) ? DRS.q.agenda('c1') : [];
@@ -434,11 +454,13 @@
     render(p) {
       const c = DRS.q.comercio(p.id);
       const e = estadoRes();
-      const nuevo = e.c !== c.id;
-      if (nuevo) Object.assign(e, { c: c.id, v: DRS.estado.vehiculoActivo, s: p.servicio, extras: c.tipo === 'lavadero' ? ['silicona'] : [], dia: 0, h: null, puntos: false });
+      const pedido = p.cotizado ? `cot:${p.cotizado.nombre}:${p.cotizado.valor}` : p.servicio || '';
+      const nuevo = e.c !== c.id || e.pedido !== pedido;
+      if (nuevo) Object.assign(e, { c: c.id, pedido, v: DRS.estado.vehiculoActivo, s: p.cotizado ? 'cotizado' : p.servicio, extras: [], dia: 0, h: null, puntos: false });
       const v = DRS.q.vehiculo(e.v);
-      const ss = servicios(c, v).filter((s) => s.valor || p.cotizado);
-      if (p.cotizado && !ss.find((s) => s.id === 'cotizado')) ss.unshift({ id: 'cotizado', nombre: p.cotizado.nombre, desc: `Cotización de ${c.nombre}`, min: p.cotizado.min || 90, valor: p.cotizado.valor });
+      const ss = p.cotizado
+        ? [{ id: 'cotizado', nombre: p.cotizado.nombre, desc: `Cotización de ${c.nombre}`, min: p.cotizado.min || 90, valor: p.cotizado.valor }]
+        : servicios(c, v).filter((s) => s.valor > 0);
       const srv = ss.find((s) => s.id === e.s) || ss[0];
       const dias = Array.from({ length: 7 }, (_, i) => DRS.reloj.dia(i));
       if (nuevo) {   // arranca en el primer día con franjas libres (p. ej. si hoy el comercio ya cerró)
@@ -510,8 +532,12 @@
     DRS.cambiar((s) => {
       s.reservas.push(r);
       if (usados) { const pts = Math.round(-usados[1] / 10); s.usuario.puntos -= pts; (s.movPuntos = s.movPuntos || []).unshift({ d: 0, txt: `Usaste puntos en ${c.nombre}`, pts: -pts }); }
+      if (c.tipo === 'lavadero') {                  // la meta cuenta lavados pagados; el 5.º, con su descuento, cierra el ciclo
+        const m = s.usuario.meta;
+        m.hechos = e.lineas.some((l) => /^Meta/.test(l[0])) ? 0 : Math.min(m.total - 1, m.hechos + 1);
+      }
       (s.pagos = s.pagos || []).unshift({ id: `p${Date.now()}`, d: 0, h: horaAhora(), concepto: `${e.srvNombre} · ${c.nombre}`, ref, medio: nombresMedio[medio] === 'Tarjeta' ? 'Tarjeta Visa terminada en 4417' : nombresMedio[medio], total: e.total, tipo: c.tipo === 'cda' ? 'tecno' : 'reserva', rel: id });
-      s.notificaciones.unshift({ id: `n${Date.now()}`, d: 0, h: horaAhora(), ico: 'calendario', titulo: 'Reserva confirmada', texto: `${e.srvNombre} en ${c.nombre}, ${dia === 0 ? 'hoy' : U.fechaLarga(DRS.reloj.dia(dia))} a las ${U.horaTxt(e.h)}. Código ${id}.`, leida: false, ir: { ruta: 'reserva', p: { id } }, accion: 'Ver reserva' });
+      s.notificaciones.unshift({ id: `n${Date.now()}`, d: 0, h: horaAhora(), ico: 'calendario', titulo: 'Reserva confirmada', texto: `${e.srvNombre} en ${c.nombre}, ${dia === 0 ? 'hoy' : U.fechaLarga(DRS.reloj.dia(dia))} a las ${U.horaTxt(e.h)} · código ${id}`, leida: false, ir: { ruta: 'reserva', p: { id } }, accion: 'Ver reserva' });
     }, { tipo: 'reserva-nueva', id });
     if (c.id === 'c1' && dia === 0 && DRS.panel) { DRS.panel.sel = id; DRS.panel.llega = id; DRS.panel.render(); }
     return r;
@@ -541,7 +567,7 @@
       const r = DRS.mapa && DRS.mapa.rutear ? DRS.mapa.rutear(casa.pos, c.pos) : { km: c.km, min: Math.round(c.km / 22 * 60), pasos: [`Dirígete a ${c.direccion}`] };
       const res = DRS.q.reservasUsuario().find((x) => x.comercio === c.id && x.d === 0 && ['confirmada', 'recibido'].includes(x.estado));
       const salir = res ? U.deMin(Math.max(0, U.aMin(res.hora) - r.min - 5)) : null;
-      const e = (DRS.tel.ui.ruta = DRS.tel.ui.ruta || {});
+      const e = rutaDe(c.id);
       return html`<div class="exp ruta">
         <div class="exp-mapa" data-mapa></div>
         <header class="exp-cab"><button class="exp-btn" data-a="atras" aria-label="Volver">${ico('atras')}</button>
@@ -552,7 +578,7 @@
           ${salir ? html`<div class="aviso-caja" style="margin:10px 0 0">${ico('horario')}<span>Sal a las <b class="t-1">${U.horaTxt(salir)}</b> para llegar a tu reserva de las ${U.horaTxt(res.hora)}</span></div>` : ''}
           <ol class="ruta-pasos">${r.pasos.map((x, i) => (/^Llegas/.test(x) ? `Llegas a ${c.direccion}` : x)).map((x, i) => html`<li><i>${i === r.pasos.length - 1 && /^Llegas/.test(x) ? ico('ubicacion') : i + 1}</i><span>${x}</span></li>`)}${r.pasos.some((x) => /^Llegas/.test(x)) ? '' : html`<li><i>${ico('ubicacion')}</i><span>Llegas a ${c.direccion}</span></li>`}</ol>
           <div class="ruta-botones">
-            <button class="btn btn-luz btn-chico" data-a="ruta-iniciar" ${crudo(e.andando ? 'disabled' : '')}>${ico('flecha', 's16')}${e.andando ? 'En camino…' : 'Iniciar'}</button>
+            <button class="btn btn-luz btn-chico" data-a="ruta-iniciar" data-id="${c.id}" ${crudo(e.andando ? 'disabled' : '')}>${ico('flecha', 's16')}${e.andando ? 'En camino…' : 'Iniciar'}</button>
             <button class="btn btn-fantasma btn-chico" data-a="ruta-app" data-app="Waze">Waze</button>
             <button class="btn btn-fantasma btn-chico" data-a="ruta-app" data-app="Google Maps">Google Maps</button>
           </div>
@@ -563,6 +589,8 @@
     alRefrescar(el, p) { montarRuta(el, p, false); },
   };
   let ctlRuta = null;
+  /** Estado del recorrido por comercio: «En camino…» en uno no bloquea el botón de otro. */
+  const rutaDe = (id) => { const t = (DRS.tel.ui.rutas = DRS.tel.ui.rutas || {}); return (t[id] = t[id] || {}); };
   function montarRuta(el, p, animar) {
     const c = DRS.q.comercio(p.id);
     const casa = DRS.estado.casa;
@@ -594,9 +622,24 @@
     },
   };
 
+  /** Respuesta de ejemplo de un taller a la solicitud (valor según el taller y lo pedido). */
+  function respuesta(e, id, i) {
+    const c = DRS.q.comercio(id);
+    const nombres = e.nec.map((k) => (NECESIDADES.find((n) => n[0] === k) || [k, k])[1]);
+    const base = e.nec.reduce((a, k) => { const s = DRS.estado.serviciosTaller.find((x) => x.id === k); return a + (s && s.desde ? s.desde : 150000); }, 0);
+    const valor = Math.round((base * (c.factor || 1) * (1 + (i % 2 ? 0.06 : -0.03))) / 1000) * 1000;
+    return { id, nombre: nombres.join(' + '), valor, min: 90, tiempo: i === 0 ? 'Listo en 2 h' : i === 1 ? 'Listo hoy' : 'Listo mañana',
+      incluye: e.nec.includes('aceite') ? ['Aceite sintético 5W-30', 'Filtro de aceite', 'Revisión de frenos y niveles'] : ['Diagnóstico inicial', 'Mano de obra', 'Reporte con fotos'] };
+  }
+
   DRS.pantallas.cotizaciones = {
     render() {
-      const e = DRS.tel.ui.cot || { respuestas: [], talleres: ['t1', 't2', 't4'], nec: ['aceite'] };
+      // Abierta desde un aviso, sin solicitud en curso: se muestran las respuestas de ejemplo, no una espera sin fin
+      let e = DRS.tel.ui.cot;
+      if (!e || (!e.sol && !(e.respuestas || []).length)) {
+        e = DRS.tel.ui.cot = { ...(e || {}), nec: (e && e.nec) || ['aceite'], talleres: (e && e.talleres) || ['t1', 't2', 't4'] };
+        e.respuestas = e.talleres.map((id, i) => respuesta(e, id, i));
+      }
       const resp = e.respuestas || [];
       const faltan = (e.talleres || []).length - resp.length;
       return html`${UI.cabDet('Cotizaciones')}<div class="cuerpo">
@@ -621,7 +664,7 @@
     'exp-yo': () => { if (ctlExp) ctlExp.enfocar(DRS.estado.casa.pos, null, 0.34); },
     'com-srv': (d) => { (DRS.tel.ui.comSel = DRS.tel.ui.comSel || {})[d.c] = d.s; DRS.tel.refrescar(); },
     'com-llamar': () => DRS.tel.tostada('En la app real se abre la llamada', 'telefono'),
-    'com-guardar': () => DRS.tel.tostada('Guardado en tus favoritos', 'guardar'),
+    'com-guardar': () => DRS.tel.tostada('En la app real queda en tus favoritos', 'guardar'),
     'res-v': (d) => { estadoRes().v = d.id; DRS.tel.refrescar(); },
     'res-s': (d) => { estadoRes().s = d.s; DRS.tel.refrescar(); },
     'res-extra': (d) => { const e = estadoRes(); e.extras = e.extras.includes(d.id) ? e.extras.filter((x) => x !== d.id) : [...e.extras, d.id]; DRS.tel.refrescar(); },
@@ -637,20 +680,24 @@
         alPagar: (medio, ref) => {
           const r = crearReserva(c, e, medio, ref);
           DRS.tel.ui.res = null;
-          DRS.tel.ir('reserva-confirmada', { id: r.id });
-          setTimeout(() => DRS.avisos && DRS.avisos.lanzar('waConf'), 1600);
+          DRS.tel.saltar('reservas', 'reserva-confirmada', { id: r.id });   // «atrás» ya no vuelve a la pantalla de pago
+          if (DRS.avisos && DRS.estado.canales && DRS.estado.canales.whatsapp) setTimeout(() => DRS.avisos.lanzar('waConf', { r }), 1600);
         },
       });
     },
-    'ruta-iniciar': () => {
-      const e = (DRS.tel.ui.ruta = DRS.tel.ui.ruta || {});
-      if (!ctlRuta) return;
+    'ruta-iniciar': (d) => {
+      const e = rutaDe(d.id);
+      if (!ctlRuta || e.andando) return;
       e.andando = true; DRS.tel.refrescar();
+      const pantalla = DRS.tel.pila[DRS.tel.pila.length - 1];
       let k = 0;
+      // El recorrido se detiene si se sale de la pantalla (no deja un intervalo corriendo)
+      const parar = () => { clearInterval(tic); e.andando = false; };
       const tic = setInterval(() => {
-        k = Math.min(1, k + 0.02);
-        if (ctlRuta) ctlRuta.mover(k);
-        if (k >= 1) { clearInterval(tic); e.andando = false; DRS.tel.tostada('Llegaste a tu destino', 'ubicacion'); }
+        if (DRS.tel.pila[DRS.tel.pila.length - 1] !== pantalla || !ctlRuta) return parar();
+        k = reducido() ? 1 : Math.min(1, k + 0.02);
+        try { ctlRuta.mover(k); } catch (err) { return parar(); }
+        if (k >= 1) { parar(); DRS.tel.refrescar(); DRS.tel.tostada('Llegaste a tu destino', 'ubicacion'); }
       }, 60);
     },
     'ruta-app': (d) => DRS.tel.tostada(`En la app real se abre ${d.app} con la ruta`, 'enlace-externo'),
@@ -659,20 +706,20 @@
     'cot-foto': () => { DRS.tel.ui.cot.foto = true; DRS.tel.refrescar(); },
     'cot-enviar': () => {
       const e = DRS.tel.ui.cot;
+      const sol = (e.sol = Date.now());               // una solicitud nueva deja sin efecto los temporizadores de la anterior
       e.respuestas = [];
       DRS.tel.ir('cotizaciones', {});
-      const nombres = e.nec.map((k) => (NECESIDADES.find((n) => n[0] === k) || [k, k])[1]);
-      const base = e.nec.reduce((a, k) => { const s = DRS.estado.serviciosTaller.find((x) => x.id === k); return a + (s && s.desde ? s.desde : 150000); }, 0);
       e.talleres.forEach((id, i) => setTimeout(() => {
-        const c = DRS.q.comercio(id);
-        const valor = Math.round((base * (c.factor || 1) * (1 + (i % 2 ? 0.06 : -0.03))) / 1000) * 1000;
-        e.respuestas.push({ id, nombre: nombres.join(' + '), valor, min: 90, tiempo: i === 0 ? 'Listo en 2 h' : i === 1 ? 'Listo hoy' : 'Listo mañana', incluye: e.nec.includes('aceite') ? ['Aceite sintético 5W-30', 'Filtro de aceite', 'Revisión de frenos y niveles'] : ['Diagnóstico inicial', 'Mano de obra', 'Reporte con fotos'] });
+        if (e.sol !== sol || DRS.tel.ui.cot !== e) return;
+        e.respuestas.push(respuesta(e, id, i));
         const tope = DRS.tel.pila[DRS.tel.pila.length - 1];
         if (tope && tope.ruta === 'cotizaciones') DRS.tel.refrescar();
-        if (e.respuestas.length === e.talleres.length && DRS.avisos) DRS.avisos.lanzar('cotiz');
+        if (e.respuestas.length === e.talleres.length && DRS.avisos) DRS.avisos.lanzar('cotiz', { n: e.talleres.length, desde: Math.min(...e.respuestas.map((x) => x.valor)), nombre: e.respuestas[0].nombre });
       }, 1300 + i * 1100));
     },
   });
 
-  DRS.explorar = { crearMapa, precioDesde, servicios, promoDe };
+  /** Genera el SVG del mapa por adelantado (tarda unos cientos de ms en un celular), para que el primer mapa abra sin espera. */
+  const precalentar = () => { baseSvg(); };
+  DRS.explorar = { crearMapa, precioDesde, servicios, promoDe, precalentar };
 })();
