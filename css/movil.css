@@ -1,0 +1,29 @@
+/* =============================================================================
+   DRS MOTORS · APP — EN EL CELULAR (navegador o app instalada)
+   La app ocupa toda la pantalla: sin marco ni barra de iOS dibujados, porque el
+   teléfono ya tiene los suyos. Respeta el notch y la barra de inicio.
+   Instalada, la barra de estado de iOS es translúcida con texto blanco: por eso
+   su franja va siempre en noche (data-modo="noche"), también en el tema claro.
+============================================================================= */
+
+@media (max-width: 759px), (display-mode: standalone){
+  html,body{overscroll-behavior:none}
+  body{touch-action:pan-x pan-y}
+  body.pag-app{background:var(--sup-1)}
+  .escritorio{display:block;padding:0}
+  .esc-lado{display:none}
+  .celda-tel{position:fixed;inset:0;width:auto;height:auto}
+  .marco{position:absolute;inset:0;width:auto!important;height:auto!important;transform:none;padding:0;border-radius:0;box-shadow:none;background:var(--sup-1)}
+  .boton,.isla,.cota,.tel-estado,.tel-home{display:none!important}
+  .tel{position:absolute;inset:0;width:auto;height:auto;border-radius:0}
+  .tel-franja{display:block;position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top);background:var(--sup-1);z-index:45;pointer-events:none}
+  .tel-vista{top:env(safe-area-inset-top)}
+  .nav{bottom:max(10px, env(safe-area-inset-bottom))}
+  .cuerpo{padding-bottom:calc(132px + env(safe-area-inset-bottom))}
+  .cuerpo.con-cta{padding-bottom:28px}
+  .pie-cta{padding-bottom:max(18px, calc(env(safe-area-inset-bottom) + 8px))}
+  .hoja{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+  .aviso{top:calc(env(safe-area-inset-top) + 8px)}
+  .lanzador{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+  .aviso-escenario{bottom:calc(96px + env(safe-area-inset-bottom))}
+}

@@ -1,0 +1,124 @@
+/* =============================================================================
+   DRS MOTORS · DEMO — EL iPHONE (iPhone 15 Pro, 393 × 852 pt)
+   Lo que dibuja Apple: el equipo, la Dynamic Island, la barra de estado, los
+   avisos y la pantalla bloqueada. Aquí SÍ hay esquinas redondas y tipografía del
+   sistema, porque no es interfaz de DRS: es el teléfono. La app, adentro, sigue
+   con radio 0 y las familias de la marca.
+============================================================================= */
+
+:root{
+  --tel-w: 393px;
+  --tel-h: 852px;
+  --ios-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --ios-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ---------------- el equipo ---------------- */
+.celda-tel{width:calc((var(--tel-w) + 26px) * var(--k));height:calc((var(--tel-h) + 26px) * var(--k))}
+.celda-panel{height:calc((var(--tel-h) + 26px) * var(--k))}
+.ventana{height:calc(var(--tel-h) + 26px)}
+.marco{
+  width:calc(var(--tel-w) + 26px);height:calc(var(--tel-h) + 26px);
+  padding:13px;border:0;border-radius:68px;background:#050506;
+  box-shadow:
+    inset 0 0 0 1px #1d1e21,
+    0 0 0 2px #2a2b2e,
+    0 0 0 3.5px #55575c,
+    0 0 0 5px #1a1b1d,
+    0 40px 90px -30px #000;
+}
+.marco::before,.marco::after{content:none}
+.boton{position:absolute;width:4px;border-radius:2px;background:linear-gradient(90deg,#44464b,#26272a)}
+.b-accion{left:-8px;top:128px;height:32px}
+.b-vol1{left:-8px;top:186px;height:62px}
+.b-vol2{left:-8px;top:262px;height:62px}
+.b-lado{right:-8px;top:212px;height:98px}
+.tel{border-radius:55px;transform:translateZ(0)}
+.isla{
+  position:absolute;top:11px;left:50%;z-index:70;width:125px;height:37px;margin-left:-62.5px;
+  border-radius:20px;background:#000;transition:width .35s var(--ease), height .35s var(--ease), margin-left .35s var(--ease), top .35s var(--ease);
+  display:flex;align-items:center;justify-content:space-between;padding:0 12px;overflow:hidden;
+}
+.isla::after{content:"";width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#1c2433 0,#07090d 60%);margin-left:auto}
+.isla.viva{width:196px;margin-left:-98px}
+.isla-ico{display:none;width:22px;height:22px;border-radius:6px;background:#0A0B0D}
+.isla.viva .isla-ico{display:block}
+.isla-ico svg{width:22px;height:22px;display:block}
+
+/* Barra de estado de iOS */
+.tel-estado{height:54px;padding:0 32px 0 46px;font:600 17px/1 var(--ios-font);letter-spacing:-.2px;color:var(--txt-1);align-items:center;padding-top:4px}
+.tel-estado .num{font-variant-numeric:normal}
+.tel-senal{gap:7px}
+.tel-senal svg{fill:currentColor}
+.tel-vista{top:54px}
+.tel-home{width:139px;height:5px;margin-left:-69.5px;border-radius:3px;background:var(--txt-1);opacity:.92;bottom:8px}
+
+/* Aviso tipo notificación de iOS (lo pinta el sistema, no la app) */
+.aviso{
+  left:9px;right:9px;top:56px;
+  grid-template-columns:38px 1fr auto;gap:10px;align-items:center;
+  padding:11px 14px 12px 12px;border:0;border-radius:24px;
+  background:rgba(34,34,37,.86);
+  -webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);
+  box-shadow:0 12px 34px rgba(0,0,0,.45);
+  font-family:var(--ios-font);
+  transform:translateY(-190%);
+}
+.aviso.ver{transform:none}
+.aviso-ico{width:38px;height:38px;border:0;border-radius:9px;background:#0A0B0D;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14);overflow:hidden}
+.aviso-ico svg{width:38px;height:38px}
+.aviso-ico.wa{display:grid;place-items:center;background:#1f2a24;color:#fff}
+.aviso-ico.wa .ico{width:22px;height:22px}
+.aviso b{font:600 15px/1.25 var(--ios-font);color:#fff;letter-spacing:-.1px}
+.aviso .t13{font:400 15px/1.3 var(--ios-font);color:rgba(255,255,255,.9);margin-top:1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.aviso time{font:400 13px/1 var(--ios-font);color:rgba(255,255,255,.55);letter-spacing:0;align-self:start;margin-top:2px}
+.aviso-app{display:block;font:400 13px/1.2 var(--ios-font);color:rgba(255,255,255,.55);margin-bottom:1px;text-transform:uppercase;letter-spacing:.2px}
+/* Con el tema claro, los avisos se ven como los de iOS en modo claro (vidrio blanco, texto negro) */
+[data-modo="documento"] .aviso{background:rgba(246,246,248,.84);box-shadow:0 12px 34px rgba(0,0,0,.18)}
+[data-modo="documento"] .aviso b{color:#000}
+[data-modo="documento"] .aviso .t13{color:rgba(0,0,0,.86)}
+[data-modo="documento"] .aviso time,[data-modo="documento"] .aviso-app{color:rgba(0,0,0,.5)}
+
+/* ---------------- pantalla bloqueada ---------------- */
+.bloqueo{
+  position:absolute;inset:0;z-index:55;overflow:hidden;
+  font-family:var(--ios-font);color:#fff;
+  transition:transform .5s cubic-bezier(.5,0,.2,1), opacity .5s;
+}
+.bloqueo.sale{transform:translateY(-100%)}
+.bloqueo.entra{transform:translateY(-100%)}
+.bloqueo-fondo{position:absolute;inset:0;background:
+  radial-gradient(120% 70% at 50% 18%, #1a2230 0%, #0c0e12 55%, #060708 100%);}
+.bloqueo-fondo svg{position:absolute;left:-40px;right:-40px;top:360px;width:calc(100% + 80px);opacity:.34}
+.bloqueo-fondo::after{content:"";position:absolute;inset:0;background:
+  linear-gradient(rgba(91,147,196,.07) 1px, transparent 1px) 0 0/28px 28px,
+  linear-gradient(90deg, rgba(91,147,196,.07) 1px, transparent 1px) 0 0/28px 28px;}
+.bloqueo-candado{position:absolute;top:62px;left:50%;margin-left:-9px;width:18px;height:22px;z-index:2;transition:transform .35s}
+.bloqueo-candado svg{width:18px;height:22px;display:block}
+.bloqueo.abre .bloqueo-candado{transform:translateY(-3px)}
+.bloqueo-fecha{position:absolute;top:96px;left:0;right:0;text-align:center;font:600 19px/1 var(--ios-display);color:rgba(255,255,255,.86);z-index:2}
+.bloqueo-hora{position:absolute;top:118px;left:0;right:0;text-align:center;font:700 96px/1 var(--ios-display);letter-spacing:-2px;color:rgba(235,240,248,.96);z-index:2}
+.bloqueo-avisos{position:absolute;left:10px;right:10px;bottom:130px;display:flex;flex-direction:column;gap:8px;z-index:2}
+.bloqueo-titulo{display:flex;justify-content:space-between;align-items:center;padding:0 8px 2px;font:600 15px var(--ios-display);color:rgba(255,255,255,.85)}
+.bloqueo-titulo span{font-weight:400;color:rgba(255,255,255,.55);font-size:13px}
+.noti{
+  display:grid;grid-template-columns:38px 1fr;gap:10px;width:100%;text-align:left;
+  padding:11px 13px;border-radius:22px;
+  background:rgba(60,62,68,.46);
+  -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+  color:#fff;font-family:var(--ios-font);
+  animation:noti-llega .45s cubic-bezier(.2,.8,.2,1);
+}
+.noti .aviso-ico{width:38px;height:38px}
+.noti-cab{display:flex;justify-content:space-between;gap:8px;font:400 13px/1.2 var(--ios-font);color:rgba(255,255,255,.62)}
+.noti b{display:block;font:600 15px/1.25 var(--ios-font);margin-top:2px}
+.noti p{margin:1px 0 0;font:400 15px/1.3 var(--ios-font);color:rgba(255,255,255,.9);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.noti.pila{transform:scale(.94);opacity:.7;margin-top:-58px;pointer-events:none;height:62px;overflow:hidden;animation:none}
+@keyframes noti-llega{from{opacity:0;transform:translateY(24px) scale(.96)}}
+.bloqueo-pie{position:absolute;left:46px;right:46px;bottom:52px;display:flex;justify-content:space-between;z-index:2}
+.bloqueo-pie span{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:rgba(60,62,68,.5);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.bloqueo-pie svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8}
+.bloqueo-desliza{position:absolute;left:0;right:0;bottom:24px;text-align:center;font:500 13px var(--ios-font);color:rgba(255,255,255,.6);z-index:2}
+.bloqueo-vacio{text-align:center;font:400 15px var(--ios-font);color:rgba(255,255,255,.55);padding:12px}
+
+/* La adaptación al celular vive en css/movil.css */

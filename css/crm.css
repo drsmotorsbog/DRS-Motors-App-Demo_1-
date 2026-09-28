@@ -1,0 +1,30 @@
+/* =============================================================================
+   DRS MOTORS · CRM DEL COMERCIO — página para computador
+   Una barra fina de la demo arriba y el panel del comercio a pantalla completa.
+============================================================================= */
+
+.crm{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;background:var(--sup-1)}
+.crm-barra{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:10px 18px;border-bottom:1px solid var(--linea);background:var(--sup-1);position:relative;z-index:5;
+}
+.crm-marca{display:flex;align-items:center;gap:14px;min-width:0}
+.crm-logo{display:block;width:118px;height:26px;flex:none}
+.crm-marca .cap{border:1px solid var(--linea);padding:5px 7px;white-space:nowrap}
+.crm-acciones{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ctl-fuerte{border-color:var(--acc-graf);color:var(--txt-1)}
+.ctl-fuerte .ico{color:var(--acc-graf)}
+a.ctl{text-decoration:none}
+.crm-cuerpo{position:relative;min-height:0}
+.crm-panel{position:absolute;inset:0}
+
+@media (max-width: 1100px){
+  .crm-acciones .ctl-texto{display:none}
+  .crm-acciones .ctl-fuerte .ctl-texto{display:inline}
+}
+@media (max-width: 759px){
+  body.pag-crm{overflow:auto}
+  .crm-marca .cap{display:none}
+  .crm-barra{padding:8px 12px;padding-top:max(8px, env(safe-area-inset-top))}
+  .crm-acciones .ctl-fuerte .ctl-texto{display:none}
+}

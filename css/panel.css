@@ -1,0 +1,97 @@
+/* =============================================================================
+   DRS MOTORS · DEMO — PANEL DEL COMERCIO (lavadero / taller)
+   Pensado para dueños con poca adopción digital: pocas opciones a la vista,
+   una acción principal por reserva, estados con palabra + glifo + color.
+============================================================================= */
+
+.panel{position:absolute;inset:0;display:grid;grid-template-columns:196px 1fr;background:var(--sup-1);color:var(--txt-2);font-size:var(--fs-13)}
+
+/* Barra lateral */
+.pl-lado{display:flex;flex-direction:column;border-right:1px solid var(--linea);background:var(--sup-1);min-height:0}
+.pl-marca{padding:16px 16px 14px;border-bottom:1px solid var(--linea)}
+.pl-marca .pl-logo{display:block;width:100px;height:22px;margin-bottom:14px}
+.pl-marca .d-26{line-height:.95}
+.pl-marca .t11{margin-top:4px}
+.pl-menu{display:flex;flex-direction:column;padding:10px 0;flex:1}
+.pl-item{
+  display:flex;align-items:center;gap:10px;height:38px;padding:0 16px;
+  font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.16em;text-transform:uppercase;color:var(--txt-3);
+  border-left:2px solid transparent;
+}
+.pl-item .ico{width:18px;height:18px}
+.pl-item:hover:not([aria-disabled="true"]){color:var(--txt-1)}
+.pl-item[aria-current="page"]{color:var(--txt-1);border-left-color:var(--acc-graf);background:var(--sup-2)}
+.pl-item[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
+.pl-plan{margin:10px;padding:12px;border:1px solid var(--linea)}
+.pl-plan .t11{margin-top:6px}
+
+/* Área principal */
+.pl-main{display:grid;grid-template-rows:auto auto 1fr;min-height:0;min-width:0}
+.pl-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:16px 20px 12px}
+.pl-cab .ceja{margin-bottom:6px}
+.pl-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 20px 14px}
+.kpi{padding:10px 12px;background:var(--sup-2);border:1px solid var(--linea)}
+.kpi .cap{display:block}
+.kpi .d-34{margin-top:6px}
+.kpi .t11{margin-top:2px}
+.kpi-ejemplo{font-size:8px;letter-spacing:.14em;color:var(--txt-3);text-transform:uppercase}
+
+.pl-dos{display:grid;grid-template-columns:1fr 290px;gap:12px;padding:0 20px 18px;min-height:0}
+
+/* Agenda por bahías */
+.agenda{position:relative;display:grid;grid-template-columns:48px repeat(var(--bahias), 1fr);grid-template-rows:30px 1fr;border:1px solid var(--linea);min-height:0;overflow:hidden}
+.ag-cab{display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--linea);border-left:1px solid var(--linea);font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.2em;text-transform:uppercase;color:var(--txt-2)}
+.ag-cab:first-child{border-left:0}
+.ag-horas{position:relative;grid-row:2}
+.ag-hora{position:absolute;left:0;right:6px;text-align:right;transform:translateY(-6px);font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.06em;color:var(--txt-3);font-variant-numeric:tabular-nums}
+.ag-col{position:relative;grid-row:2;border-left:1px solid var(--linea);
+  background:repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--fila) - 1px), color-mix(in srgb, var(--linea) 60%, transparent) calc(var(--fila) - 1px), color-mix(in srgb, var(--linea) 60%, transparent) var(--fila));}
+.ag-ahora{position:absolute;left:48px;right:0;height:0;border-top:1px solid var(--acc-graf);z-index:3;pointer-events:none}
+.ag-ahora::before{content:"";position:absolute;left:-4px;top:-4px;width:7px;height:7px;background:var(--acc-graf)}
+.bloque-ag{
+  position:absolute;left:4px;right:4px;z-index:2;overflow:hidden;
+  display:flex;flex-direction:column;gap:3px;padding:6px 7px 6px 9px;text-align:left;
+  background:var(--sup-2);border:1px solid var(--linea);border-left:3px solid var(--n-4);
+  transition:border-color .15s, background .15s, opacity .2s;
+}
+.bloque-ag:hover{background:var(--sup-3)}
+.bloque-ag.app{border-left-color:var(--acc-graf)}
+.bloque-ag.fin{opacity:.45}
+.bloque-ag.sel{border-color:var(--acc-graf);border-left-width:3px;background:var(--sup-3)}
+.bloque-ag.llega{animation:llega 1.2s var(--ease)}
+@keyframes llega{0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--acc-graf) 70%, transparent)}100%{box-shadow:0 0 0 14px transparent}}
+.bloque-ag .placa-txt{font:400 var(--fs-16)/1 var(--f-display);letter-spacing:.08em;color:var(--txt-1)}
+.bloque-ag .fila-b{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.bloque-ag .t11{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.bloque-ag .cap{font-size:8px;white-space:nowrap}
+.bloque-ag .chip{height:16px;padding:0 4px;font-size:7.5px;letter-spacing:.1em}
+
+/* Detalle de la reserva seleccionada: sobre sup-1 para que el Azul Acero sea válido */
+.pl-det{display:flex;flex-direction:column;min-height:0;border:1px solid var(--linea);background:var(--sup-1)}
+.pl-det-cuerpo{flex:1;overflow:auto;padding:14px 14px 0;scrollbar-width:thin}
+.pl-det-pie{padding:12px 14px 14px;border-top:1px solid var(--linea)}
+.pl-det-pie .t11{margin-top:8px;text-align:center}
+.pl-det .d-34{margin:8px 0 2px}
+.pl-det .chips{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0 14px}
+.pl-det .datos{gap:8px 12px}
+.pl-det .datos dd{font-size:var(--fs-11)}
+.pl-det .estados .est{padding:7px 0}
+.pl-det .sep{margin:12px 0}
+.btn.late-suave{animation:late-suave 1.4s var(--ease) infinite}
+@keyframes late-suave{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb, var(--acc-1) 60%, transparent)}50%{box-shadow:0 0 0 8px transparent}}
+
+@media (max-width: 759px){
+  .panel{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .pl-lado{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--linea)}
+  .pl-marca,.pl-plan{display:none}
+  .pl-menu{flex-direction:row;padding:0}
+  .pl-item{border-left:0;border-bottom:2px solid transparent;white-space:nowrap}
+  .pl-item[aria-current="page"]{border-bottom-color:var(--acc-graf)}
+  .pl-main{overflow:auto}
+  .pl-kpis{grid-template-columns:1fr 1fr}
+  .pl-dos{grid-template-columns:1fr}
+  .agenda{height:620px}
+}
+
+/* Secciones adicionales del panel (css/panel-mas.css las detalla) */
+.pl-main-vista{display:block;overflow:auto;min-height:0;scrollbar-width:thin}

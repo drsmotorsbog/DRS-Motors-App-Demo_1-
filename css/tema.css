@@ -1,0 +1,41 @@
+/* =============================================================================
+   DRS MOTORS · DEMOS — TEMA OSCURO Y CLARO
+   Oscuro = modo noche de la marca (dominante). Claro = modo documento de la marca,
+   con sus mismos roles y valores (Contexto/09_color.md §8.2). Se elige con el
+   atributo data-modo del <html>; lo pone js/tema.js.
+
+   Roles que agregan las demos, para no tener que acordarse de los bloqueos:
+     --acc-txt   el azul que sostiene texto. Noche: Azul Luz (bloqueo 1).
+                 Documento: Azul Acero (bloqueo 3: el Azul Luz no lleva texto).
+     --acc-graf  el azul de iconos, trazos, rutas y barras con significado.
+                 Noche: Azul Luz (bloqueo 2, sobre panel). Documento: Azul Acero
+                 (el Azul Luz da 2,72:1 y no alcanza el 3:1 gráfico).
+     --sel-fondo / --sel-txt  lo seleccionado. Noche: Azul Luz con texto oscuro.
+                 Documento: se invierte a Negro Carbón con texto Platino, para que
+                 el azul quede solo para el énfasis (regla 8.5.2).
+   Todo se declara también en [data-modo], porque una variable que usa otra se
+   resuelve donde se declara: así un bloque en modo noche dentro de una página
+   clara (el iPhone, la pantalla bloqueada) resuelve sus propios valores.
+============================================================================= */
+
+:root,[data-modo="noche"]{
+  --acc-txt: var(--acc-2);
+  --acc-graf: var(--acc-2);
+  --sel-fondo: var(--acc-2);
+  --sel-txt: var(--sup-1);
+  --velo: color-mix(in srgb, var(--sup-1) 72%, transparent);
+  --sombra: color-mix(in srgb, var(--sup-1) 60%, black);
+  color-scheme: dark;
+}
+[data-modo="documento"]{
+  --acc-txt: var(--acc-1);
+  --acc-graf: var(--acc-1);
+  --sel-fondo: var(--txt-1);
+  --sel-txt: var(--sup-1);
+  --velo: color-mix(in srgb, var(--txt-1) 34%, transparent);
+  --sombra: color-mix(in srgb, var(--txt-1) 22%, transparent);
+  color-scheme: light;
+}
+
+/* Cambio de tema sin parpadeo: se desactivan las transiciones un instante */
+.sin-transicion *,.sin-transicion *::before,.sin-transicion *::after{transition:none!important}

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es-CO" data-modo="noche">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DRS Motors · Demo de la app</title>
+<meta name="description" content="Demo de la app de DRS Motors para inversionistas: tres propuestas con los mismos servicios. Datos ficticios.">
+<meta name="theme-color" content="#0A0B0D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DRS Motors">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="iconos/icono-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="iconos/icono-192.png">
+<script src="js/tema.js"></script>
+<link rel="stylesheet" href="css/fuentes.css">
+<link rel="stylesheet" href="css/drs.tokens.css">
+<link rel="stylesheet" href="css/tema.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/ios.css">
+<link rel="stylesheet" href="css/flujos.css">
+<link rel="stylesheet" href="css/mapa.css">
+<link rel="stylesheet" href="css/servicios.css">
+<link rel="stylesheet" href="css/lanzador.css">
+<link rel="stylesheet" href="css/v2.css">
+<link rel="stylesheet" href="css/v3.css">
+<link rel="stylesheet" href="css/escritorio.css">
+<link rel="stylesheet" href="css/movil.css">
+</head>
+<body class="pag-app">
+<div id="sprites" aria-hidden="true"></div>
+
+<div class="escritorio">
+  <aside class="esc-lado" id="esc-lado" aria-label="Opciones de la demo"></aside>
+  <div class="celda-tel">
+    <div class="marco">
+      <i class="boton b-accion"></i><i class="boton b-vol1"></i><i class="boton b-vol2"></i><i class="boton b-lado"></i>
+      <span class="cota cota-h"><span>393 PT · iPHONE 15 PRO</span></span>
+      <span class="cota cota-v"><span>852 PT</span></span>
+      <div class="tel sin-demo" id="tel">
+        <div class="tel-estado" aria-hidden="true">
+          <span id="tel-hora">10:12</span>
+          <span class="tel-senal">
+            <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7.5" width="3.2" height="4.5" rx="1"/><rect x="4.9" y="5" width="3.2" height="7" rx="1"/><rect x="9.8" y="2.5" width="3.2" height="9.5" rx="1"/><rect x="14.7" y="0" width="3.2" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.4 0 4.6.9 6.3 2.5l1.2-1.2C13.9 1.7 11.3.6 8.5.6S3.1 1.7 1 3.7l1.2 1.2C3.9 3.3 6.1 2.4 8.5 2.4zm0 3.4c1.5 0 2.9.6 3.9 1.5l1.2-1.2C12.3 4.9 10.5 4.1 8.5 4.1s-3.8.8-5.1 2L4.6 7.3c1-.9 2.4-1.5 3.9-1.5zm0 3.3c.6 0 1.2.2 1.6.6L8.5 11.3 6.9 9.7c.4-.4 1-.6 1.6-.6z"/></svg>
+            <svg width="28" height="13" viewBox="0 0 28 13"><rect x=".5" y=".5" width="24" height="12" rx="3.8" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="2" y="2" width="18.5" height="9" rx="2.4"/><path d="M26 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2z" fill-opacity=".45"/></svg>
+          </span>
+        </div>
+        <div class="tel-franja" data-modo="noche" aria-hidden="true"></div>
+        <div class="tel-vista" id="tel-vista"></div>
+        <nav class="nav oculta" id="tel-nav" aria-label="Navegación principal"></nav>
+        <div class="tel-capa" id="tel-capa"></div>
+        <div class="tel-home"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="aviso-escenario" id="aviso-escenario" role="status" aria-live="polite"></div>
+
+<script src="js/marca.js"></script>
+<script src="js/iconos-app.js"></script>
+<script src="js/util.js"></script>
+<script src="js/reloj.js"></script>
+<script src="js/datos.js"></script>
+<script src="js/estado.js"></script>
+<script src="js/blueprint.js"></script>
+<script src="js/blueprint-mas.js"></script>
+<script src="js/mapa.js"></script>
+<script src="js/modelo.js"></script>
+<script src="js/comercio/datos-comercio.js"></script>
+<script src="js/app/tel.js"></script>
+<script src="js/app/ios.js"></script>
+<script src="js/app/pago.js"></script>
+<script src="js/usuario/comun.js"></script>
+<script src="js/usuario/inicio.js"></script>
+<script src="js/usuario/garaje.js"></script>
+<script src="js/usuario/reservas.js"></script>
+<script src="js/usuario/otras.js"></script>
+<script src="js/usuario/perfil.js"></script>
+<script src="js/usuario/beneficios.js"></script>
+<script src="js/usuario/soat.js"></script>
+<script src="js/usuario/explorar.js"></script>
+<script src="js/usuario/registro.js"></script>
+<script src="js/usuario/whatsapp.js"></script>
+<script src="js/usuario/informe.js"></script>
+<script src="js/usuario/catalogo.js"></script>
+<script src="js/usuario/tramites.js"></script>
+<script src="js/app/avisos.js"></script>
+<script src="js/variantes/v1.js"></script>
+<script src="js/variantes/v2.js"></script>
+<script src="js/variantes/v3.js"></script>
+<script src="js/app/lanzador.js"></script>
+<script src="js/app/demo-menu.js"></script>
+<script src="js/app/arranque.js"></script>
+</body>
+</html>

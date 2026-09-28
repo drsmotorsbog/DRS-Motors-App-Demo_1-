@@ -1,0 +1,40 @@
+/* =============================================================================
+   DRS MOTORS · APP — EN COMPUTADOR
+   El iPhone dibujado y escalado al centro, y a la izquierda el panel del
+   presentador con las opciones de la demo. En el celular manda movil.css.
+============================================================================= */
+
+body.pag-app{
+  background:
+    linear-gradient(var(--rejilla) 1px, transparent 1px) 0 0/120px 120px,
+    linear-gradient(90deg, var(--rejilla) 1px, transparent 1px) 0 0/120px 120px,
+    linear-gradient(color-mix(in srgb, var(--linea) 22%, transparent) 1px, transparent 1px) 0 0/24px 24px,
+    linear-gradient(90deg, color-mix(in srgb, var(--linea) 22%, transparent) 1px, transparent 1px) 0 0/24px 24px,
+    var(--sup-1);
+}
+.escritorio{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;gap:56px;padding:24px}
+
+.celda-tel{position:relative;flex:none;width:calc((var(--tel-w) + 26px) * var(--k));height:calc((var(--tel-h) + 26px) * var(--k))}
+.marco{position:absolute;left:0;top:0;transform:scale(var(--k));transform-origin:0 0}
+.cota{
+  position:absolute;display:flex;align-items:center;gap:6px;
+  font:600 var(--fs-9)/1 var(--f-label);letter-spacing:.16em;color:var(--txt-3);
+  pointer-events:none;
+}
+.cota-h{left:0;right:0;top:-26px;justify-content:center}
+.cota-h::before,.cota-h::after{content:"";flex:1;height:1px;background:var(--n-4)}
+.cota-v{top:0;bottom:0;left:-30px;flex-direction:column;justify-content:center}
+.cota-v::before,.cota-v::after{content:"";flex:1;width:1px;background:var(--n-4)}
+.cota-v span{writing-mode:vertical-rl;transform:rotate(180deg)}
+.tel-franja{display:none}
+
+/* Panel del presentador */
+.esc-lado{
+  width:300px;max-height:calc(100dvh - 48px);overflow:auto;flex:none;
+  display:flex;flex-direction:column;gap:18px;padding:18px;
+  border:1px solid var(--linea);background:var(--sup-2);scrollbar-width:thin;
+}
+.esc-marca{display:flex;flex-direction:column;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--linea)}
+.esc-marca .logo-dual{width:132px;height:30px}
+.esc-nota{margin-top:auto}
+@media (max-width: 1023px){ .esc-lado{display:none} }

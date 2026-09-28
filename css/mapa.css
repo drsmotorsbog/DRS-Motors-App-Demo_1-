@@ -1,0 +1,107 @@
+/* =============================================================================
+   DRS MOTORS · DEMO — MAPA BASE (css/mapa.css)
+   Estilos del SVG que genera js/mapa.js (DRS.mapa.svg). Modo noche de la marca:
+   solo tokens de drs.tokens.css por su nombre de rol, nunca un color copiado.
+   Geometría de marca: terminales butt, uniones miter, radio 0.
+
+   Zoom. El SVG escala entero con su viewBox. Dos variables en el <svg> permiten
+   compensar al acercar (valor = factor de zoom respecto a la vista base):
+     --mapa-k   texto   (3 → a 3× las etiquetas conservan su tamaño en pantalla)
+     --mapa-kv  trazos  (déjalo en 1 para que las vías engorden al acercar, como
+                         en un mapa real; súbelo si prefieres trazos constantes)
+   Los tamaños de texto (21 · 9 · 8,5 · 7,5) y el tracking están replicados en
+   ESTILO dentro de js/mapa.js para calcular colisiones: se cambian juntos.
+============================================================================= */
+
+.mapa-base{
+  --mapa-k:1;
+  --mapa-kv:1;
+  display:block;width:100%;height:100%;
+  background:var(--sup-2);
+  overflow:hidden;
+}
+.mapa-base path,.mapa-base rect{stroke-linecap:var(--cap);stroke-linejoin:var(--join);stroke-miterlimit:4}
+
+/* ------------------------------------------------------------ tierra y relieve */
+.mapa-base .m-suelo{fill:var(--sup-2)}
+.mapa-base .m-rural{fill:none;stroke:var(--linea);stroke-width:calc(.9px / var(--mapa-kv))}
+.mapa-base .m-cerro{fill:var(--sup-1)}
+.mapa-base .m-curva{fill:none;stroke:var(--linea);stroke-width:calc(.9px / var(--mapa-kv))}
+.mapa-base .m-curva-i{stroke-width:calc(1.8px / var(--mapa-kv))}
+.mapa-base .m-cima{fill:var(--txt-3)}
+
+/* ------------------------------------------------------------ verde y agua */
+.mapa-base .m-verde{stroke:var(--linea);stroke-width:calc(.8px / var(--mapa-kv))}
+.mapa-base .m-pv-f{fill:var(--sup-2)}
+.mapa-base .m-pv-p{fill:var(--n-4)}
+.mapa-base .m-agua{fill:var(--acc-1);fill-opacity:.25;stroke:var(--acc-1);stroke-opacity:.5;stroke-width:calc(.8px / var(--mapa-kv))}
+.mapa-base .m-rio{fill:none;stroke:var(--acc-1);stroke-opacity:.5;stroke-width:calc(3px / var(--mapa-kv))}
+.mapa-base .m-rio-b{stroke-width:calc(5px / var(--mapa-kv))}
+.mapa-base .m-canal{fill:none;stroke:var(--acc-1);stroke-opacity:.5;stroke-width:calc(1.4px / var(--mapa-kv))}
+.mapa-base .m-queb{fill:none;stroke:var(--acc-1);stroke-opacity:.4;stroke-width:calc(1px / var(--mapa-kv))}
+
+/* ------------------------------------------------------------ equipamientos */
+.mapa-base .m-aero{stroke:var(--n-4);stroke-width:calc(.8px / var(--mapa-kv))}
+.mapa-base .m-pa-f{fill:var(--sup-2)}
+.mapa-base .m-pa-l{fill:none;stroke:var(--linea);stroke-width:1px}
+.mapa-base .m-aero-p{fill:var(--sup-3);stroke:var(--n-4);stroke-width:calc(.8px / var(--mapa-kv))}
+.mapa-base .m-aero-t{fill:var(--n-4)}
+.mapa-base .m-pista{fill:var(--n-4)}
+.mapa-base .m-pista-e{fill:none;stroke:var(--sup-2);stroke-width:calc(.9px / var(--mapa-kv));stroke-dasharray:6 5}
+.mapa-base .m-rodaje{fill:none;stroke:var(--n-4);stroke-width:calc(1.2px / var(--mapa-kv))}
+.mapa-base .m-campus{fill:none;stroke:var(--n-4);stroke-width:calc(1.3px / var(--mapa-kv))}
+.mapa-base .m-estadio{fill:var(--sup-3);stroke:var(--n-4);stroke-width:calc(1.2px / var(--mapa-kv))}
+.mapa-base .m-cancha{fill:none;stroke:var(--n-4);stroke-width:calc(.8px / var(--mapa-kv))}
+.mapa-base .m-plaza{fill:var(--sup-3);stroke:var(--n-4);stroke-width:calc(.8px / var(--mapa-kv))}
+
+/* ------------------------------------------------------------ vías */
+.mapa-base .m-calle-t{fill:none;stroke:var(--sup-3);stroke-width:calc(1px / var(--mapa-kv))}
+.mapa-base .m-calle{fill:none;stroke:var(--sup-3);stroke-width:calc(1.8px / var(--mapa-kv))}
+.mapa-base .m-oreja{fill:none;stroke:var(--n-4);stroke-width:calc(1.6px / var(--mapa-kv))}
+.mapa-base .m-art{fill:none;stroke:var(--n-4);stroke-width:calc(2.4px / var(--mapa-kv))}
+.mapa-base .m-av-c{fill:none;stroke:var(--sup-1);stroke-width:calc(7px / var(--mapa-kv))}
+.mapa-base .m-av{fill:none;stroke:var(--txt-3);stroke-width:calc(2.8px / var(--mapa-kv))}
+
+/* ------------------------------------------------------------ etiquetas */
+.mapa-base text{
+  font-family:var(--f-label);font-weight:600;
+  text-anchor:middle;dominant-baseline:central;text-transform:uppercase;
+  letter-spacing:.2em;fill:var(--txt-3);
+  paint-order:stroke;stroke:var(--sup-2);stroke-linejoin:var(--join);stroke-miterlimit:1;
+  stroke-width:calc(3px / var(--mapa-k));
+  pointer-events:none;user-select:none;-webkit-user-select:none;
+}
+.mapa-base .m-e-loc{font-size:calc(21px / var(--mapa-k));letter-spacing:.34em;stroke-width:calc(5px / var(--mapa-k))}
+.mapa-base .m-e-bar{font-size:calc(9px / var(--mapa-k))}
+.mapa-base .m-e-av{font-size:calc(8.5px / var(--mapa-k));stroke:var(--sup-1)}
+.mapa-base .m-e-art{font-size:calc(7.5px / var(--mapa-k))}
+.mapa-base .m-e-lug{font-size:calc(7.5px / var(--mapa-k))}
+.mapa-base .m-e-agua{font-size:calc(7.5px / var(--mapa-k));letter-spacing:.22em}
+.mapa-base .m-e-cer{font-size:calc(9px / var(--mapa-k));letter-spacing:.3em;stroke:var(--sup-1)}
+.mapa-base .m-e-o{stroke:var(--sup-1)}
+/* Placa bajo el nombre de una vía: corta el trazo como la cota de un plano. Con
+   --mapa-k se acorta junto con el texto; su alto es el del casing y no cambia. */
+.mapa-base .m-placa{transform-box:fill-box;transform-origin:center;transform:scale(calc(1 / var(--mapa-k)),1)}
+.mapa-base .m-placa-av{fill:var(--sup-1)}
+.mapa-base .m-placa-art{fill:var(--sup-2)}
+.mapa-base .m-placa-art.m-e-o{fill:var(--sup-1)}
+
+/* ------------------------------------------------------------ detalle «medio» */
+/* Vista de conjunto (≈0,4–0,7 px por unidad, p. ej. una ruta entera en el celular):
+   texto al doble y trazos más gruesos. js/mapa.js calcula las colisiones con FT = 2. */
+.mapa-medio .m-e-loc{font-size:calc(42px / var(--mapa-k));stroke-width:calc(9px / var(--mapa-k))}
+.mapa-medio .m-e-bar{font-size:calc(18px / var(--mapa-k));stroke-width:calc(5px / var(--mapa-k))}
+.mapa-medio .m-e-av{font-size:calc(17px / var(--mapa-k))}
+.mapa-medio .m-e-art,.mapa-medio .m-e-lug{font-size:calc(15px / var(--mapa-k));stroke-width:calc(5px / var(--mapa-k))}
+.mapa-medio .m-e-agua{font-size:calc(15px / var(--mapa-k));stroke-width:calc(5px / var(--mapa-k))}
+.mapa-medio .m-e-cer{font-size:calc(18px / var(--mapa-k));stroke-width:calc(5px / var(--mapa-k))}
+.mapa-medio .m-av-c{stroke-width:calc(12.6px / var(--mapa-kv))}
+.mapa-medio .m-av{stroke-width:calc(5px / var(--mapa-kv))}
+.mapa-medio .m-art{stroke-width:calc(3.8px / var(--mapa-kv))}
+.mapa-medio .m-calle{stroke-width:calc(2.6px / var(--mapa-kv))}
+.mapa-medio .m-calle-t{stroke-width:calc(1.4px / var(--mapa-kv))}
+.mapa-medio .m-curva{stroke-width:calc(1.3px / var(--mapa-kv))}
+.mapa-medio .m-curva-i{stroke-width:calc(2.6px / var(--mapa-kv))}
+.mapa-medio .m-rio{stroke-width:calc(4.5px / var(--mapa-kv))}
+.mapa-medio .m-rio-b{stroke-width:calc(7px / var(--mapa-kv))}
+.mapa-medio .m-canal{stroke-width:calc(2.2px / var(--mapa-kv))}

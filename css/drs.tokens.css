@@ -1,0 +1,235 @@
+/* GENERADO por herramientas/sincronizar.py — no editar. Fuente: Marca/drs.tokens.css */
+/* =============================================================================
+   DRS MOTORS — FICHA DE TOKENS (CAPA 0)  ·  v1 → v2.1 (2026-09-24: Inter retirada)  ·  2026-08-30
+   Generada con el método de sistema (ver DRS_MAESTRO.md §15).
+
+   FUENTE PRIMARIA: DRS_MAESTRO.md §8 Color. Los valores del modo documento
+   fueron CORREGIDOS en v2: se habían medido contra blanco puro y no contra
+   Platino, que es la superficie declarada. Ver §8.3 y el Bloqueo 4 del §8.4.
+   Cuando el .md resumen y el HTML difieren, manda el HTML (así lo declara el .md).
+
+   ESTADO DE CADA VALOR:
+     [D]  declarado por el brand book
+     [A]  autorizado explícitamente por la marca fuera del libro
+     [d]  derivado por regla escrita, con la regla citada
+   Ninguna cifra ni matiz de este archivo fue elegido a ojo. Toda mezcla es sRGB
+   canal a canal; todo recorrido de luminosidad mueve solo la L de HSL en pasos
+   de 0,5 punto conservando H y S. Dos ejecuciones dan los mismos hex.
+
+   MODO DOMINANTE: noche.  ALTERNO: documento.
+   Declarado en §3: «el negro domina siempre», «prohibido: fondos blancos plenos
+   en redes», «el blanco se reserva para papelería legal».
+============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   1 · INVARIANTES  —  no cambian entre modos
+----------------------------------------------------------------------------- */
+:root{
+
+  /* --- Tipografía · brand book §4 ------------------------------------------ */
+  --f-display : 'Bebas Neue', sans-serif;   /* [D] logo, titulares, cifras grandes */
+  --f-label   : 'Montserrat', sans-serif;   /* [D] 600–700, SIEMPRE mayúsculas     */
+  --f-body    : 'Montserrat', sans-serif;   /* [A] 400/500, interlínea 1.6. v2.1 (24/09/2026): Inter RETIRADA por decisión de la marca; el cuerpo usa Montserrat, la familia del sublabel del logo */
+  --f-mono    : 'Montserrat', sans-serif;   /* [d] §1.2: f-label + tabular-nums    */
+  --num       : tabular-nums;               /* [d] regla 17                        */
+
+  /* Tracking. El libro declara TRES valores distintos en §4 y §6; se conservan
+     los tres en vez de promediarlos, porque cada uno tiene un uso escrito.      */
+  --track-eyebrow : .30em;   /* [D] §4 eyebrow 10–12 px                          */
+  --track-label   : .22em;   /* [D] §6 placa de línea — el de uso general        */
+  --track-caption : .16em;   /* [D] §4 caption 10–11 px                          */
+  --track-display : .02em;   /* [D] §4 H1 +2 % (H2 usa .03em como override)      */
+
+  /* --- Escala tipográfica · §1.9.3, en unidades --u ------------------------- */
+  --t-6:6; --t-7_5:7.5; --t-9:9; --t-11:11; --t-13:13; --t-16:16;
+  --t-20:20; --t-26:26; --t-34:34; --t-44:44; --t-56:56; --t-76:76;
+
+  /* --- Escala de espaciado · §1.9.3 ---------------------------------------- */
+  --e-1:1; --e-2:2; --e-4:4; --e-7_5:7.5; --e-15:15; --e-24:24; --e-38:38; --e-60:60;
+
+  /* --- Geometría ------------------------------------------------------------ */
+  /* [d] §1.2: radio 0 si el logotipo es geométrico duro. El wordmark es una
+     grotesca condensada de terminales rectas y el motivo son dos rectas
+     paralelas: no hay una sola curva de esquina en la identidad.               */
+  --radio        : 0;
+  --cap          : butt;    /* [d] §1.8 + regla 19: radio 0 ⇒ butt + miter      */
+  --join         : miter;
+  --trazo-fino   : 1;       /* [d] §1.2, en unidades --u                        */
+  --trazo-medio  : 2;
+  --trazo-grueso : 4;
+
+  /* --- Tratamientos · §1.4, cuarta dimensión del color ---------------------- */
+  /* --trama y --contorno se REDECLARAN dentro de .fr (§1.7): una custom
+     property que contiene var(--u) se resuelve donde se declara, no donde se usa. */
+  --atenuado : .45;
+
+  /* --- Formato y motivo ----------------------------------------------------- */
+  --locale : es-CO;         /* [D] DRS_MAESTRO §1.2: toda la clientela en Colombia
+                                   ⇒ $ 18.400.000 · 4,5 %                       */
+  /* data-motivo="aleron" va como atributo en <html>, no como token.
+     [D] brand book §2: dos líneas paralelas que se separan — la superior Plata
+     y fina, la inferior Azul Acero y más gruesa. Es el flap abriéndose.        */
+  --motivo-sep-min : 3;     /* [d] separación mínima entre las dos líneas, en u */
+
+  /* --- Lienzos · §1.6 y §1.6b ---------------------------------------------- */
+  /* Bases elegidas para que 1 u = 4 px a tamaño nativo en todos los lienzos.   */
+  --base-redes : 270;   /* 1080 px  · 1:1, 4:5, 9:16                            */
+  --base-slide : 480;   /* 1920 px  · 16:9                                      */
+  --base-a4    : 310;   /* 1240 px  · A4 a 150 ppp                              */
+  --base-min   : 320;   /* 1280 px  · miniatura de video                        */
+  --base-og    : 300;   /* 1200 px  · tarjeta de enlace                         */
+  --base-mpu   : 75;    /*  300 px  · banner MPU                                */
+  --base-lb    : 182;   /*  728 px  · leaderboard                               */
+  --base-sky   : 40;    /*  160 px  · rascacielos                               */
+  --base-mov   : 80;    /*  320 px  · banner móvil                              */
+  --base-cab   : 396;   /* 1584 px  · cabecera de perfil                        */
+  --base-tp    : 266;   /* 1063 px  · tarjeta de presentación                   */
+  /* CONFLICTO RESUELTO A FAVOR DEL LIBRO — el sistema trae .fr-tp a 90×54 mm
+     (1063×638). El brand book §7 declara 90×50 mm. Manda el libro:
+     lienzo real 1063 × 591 px a 300 ppp. Registrado, no corregido en silencio. */
+}
+
+
+/* -----------------------------------------------------------------------------
+   2 · MODO NOCHE  —  dominante
+----------------------------------------------------------------------------- */
+:root,
+[data-modo="noche"]{
+
+  /* --- Superficies ---------------------------------------------------------- */
+  --sup-1 : #0A0B0D;  /* [D] Negro Carbón — dominante ≈60 %                     */
+  --sup-2 : #15171B;  /* [D] Grafito — paneles y tarjetas                       */
+  --sup-3 : #1C1F25;  /* [D] --grafito2 del :root del HTML (no está en el .md)  */
+  --linea : #262A31;  /* [D] --linea del :root del HTML · 1,37:1 = estructura   */
+
+  /* --- Texto ---------------------------------------------------------------- */
+  --txt-1   : #E8EAEE;  /* [D] Platino — 16,35:1 sobre sup-1                    */
+  --txt-2   : #C9CDD4;  /* [D] Plata   — 12,34:1                                */
+  --txt-3   : #8A8F98;  /* [D] --humo del :root del HTML.
+                               6,06 / 5,52 / 5,08:1 sobre sup-1/2/3 — pasa en las
+                               tres. Sustituye al #848689 que salía por regla.  */
+  --txt-acc : #E8EAEE;  /* [d] §1.2: de txt-1/sup-1, el que más contrasta sobre
+                               acc-1. Platino da 5,19:1 ⇒ COMPUERTA 3 PASA:
+                               botones y sellos en azul sólido son válidos, no
+                               hay que degradar a contorno.                     */
+
+  /* --- Acentos -------------------------------------------------------------- */
+  --acc-1    : #2A6496;  /* [D] Azul Acero — HSL(208, 56 %, 38 %)               */
+  --acc-2    : #5B93C4;  /* [D] Azul Luz — 6,01:1 sobre sup-1                   */
+  --acc-dato : #2A6496;  /* [d] §1.2: acc-1 alcanza 3,15:1 sobre sup-1          */
+
+  /* !! BLOQUEO 1 — acc-1 sobre sup-1 = 3,15:1.
+        Sirve para relleno de dato y titular ≥24 px. NUNCA para texto de cuerpo:
+        ahí se usa acc-2. El libro ya lo intuía; la medición lo confirma.
+     !! BLOQUEO 2 — acc-1 sobre sup-2 = 2,87:1 y sobre sup-3 = 2,64:1.
+        Falla incluso el umbral gráfico de 3:1. Sobre panel, TODO lo azul pasa a
+        acc-2 (5,48 y 5,03:1). El libro solo lo prohibía «en textos pequeños»;
+        esto amplía la regla a relleno y filete. Ampliación, no corrección.     */
+
+  /* --- Rampa de serie · §1.4, derivada de H=208 S=56 % ---------------------- */
+  /* Rango útil de L: 37–80 (los que dan ≥3:1 sobre sup-1). Cinco pasos a
+     intervalos iguales, numerados por contraste. acc-1 sustituye al paso de L
+     más cercana (ser-5) sin mover los otros cuatro.                            */
+  --ser-1 : #AFCEE9;  /* 12,0:1 — el más lejano de la superficie                */
+  --ser-2 : #84B3DC;  /*  9,0:1                                                 */
+  --ser-3 : #5898D0;  /*  6,5:1                                                 */
+  --ser-4 : #367FBF;  /*  4,6:1                                                 */
+  --ser-5 : #2A6496;  /*  3,2:1 — base de marca. BLOQUEADO sobre sup-2 y sup-3. */
+
+  /* --- Rampa neutra · §1.4 -------------------------------------------------- */
+  /* «Si la marca ya declara grises, se respetan y se ubican donde les toque.»
+     Los cuatro grises del libro caen casi exactos sobre las mezclas 100/78/55/12. */
+  --n-1 : #E8EAEE;  /* [D] Platino · 100 % · 16,35:1                            */
+  --n-2 : #C9CDD4;  /* [D] Plata   ·  ~87 % · 12,34:1                           */
+  --n-3 : #8A8F98;  /* [D] Humo    ·  ~59 % ·  6,06:1                           */
+  --n-4 : #424345;  /* [d] mezcla 25 % · 1,99:1 — ESTRUCTURA, nunca relleno     */
+  --n-5 : #262A31;  /* [D] Línea   ·  ~14 % · 1,37:1 — ESTRUCTURA               */
+
+  /* --- Semánticos ----------------------------------------------------------- */
+  /* [A] CONFLICTO CON EL LIBRO, RESUELTO POR AUTORIZACIÓN EXPRESA DE LA MARCA.
+     El brand book §3 prohíbe «rojos, dorados o degradados multicolor». La marca
+     autorizó rojo, dorado y verde para válido / inválido / pérdida.
+     Derivación: mismo carácter que Azul Acero (S = 56 %), matiz fijado por
+     convención (verde 152°, rojo 358°, dorado 42°) y L caminada hasta pasar
+     4,5:1 sobre sup-3, que es la superficie más exigente del modo.
+     La regla 10 SIGUE VIGENTE: el color nunca va solo. Un dato negativo lleva
+     además glifo, posición respecto al eje o tachado. Estos tres tokens no
+     cuentan para el tope de «dos colores de marca por pieza» (regla 2) porque
+     no son colores de marca: son portadores de significado.                    */
+  --pos  : #2B9966;  /* verde  · 5,49 / 5,00 / 4,60:1 sobre sup-1/2/3           */
+  --neg  : #D36468;  /* rojo   · 5,43 / 4,95 / 4,55:1                           */
+  --warn : #A5822F;  /* dorado · 5,47 / 4,99 / 4,59:1                           */
+}
+
+
+/* -----------------------------------------------------------------------------
+   3 · MODO DOCUMENTO  —  alterno
+----------------------------------------------------------------------------- */
+/* sup-1 NO es blanco puro. El propio libro lo declara al maquetar sus fichas de
+   logo sobre fondo claro (.logotile.light { background: var(--platino) }), y en
+   §3 reserva el blanco pleno para papelería legal. El blanco queda disponible
+   como --papel, solo para contratos y formularios impresos.                    */
+[data-modo="documento"]{
+
+  --sup-1 : #E8EAEE;  /* [D] Platino como superficie clara de marca             */
+  --sup-2 : #DFE1E5;  /* [d] sup-1 mezclado 4 % hacia txt-1                     */
+  --sup-3 : #D6D8DC;  /* [d] 8 %                                                */
+  --linea : #CDCFD3;  /* [d] 12 % · 1,30:1 = estructura                         */
+  --papel : #FFFFFF;  /* [D] §3 — solo papelería legal                          */
+
+  --txt-1   : #0A0B0D;  /* [D] Negro Carbón — 16,35:1 sobre sup-1               */
+  --txt-2   : #2B2C2F;  /* [d] txt-1 mezclado 15 % hacia sup-1 — 13,0:1         */
+  --txt-3   : #5D5E61;  /* [d] mezcla 45 %, alejada 12 pasos de L hasta pasar
+                               4,5:1 también sobre sup-3                        */
+  --txt-acc : #E8EAEE;  /* [d] Platino sobre acc-1 = 5,19:1 · igual en los dos
+                               modos, lo que simplifica el CTA                  */
+
+  /* !! CONFLICTO REGISTRADO — el libro declara Plata #C9CDD4 como «texto
+        secundario» sin distinguir modo. Sobre Platino da 1,26:1 y sobre blanco
+        1,59:1: inservible. La regla del libro está escrita para el modo noche.
+        En documento, txt-2 se deriva. PLATA QUEDA DECLARADA COMO COLOR DE MODO
+        NOCHE. Decisión de la marca: confirmarlo en el libro o acotar la regla. */
+
+  --acc-1    : #2A6496;  /* [D] 5,47:1 sobre Platino — aquí SÍ sostiene cuerpo  */
+  --acc-2    : #5B93C4;  /* [D] pero ver bloqueo abajo                          */
+  --acc-dato : #2A6496;
+
+  /* !! BLOQUEO 3 — acc-2 sobre sup-1 = 2,72:1 (y peor sobre panel). En modo
+        documento el Azul Luz es DECORATIVO: filetes gruesos, fondos de sello.
+        No lleva texto ni releva a acc-1 como relleno de dato. Es el espejo
+        exacto del bloqueo 2: cada azul funciona en el modo para el que nació.  */
+
+  /* --- Rampa de serie · rango útil de L 15–58, la base queda al centro ------ */
+  --ser-1 : #11283C;  /* 15,1:1 */
+  --ser-2 : #1B3F5F;  /* 10,1:1 */
+  --ser-3 : #2A6496;  /*  5,5:1 — base de marca                                 */
+  --ser-4 : #3072AB;  /*  4,4:1 */
+  --ser-5 : #4089C9;  /*  3,3:1 — bloqueado sobre sup-2 y sup-3                 */
+
+  --n-1 : #0A0B0D;
+  --n-2 : #3B3C3E;
+  --n-3 : #6E6F72;
+  --n-4 : #B0B2B6;  /* 1,76:1 — ESTRUCTURA */
+  --n-5 : #CDCFD3;  /* 1,30:1 — ESTRUCTURA */
+
+  --pos  : #1E6B47;  /* [A] 5,50 / 5,04 / 4,61:1 */
+  --neg  : #AD3135;  /* [A] 5,44 / 4,99 / 4,57:1 */
+  --warn : #735B21;  /* [A] 5,50 / 5,04 / 4,61:1 */
+}
+
+
+/* -----------------------------------------------------------------------------
+   4 · REGISTRO — decisiones que solo la marca puede cerrar
+-----------------------------------------------------------------------------
+   1. Plata como texto secundario: acotar la regla del libro al modo noche.
+   2. Semánticos: el libro §3 sigue diciendo «prohibido rojos y dorados».
+      Hay que escribir la excepción, o el próximo que lea el libro la deshará.
+   3. Logo en vectores: no hay SVG ni AI. El wordmark y el monograma «D» se
+      reconstruyen tipográficamente y van MARCADOS COMO PROVISIONALES hasta que
+      llegue el archivo original.
+   4. Set de iconos previo: sin respuesta. Se asume que no existe y se dibuja
+      desde cero. Si aparece uno en uso, se audita antes de reemplazar nada.
+   5. Cifras: no hay datos confirmados. Todo recurso numérico sale con hueco
+      y la línea FUENTE: dato de muestra · reemplazar.
+============================================================================= */
