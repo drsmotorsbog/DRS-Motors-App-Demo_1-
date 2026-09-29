@@ -36,12 +36,13 @@ HTML, CSS y JavaScript sin compilación ni dependencias. Todo cuelga de `window.
 | `index.html` · `js/app/` | La app: motor de pantallas, barra de la demo y navegación (`tel.js`, estilos en `css/navegacion.css`), capa de iOS, pagos simulados, avisos, lanzador y opciones de la demo |
 | `js/usuario/` | Pantallas de servicio comunes a las tres demos |
 | `js/variantes/` · `css/v2.css` · `css/v3.css` | Cada demo: su bienvenida, su inicio y su navegación. El contrato está en la cabecera de `js/variantes/v1.js` |
+| `js/movimiento/` | El vehículo abstracto de `Movimiento/app/` (plano técnico, escaneo en puntos o la mezcla, nunca la foto): el módulo, los vehículos y `montaje.js`, que lo monta en las pantallas y asigna un vehículo por carrocería. Guía: `Movimiento/APP.md` |
 | `crm/` · `js/comercio/` | El CRM del comercio |
 | `css/` | Estilos por rol de color; `tema.css` define el tema claro y oscuro y los roles de contraste (tarjetas, controles, botón lleno) |
 | `herramientas/` | Scripts para mantener la demo (abajo) |
 
 ## Mantenimiento
 
-- `python3 herramientas/sincronizar.py` copia desde `Marca/` los tokens de color, las fuentes y los sprites (`css/drs.tokens.css`, `css/fuentes.css` y `js/marca.js` son generados).
+- `python3 herramientas/sincronizar.py` copia desde `Marca/` los tokens de color, las fuentes y los sprites (`css/drs.tokens.css`, `css/fuentes.css` y `js/marca.js` son generados), y desde `Movimiento/app/` el módulo del vehículo abstracto y los vehículos de `VEHICULOS_APP`. Solo esto último: `python3 herramientas/sincronizar.py movimiento`. Un vehículo nuevo sale de una foto con el proceso de `Movimiento/APP.md` §5.
 - `node herramientas/iconos.cjs` genera los íconos de la app instalable con el monograma aprobado.
 - `python3 herramientas/publicar.py` antes de cada subida: regenera `sw.js` y `manifest.webmanifest` y pone en `index.html` y `crm/index.html` la huella de cada CSS y JS (`?v=…`), para que los celulares bajen la versión nueva sin mezclarla con la vieja.

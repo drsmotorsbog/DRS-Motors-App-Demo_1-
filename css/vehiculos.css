@@ -150,3 +150,11 @@
 .v2-escena.v2-anima .v2-punto{opacity:0;animation:v2-punto-pop .3s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i, 0) * 80ms + var(--t0) + 320ms)}
 @keyframes bp-llam{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes v2-punto-pop{0%{opacity:0;transform:scale(0)}60%{opacity:1;transform:scale(1.4)}100%{opacity:1;transform:scale(1)}}
+
+/* ---------------------------------------------------------------- vehículo abstracto (Movimiento/)
+   js/movimiento/: plano técnico, escaneo en puntos o la mezcla, nunca la foto (Movimiento/APP.md).
+   El módulo toma sus colores de los roles del contenedor al montarse. Lo que tapa su revelado es
+   --sup-1: dentro de una tarjeta se iguala al fondo de la tarjeta para que no se vea un recuadro. */
+.veh-mov{display:block;position:relative;--sup-1:var(--panel);
+  max-width:calc(var(--alto-veh, 150px) * var(--asp, 3));margin-inline:auto}   /* --asp lo pone js/movimiento/montaje.js */
+.veh-plano.veh-plano-mov{background:none;padding:6px 6px 0}

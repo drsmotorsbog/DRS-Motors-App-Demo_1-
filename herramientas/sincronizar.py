@@ -10,8 +10,12 @@ Genera (no se editan a mano):
                       para que las demos abran sin internet
   js/marca.js         los sprites de iconos y lockups de Marca/, como texto, para
                       insertarlos en línea (la regla de 14: <use> a otro archivo falla en file://)
+  js/movimiento/      el vehículo abstracto de Movimiento/app/ (plano técnico, escaneo en puntos
+                      o la mezcla, nunca la foto): el módulo y los vehículos de VEHICULOS_APP
 
-Si cambias un token, una fuente, un icono o un logo en Marca/, vuelve a correr este script.
+Si cambias un token, una fuente, un icono o un logo en Marca/, o el módulo o un vehículo en
+Movimiento/app/, vuelve a correr este script. Solo el vehículo abstracto:
+    python3 herramientas/sincronizar.py movimiento
 """
 import base64
 import json
@@ -24,6 +28,10 @@ from pathlib import Path
 DEMO = Path(__file__).resolve().parent.parent      # raíz del repositorio de las demos
 RAIZ = DEMO.parent.parent                           # carpeta del proyecto DRS Motors
 MARCA = RAIZ / "Marca"
+MOVIMIENTO = RAIZ / "Movimiento" / "app"
+# Vehículos que usa la app (Movimiento/app/vehiculos/<nombre>.js y su boceto; se arman con
+# Movimiento/herramientas/paquete_app.py). La carrocería de cada uno se asigna en js/movimiento/montaje.js.
+VEHICULOS_APP = ["coupe", "gt", "superbike"]
 
 AVISO = "GENERADO por herramientas/sincronizar.py — no editar. Fuente: {src}"
 
@@ -85,6 +93,28 @@ def marca():
     return out
 
 
+def movimiento():
+    """Copia el módulo y los vehículos. Nunca copia fotos: solo los .js y *_boceto.webp de Movimiento/app/."""
+    dst = DEMO / "js" / "movimiento"
+    (dst / "vehiculos").mkdir(parents=True, exist_ok=True)
+    salida = []
+    mod = dst / "vehiculo-abstracto.js"
+    mod.write_text(f"/* {AVISO.format(src='Movimiento/app/vehiculo-abstracto.js')} */\n"
+                   + (MOVIMIENTO / "vehiculo-abstracto.js").read_text(encoding="utf-8"), encoding="utf-8")
+    salida.append(mod)
+    for n in VEHICULOS_APP:
+        for nombre in (f"{n}.js", f"{n}_boceto.webp"):
+            src, out = MOVIMIENTO / "vehiculos" / nombre, dst / "vehiculos" / nombre
+            out.write_bytes(src.read_bytes())
+            salida.append(out)
+    viejos = [f for f in (dst / "vehiculos").iterdir() if f.stem.replace("_boceto", "") not in VEHICULOS_APP]
+    for f in viejos:
+        f.unlink()
+    return salida
+
+
 if __name__ == "__main__":
-    for f in (tokens(), fuentes(), marca()):
+    solo_mov = sys.argv[1:] == ["movimiento"]
+    hechos = movimiento() if solo_mov else [tokens(), fuentes(), marca(), *movimiento()]
+    for f in hechos:
         print(f"{f.relative_to(RAIZ)}  {f.stat().st_size / 1024:,.0f} KB")

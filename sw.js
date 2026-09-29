@@ -3,7 +3,7 @@
    Páginas: primero la red, sin la caché HTTP (si hay internet se ve lo último); sin internet, la guardada.
    Archivos: la URL exacta, que lleva la huella del contenido (?v=…); así nunca se mezclan versiones.
    Al activarse una versión nueva, la página se recarga sola una vez (script en el <head> de cada página). */
-const VERSION = 'drs-demos-40b7f26aa696';
+const VERSION = 'drs-demos-d5a07f1144b6';
 const ARCHIVOS = [
   "./",
   "crm/",
@@ -25,7 +25,7 @@ const ARCHIVOS = [
   "css/tema.css?v=ecfed58884",
   "css/v2.css?v=6e6bcb8cc1",
   "css/v3.css?v=1fb132324f",
-  "css/vehiculos.css?v=b1dcd13bfc",
+  "css/vehiculos.css?v=9872c38a00",
   "js/app/arranque.js?v=d526e83c64",
   "js/app/avisos.js?v=c77edf0a21",
   "js/app/demo-menu.js?v=d97e3b54f0",
@@ -45,6 +45,11 @@ const ARCHIVOS = [
   "js/mapa.js?v=03e8b23d56",
   "js/marca.js?v=bba0e11dc3",
   "js/modelo.js?v=68d977b2b4",
+  "js/movimiento/montaje.js?v=20fb3227e7",
+  "js/movimiento/vehiculo-abstracto.js?v=5d1418df86",
+  "js/movimiento/vehiculos/coupe.js?v=98a4fc27c6",
+  "js/movimiento/vehiculos/gt.js?v=de16749bbb",
+  "js/movimiento/vehiculos/superbike.js?v=970204d53b",
   "js/reloj.js?v=61b7890076",
   "js/tema.js?v=dc007a37cb",
   "js/usuario/beneficios.js?v=d6292b414a",
@@ -53,7 +58,7 @@ const ARCHIVOS = [
   "js/usuario/explorar.js?v=0e2d5de67a",
   "js/usuario/garaje.js?v=1adf109b5b",
   "js/usuario/informe.js?v=912867f61b",
-  "js/usuario/inicio.js?v=8ba8d78418",
+  "js/usuario/inicio.js?v=ee4624a9d5",
   "js/usuario/otras.js?v=53ebe5cd30",
   "js/usuario/perfil.js?v=8606ec28be",
   "js/usuario/registro.js?v=4938846c6c",
@@ -70,6 +75,9 @@ const ARCHIVOS = [
   "iconos/icono-192.png",
   "iconos/icono-32.png",
   "iconos/icono-512.png",
+  "js/movimiento/vehiculos/coupe_boceto.webp",
+  "js/movimiento/vehiculos/gt_boceto.webp",
+  "js/movimiento/vehiculos/superbike_boceto.webp",
   "manifest.webmanifest",
   "index.html",
   "crm/index.html"
