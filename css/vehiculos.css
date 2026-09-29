@@ -158,3 +158,23 @@
 .veh-mov{display:block;position:relative;--sup-1:var(--panel);
   max-width:calc(var(--alto-veh, 150px) * var(--asp, 3));margin-inline:auto}   /* --asp lo pone js/movimiento/montaje.js */
 .veh-plano.veh-plano-mov{background:none;padding:6px 6px 0}
+/* Lugares donde va (sin la rejilla del dibujo anterior dentro de las tarjetas) */
+.veh-plano:has(> .veh-mov){background:none;padding:6px 6px 0}
+.plano:has(> .veh-mov){padding:10px 8px 6px}
+.plano .veh-mov{--alto-veh:190px}                                         /* Mi garaje: la moto, alta, con espacio para sus globos */
+.onb-dibujo .veh-mov{--alto-veh:190px;width:100%}
+.v2-auto .veh-mov{max-width:none}
+.v2-apagada .veh-mov{opacity:.45}                                           /* sin identificar: el plano atenuado */
+.bloqueo-fondo .veh-mov{position:absolute;left:-40px;right:-40px;top:360px;max-width:none;opacity:.34}
+
+/* Globos numerados de Mi garaje (DRS.mov.globos): una capa con la misma caja del módulo */
+.veh-mov .vm-capa{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:2}
+.vm-guia{fill:none;stroke:var(--txt-3)}
+.vm-punto{fill:var(--txt-1)}
+.vm-circ{fill:var(--sup-1);stroke:var(--txt-2)}
+.vm-num{fill:var(--txt-1);font-family:var(--f-display);text-anchor:middle;letter-spacing:.04em}
+/* se encienden cuando el plano termina de trazarse (--dur lo pone el marcador) */
+.veh-mov[data-anim="1"] .vm-guia{stroke-dasharray:1 1;stroke-dashoffset:1;animation:bp-trazo .35s var(--ease) forwards;animation-delay:calc(var(--dur) * .8 + var(--i) * 90ms)}
+.veh-mov[data-anim="1"] .vm-punto{opacity:0;animation:bp-aparece .2s var(--ease) forwards;animation-delay:calc(var(--dur) * .8 + var(--i) * 90ms)}
+.veh-mov[data-anim="1"] .vm-pop{transform:scale(0);animation:vm-pop .34s cubic-bezier(.2,1.35,.4,1) forwards;animation-delay:calc(var(--dur) * .8 + var(--i) * 90ms + 160ms)}
+@keyframes vm-pop{to{transform:scale(1)}}

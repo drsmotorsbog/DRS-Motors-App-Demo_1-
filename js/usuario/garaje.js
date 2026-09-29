@@ -24,6 +24,19 @@
     ],
   };
 
+  // Los mismos cuatro globos sobre el vehículo abstracto: en qué ancla cae cada uno (el primero que exista)
+  const GLOBOS_MOV = {
+    carro: [{ n: 1, ancla: ['motor', 'capo'] }, { n: 2, ancla: ['tanque', 'trasera'] }, { n: 3, ancla: ['estribo', 'puerta'] }, { n: 4, ancla: ['cabina', 'parabrisas'] }],
+    moto: [{ n: 1, ancla: ['motor'] }, { n: 2, ancla: ['tanque'] }, { n: 3, ancla: ['estribo', 'motor'] }, { n: 4, ancla: ['faro', 'parabrisas'] }],
+  };
+  function plano(v, anim) {
+    const n = DRS.mov && DRS.mov.vehiculoDe(v);
+    const bp = () => DRS.bp.vehiculo(v, { ancho: 380, dibujar: anim, globos: GLOBOS[v.tipo], cotas: true });
+    if (!n) return crudo(bp());
+    const opc = { cotas: true };
+    return DRS.mov.marcador(v, { modo: 'plano', opciones: opc, anim, clave: 'garaje', capa: DRS.mov.globos(n, GLOBOS_MOV[DRS.mov.esMoto(n) ? 'moto' : 'carro'], opc), respaldo: bp });
+  }
+
   function cajetin(v) {
     const filas = [
       ['01 · Motor', `${num(v.cilindraje)} cc`], ['02 · Combustible', v.combustible],
@@ -131,7 +144,7 @@
       return html`${UI.cabRaiz()}<div class="cuerpo">
         <div class="titulo"><h1 class="d d-44">Mi garaje</h1><p class="t13">Tu vehículo, sus papeles y todo lo que le has hecho, en un solo plano.</p></div>
         <div class="seg" role="tablist" aria-label="Tus vehículos">${vs.map((x) => html`<button role="tab" aria-selected="${x.id === v.id ? 'true' : 'false'}" data-a="vehiculo" data-id="${x.id}">${UI.modeloCorto(x)}</button>`)}<button ${crudo(UI.irAttrs('agregar-vehiculo'))}>+ Agregar</button></div>
-        <div class="plano">${crudo(DRS.bp.vehiculo(v, { ancho: 380, dibujar: ctx.anim, globos: GLOBOS[v.tipo], cotas: true }))}</div>
+        <div class="plano">${plano(v, ctx.anim)}</div>
         ${cajetin(v)}
         <button class="btn btn-fantasma" data-a="hoja-km" data-v="${v.id}" style="margin-top:8px">${ico('kilometraje')}Actualizar kilometraje</button>
         <section class="bloque">${UI.bloqueCab('Documentos', 'Se consultan solos; aquí ves su estado.')}<div class="lista">${filaDoc(v, 'soat')}${filaDoc(v, 'tecno')}</div></section>

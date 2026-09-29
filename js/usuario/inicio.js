@@ -30,7 +30,7 @@
       <div class="veh-top"><span class="ceja">Tu vehículo</span><span class="cap">${v.clase} · ${v.servicio}</span></div>
       <div class="veh-plano${DRS.mov && DRS.mov.vehiculoDe(v) ? ' veh-plano-mov' : ''}">${DRS.mov
         // El vehículo abstracto (Movimiento/APP.md): aparece en puntos y una franja lo pasa a plano técnico
-        ? DRS.mov.marcador(v, { modo: 'mixto', opciones: { revelado: 'franja' }, anim, clave: 'inicio',
+        ? DRS.mov.marcador(v, { modo: 'mixto', opciones: { revelado: 'franja', fondo: false }, anim, clave: 'inicio',
           respaldo: () => DRS.bp.vehiculo(v, { ancho: 340, dibujar: anim, retraso: 120, modo: anim ? 'llega' : 'ninguno' }) })
         : crudo(DRS.bp.vehiculo(v, { ancho: 340, dibujar: anim, retraso: 120, modo: anim ? 'llega' : 'ninguno' }))}</div>
       <div class="veh-pie">

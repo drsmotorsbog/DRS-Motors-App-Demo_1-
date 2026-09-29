@@ -33,7 +33,11 @@
   DRS.pantallas.bienvenida = {
     render(p, ctx) {
       const s = ui();
-      const dibujo = (d) => (d === 'carro' ? crudo(DRS.bp.carro({ ancho: 340, dibujar: ctx.anim, cotas: true, rotulo: 'Plano 01 · Perfil' }))
+      const bpCarro = () => DRS.bp.carro({ ancho: 340, dibujar: ctx.anim, cotas: true, rotulo: 'Plano 01 · Perfil' });
+      // El vehículo de la bienvenida es genérico: se intercalan la moto y los carros cada vez que se entra
+      const dibujo = (d) => (d === 'carro' ? (DRS.mov
+        ? DRS.mov.marcador(null, { vehiculo: DRS.mov.generico('bienvenida', ctx.anim), modo: 'plano', opciones: { cotas: true }, anim: ctx.anim, clave: 'bienvenida', respaldo: bpCarro })
+        : crudo(bpCarro()))
         : d === 'bahias' ? crudo(DRS.bp.bahias({ n: 3, ocupadas: [1], ancho: 320, dibujar: ctx.anim }))
           : html`<div class="meta-grande" style="margin:30px 10px">${[1, 2, 3, 4, 5].map((i) => html`<span class="${i < 4 ? 'ok' : i === 5 ? 'premio' : ''}"><b class="d d-26">${i}</b>${i === 5 ? html`<i class="cap">50 %</i>` : ''}</span>`)}</div>`);
       return html`${cab('Bienvenida', false)}<div class="onb">
@@ -148,7 +152,7 @@
           <p class="t11" style="margin:0 0 8px">En la demo, la consulta trae un vehículo de ejemplo (KDM 484), escribas la placa que escribas.</p>
           <button class="enlace" data-a="reg-manual" style="margin-top:4px">¿No aparece? Ingresa las fechas a mano ${ico('chevron')}</button>` : ''}
         ${s.consulta !== 'nada' ? html`<article class="tarjeta" style="overflow:hidden">
-          <div class="veh-plano" style="position:relative">${crudo(DRS.bp.vehiculo(v, plano))}</div>
+          <div class="veh-plano" style="position:relative">${DRS.mov ? DRS.mov.consulta(v, { buscando: s.consulta === 'buscando', revelar: enciende, ms: 2300, clave: 'runt', respaldo: plano }) : crudo(DRS.bp.vehiculo(v, plano))}</div>
           <div class="tarjeta-pad" style="border-top:1px solid var(--linea)">
             ${s.consulta === 'buscando' ? html`<ol class="proceso">${item('d', 'Datos del vehículo en el RUNT', paso > 0)}${item('s', 'Vigencia del SOAT', paso > 1)}${item('t', 'Revisión técnico-mecánica', paso > 2)}</ol>` : html`
               <div class="d d-34">${UI.modelo(v)}</div><div class="t13" style="margin-top:6px">${v.modelo} · ${v.carroceria} · ${v.color} · ${num(v.cilindraje)} cc · ${placaTxt(v.placa)}</div>
@@ -185,7 +189,7 @@
         <div class="titulo"><div class="ceja">Mi garaje</div><h1 class="d d-44">Agregar vehículo</h1><p class="t13">Carro o moto. Con la placa y el documento del propietario traemos el resto.</p></div>
         ${s.estado === 'nada' ? html`<div class="campos-2"><div class="campo"><label class="cap" for="nv-placa">Placa</label><input id="nv-placa" class="reg-placa" value="HTR619" maxlength="6"></div>
           <div class="campo"><label class="cap" for="nv-doc">Documento del propietario</label><input id="nv-doc" value="1020456789" inputmode="numeric"></div></div>` : html`<article class="tarjeta" style="overflow:hidden">
-          <div class="veh-plano" style="position:relative">${crudo(DRS.bp.vehiculo(v, plano))}</div>
+          <div class="veh-plano" style="position:relative">${DRS.mov ? DRS.mov.consulta(v, { buscando: s.estado === 'buscando', revelar: enciende, ms: 2100, clave: 'agregar', respaldo: plano }) : crudo(DRS.bp.vehiculo(v, plano))}</div>
           <div class="tarjeta-pad" style="border-top:1px solid var(--linea)">${s.estado === 'buscando'
     ? html`<ol class="proceso">${item('Datos del vehículo en el RUNT', s.paso > 0)}${item('Vigencia del SOAT', s.paso > 1)}${item('Revisión técnico-mecánica', s.paso > 2)}</ol>`
     : html`<div class="d d-34">${v.marca} ${v.linea}</div><div class="t13" style="margin-top:6px">${v.modelo} · ${v.carroceria} · ${v.color} · ${num(v.cilindraje)} cc · ${placaTxt(v.placa)}</div>

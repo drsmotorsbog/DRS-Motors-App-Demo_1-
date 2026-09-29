@@ -15,6 +15,9 @@
        lectura    puntos: porcentaje de lectura pegado a la línea                    (false)
        revelado   mixto: 'lente' (lupa que recorre) | 'franja' (barrido de izq. a der.)   ('lente')
        paradas    mixto con lente: [[x, y], ...] en fracciones del vehículo           (tres paradas)
+       fondo      mixto: tapa con --sup-1 lo que queda detrás del plano revelado; false sobre un
+                  fondo que no es liso (rejilla, tarjeta de otro color). Con franja no hace falta:
+                  los puntos ya se borran a su paso                                  (true)
        boceto     opacidad final del boceto de bordes                                (0.42)
        velocidad  multiplicador de tiempo                                            (1)
        reproducir arranca al montarse                                                (true)
@@ -48,7 +51,7 @@
   function contactoRueda(e) { const t = e.rot * Math.PI / 180, c = Math.cos(t), s = Math.sin(t), rx = e.rx * e.k, ry = e.ry * e.k; let mejor = [e.cx, e.cy]; for (let i = 0; i < 360; i += 2) { const a = i * Math.PI / 180, x = e.cx + rx * Math.cos(a) * c - ry * Math.sin(a) * s, y = e.cy + rx * Math.cos(a) * s + ry * Math.sin(a) * c; if (y > mejor[1]) mejor = [x, y]; } return mejor; }
 
   function vehiculo(host, d, opciones) {
-    const o = Object.assign({ modo: 'plano', barrido: false, cotas: false, rejilla: false, cursor: true, lectura: false, revelado: 'lente', paradas: null, boceto: 0.42, velocidad: 1, reproducir: true, alVer: false, semilla: 7, grosor: { sil: 2.2, lin: 1.15, rueda: 1.4, guia: 1.2 } }, opciones || {});
+    const o = Object.assign({ modo: 'plano', barrido: false, cotas: false, rejilla: false, cursor: true, lectura: false, revelado: 'lente', paradas: null, fondo: true, boceto: 0.42, velocidad: 1, reproducir: true, alVer: false, semilla: 7, grosor: { sil: 2.2, lin: 1.15, rueda: 1.4, guia: 1.2 } }, opciones || {});
     const W = d.w, H = d.h, px = W * 0.07, py = H * 0.16, pyAbajo = H * (o.cotas ? 0.34 : 0.16);
     const VX = -px, VY = -py, VW = W + 2 * px, VH = H + py + pyAbajo;
     const pal = paleta(host);
@@ -95,7 +98,7 @@
     const clipFranja = el('clipPath', { id: uid + 'f' }, defs); const rectFranja = el('rect', { x: VX, y: VY, width: 0, height: VH }, clipFranja);
     const gMarco = el('g', null, svg);
     if (o.modo === 'mixto') gMarco.setAttribute('clip-path', `url(#${o.revelado === 'franja' ? uid + 'f' : uid + 'l'})`);
-    const disco = o.modo === 'mixto' ? el('rect', { x: VX, y: VY, width: VW, height: VH, fill: pal.sup1, opacity: 0.9 }, gMarco) : null;
+    const disco = o.modo === 'mixto' && o.fondo !== false ? el('rect', { x: VX, y: VY, width: VW, height: VH, fill: pal.sup1, opacity: 0.9 }, gMarco) : null;
     const gZoom = el('g', null, gMarco);
     const imgBoceto = boceto ? el('image', { href: boceto, x: 0, y: 0, width: W, height: H, preserveAspectRatio: 'none', opacity: 0, style: pal.claro ? 'filter:brightness(0)' : '' }, gZoom) : null;
     const clipBoceto = el('clipPath', { id: uid + 'b' }, defs); const rectBoceto = el('rect', { x: VX, y: VY, width: VW, height: VH }, clipBoceto);

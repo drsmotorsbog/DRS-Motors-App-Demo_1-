@@ -127,22 +127,51 @@
     return 'sedan';
   }
 
+  // Puntos de las llamadas sobre el vehículo abstracto (anclas de js/movimiento/vehiculos/indice.js; el primero que exista)
+  const ANCLAS_MOV = {
+    carro: { soat: ['parabrisas'], tecno: ['cabina', 'puerta'], aceite: ['capo', 'motor'], llantas: ['rueda1'], km: ['rueda2'], placa: ['trasera'] },
+    moto: { soat: ['tanque'], tecno: ['faro'], aceite: ['motor'], llantas: ['rueda1'], km: ['rueda2'], placa: ['trasera'] },
+  };
+  /** Modo del dibujo de antes → vehículo abstracto (Movimiento/APP.md §4). */
+  function movDe(modo, ms) {
+    if (modo === 'escaneo') return { modo: 'puntos', opciones: { lectura: true, velocidad: +(3.4 / Math.max(0.8, ms / 1000)).toFixed(2) }, anim: true };
+    if (modo === 'enciende') return { modo: 'mixto', opciones: { revelado: 'franja', fondo: false }, anim: true };
+    if (modo === 'llega') return { modo: 'plano', opciones: { barrido: true }, anim: true };
+    return { modo: 'plano', opciones: {}, anim: false };
+  }
+
   /**
    * Escenario de plano: el dibujo del vehículo y una llamada por dato, con su guía hasta el punto.
    * Todo se mide en unidades de un lienzo de 390 × alto; el escenario guarda esa proporción, así
    * las posiciones en % y las guías (SVG) coinciden a cualquier ancho de celular.
+   * El vehículo es el abstracto de js/movimiento/ (vehiculo: uno en particular, p. ej. el genérico); si su
+   * carrocería no tiene uno propio, el dibujo de DRS.bp. Las llamadas se encienden cuando pasa el barrido.
    * llamadas: [{ punto, fila: 'arriba'|'abajo', cap, valor, estado, attrs, etiqueta }]
    */
-  function escena(v, llamadas, { alto = 316, dibujar = false, anim = false, apagada = false, extra = '', etiqueta = '', modo = null, ms = 1500, t0 = null } = {}) {
+  function escena(v, llamadas, { alto = 316, dibujar = false, anim = false, apagada = false, extra = '', etiqueta = '', modo = null, ms = 1500, t0 = null, vehiculo = null, clave = 'v2-escena' } = {}) {
     const W = 390, H = alto;
-    const f = forma(v);
-    const vb = VB[f];
-    const ax = 12, aw = 366;
-    const ah = (aw * vb[3]) / vb[2];
-    const at = (H - ah) / 2 + 2;
-    const enLienzo = ([x, y]) => [ax + ((x - vb[0]) / vb[2]) * aw, at + ((y - vb[1]) / vb[3]) * ah];
+    const modoBp = modo || (dibujar ? 'llega' : 'ninguno');
+    const n = DRS.mov ? vehiculo || DRS.mov.vehiculoDe(v) : null;
+    let enLienzo, auto, dibujo;
+    if (n) {
+      const m = movDe(modoBp, ms);
+      const asp = DRS.mov.caja(n, m.opciones).asp;
+      const bw = Math.min(366, (H - 128) * asp), bh = bw / asp;     // entre la fila de llamadas de arriba y la de abajo
+      const bx = (W - bw) / 2, by = (H - bh) / 2 + 2;
+      const anclas = ANCLAS_MOV[DRS.mov.esMoto(n) ? 'moto' : 'carro'];
+      enLienzo = (p) => { const [fx, fy] = DRS.mov.punto(n, anclas[p], m.opciones); return [bx + fx * bw, by + fy * bh]; };
+      auto = { x: bx, y: by, w: bw };
+      dibujo = DRS.mov.marcador(v, { vehiculo: n, modo: m.modo, opciones: m.opciones, anim: m.anim, clave });
+      if (m.anim) t0 = Math.round(DRS.mov.duracion(m.modo, m.opciones) * 600);
+    } else {
+      const f = forma(v), vb = VB[f];
+      const ax = 12, aw = 366, ah = (aw * vb[3]) / vb[2], at = (H - ah) / 2 + 2;
+      enLienzo = (p) => { const [x, y] = PUNTOS[f][p]; return [ax + ((x - vb[0]) / vb[2]) * aw, at + ((y - vb[1]) / vb[3]) * ah]; };
+      auto = { x: ax, y: at, w: aw };
+      dibujo = crudo(DRS.bp.vehiculo(v, { ancho: 380, dibujar, retraso: 60, modo: modoBp, ms }));
+    }
     const filas = { arriba: [], abajo: [] };
-    llamadas.forEach((l) => { const [sx, sy] = enLienzo(PUNTOS[f][l.punto]); filas[l.fila].push({ ...l, sx, sy }); });
+    llamadas.forEach((l) => { const [sx, sy] = enLienzo(l.punto); filas[l.fila].push({ ...l, sx, sy }); });
     const alto0 = 48;                                        // alto de una llamada (≥ 44 px a 390)
     Object.keys(filas).forEach((k) => {
       const ls = filas[k].sort((a, b) => a.sx - b.sx);
@@ -162,7 +191,7 @@
     const clase = ['v2-escena', apagada ? 'v2-apagada' : '', anim ? 'v2-anima' : ''].filter(Boolean).join(' ');
     // modo del plano (css/vehiculos.css): al entrar, el carro llega rodando; t0 retrasa las llamadas hasta que frena
     return html`<div class="${clase}" style="aspect-ratio:${W} / ${H}${t0 != null ? `;--t0:${t0}ms` : ''}" role="group" aria-label="${etiqueta}">
-      <div class="v2-auto" style="left:${pct(ax, W)};width:${pct(aw, W)};top:${pct(at, H)}">${crudo(DRS.bp.vehiculo(v, { ancho: 380, dibujar, retraso: 60, modo: modo || (dibujar ? 'llega' : 'ninguno'), ms }))}</div>
+      <div class="v2-auto" style="left:${pct(auto.x, W)};width:${pct(auto.w, W)};top:${pct(auto.y, H)}">${dibujo}</div>
       ${crudo(`<svg class="v2-guias" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${guias}</svg>`)}
       ${todas.map((l, i) => html`<span class="v2-punto${l.estado ? ` est-${l.estado}` : ''}" style="left:${pct(l.sx, W)};top:${pct(l.sy, H)};--i:${i}" aria-hidden="true"></span>`)}
       ${todas.map((l, i) => {
@@ -258,7 +287,8 @@
         : html`<span class="cap">Vehículo</span><b class="d d-20">${buscando ? 'Consultando…' : 'Sin identificar'}</b>`}</span>`;
       const plano = escena(vv || GENERICO, llamadas, {
         alto: 286, dibujar: false, anim: !!(v && s.dibujar), apagada: !vv,
-        modo: buscando ? 'escaneo' : v && s.dibujar ? 'enciende' : 'ninguno', ms: 1800, t0: 160,
+        modo: buscando ? 'escaneo' : v && s.dibujar ? 'enciende' : 'ninguno', ms: 1800, t0: 160, clave: 'v2-bien',
+        vehiculo: !vv && DRS.mov ? DRS.mov.generico('v2-bien', !!(ctx && ctx.anim)) : null,     // sin identificar: se intercalan la moto y los carros
         extra: html`${rotulo}`,
         etiqueta: v ? `Plano de ${UI.modelo(v)}: lo que la app sabe de este vehículo` : 'Plano del vehículo, aún sin identificar',
       });
@@ -527,7 +557,7 @@
           <button class="v2-circula" ${crudo(UI.servAttrs('calendario'))}><span class="v2-gl est-${circ.estado}">${ico(GLIFO[circ.estado])}</span><span class="v2-circula-txt"><span class="t13 t-1">${circ.titulo}</span><span class="t11">${circ.texto}</span></span>${ico('chevron', 's16')}</button>
         </section>
 
-        ${escena(v, llamadas, { alto: 316, dibujar: anim, anim, etiqueta: `Plano de tu ${UI.modeloCorto(v)} con el estado de cada sistema` })}
+        ${escena(v, llamadas, { alto: 316, dibujar: anim, anim, clave: 'v2-inicio', etiqueta: `Plano de tu ${UI.modeloCorto(v)} con el estado de cada sistema` })}
         <div class="v2-escena-pie"><span class="cap">Toca un sistema</span><button class="enlace" ${crudo(UI.irAttrs('garaje'))}>Ficha técnica ${ico('chevron')}</button></div>
 
         ${act ? html`<section class="v2-bloque v2-bloque-vivo">${enVivo(act)}</section>` : ''}

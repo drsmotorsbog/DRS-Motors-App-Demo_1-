@@ -92,7 +92,11 @@
       bloqueo.dataset.modo = 'noche';              // la pantalla bloqueada es de iOS: oscura en los dos temas
       bloqueo.setAttribute('role', 'dialog');
       bloqueo.setAttribute('aria-label', 'Pantalla bloqueada del iPhone');
-      bloqueo.innerHTML = String(html`<div class="bloqueo-fondo">${crudo(DRS.bp.carro({ ancho: 470, dibujar: false }))}</div>
+      // El plano de fondo: se intercalan los carros (la moto es muy alta para este lugar)
+      const fondo = DRS.mov
+        ? DRS.mov.marcador(null, { vehiculo: DRS.mov.generico('bloqueo', true, ['coupe', 'gt']), modo: 'plano', anim: false, clave: 'bloqueo', respaldo: () => DRS.bp.carro({ ancho: 470, dibujar: false }) })
+        : crudo(DRS.bp.carro({ ancho: 470, dibujar: false }));
+      bloqueo.innerHTML = String(html`<div class="bloqueo-fondo">${fondo}</div>
         <span class="bloqueo-candado" aria-hidden="true"><svg viewBox="0 0 18 22" fill="none" stroke="#fff" stroke-width="2"><path d="M4 10V6.5a5 5 0 0 1 10 0V10"/><rect x="1.5" y="10" width="15" height="11" rx="3" fill="#fff" stroke="none"/></svg></span>
         <div class="bloqueo-fecha"></div><div class="bloqueo-hora"></div>
         <div class="bloqueo-avisos"></div>

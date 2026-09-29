@@ -11,7 +11,9 @@ Genera (no se editan a mano):
   js/marca.js         los sprites de iconos y lockups de Marca/, como texto, para
                       insertarlos en línea (la regla de 14: <use> a otro archivo falla en file://)
   js/movimiento/      el vehículo abstracto de Movimiento/app/ (plano técnico, escaneo en puntos
-                      o la mezcla, nunca la foto): el módulo y los vehículos de VEHICULOS_APP
+                      o la mezcla, nunca la foto): el módulo, los vehículos de VEHICULOS_APP y
+                      vehiculos/indice.js (tamaño, ruedas y anclas de cada uno, para ubicar llamadas
+                      antes de cargar el dibujo completo, que se pide solo cuando una pantalla lo usa)
 
 Si cambias un token, una fuente, un icono o un logo en Marca/, o el módulo o un vehículo en
 Movimiento/app/, vuelve a correr este script. Solo el vehículo abstracto:
@@ -31,7 +33,8 @@ MARCA = RAIZ / "Marca"
 MOVIMIENTO = RAIZ / "Movimiento" / "app"
 # Vehículos que usa la app (Movimiento/app/vehiculos/<nombre>.js y su boceto; se arman con
 # Movimiento/herramientas/paquete_app.py). La carrocería de cada uno se asigna en js/movimiento/montaje.js.
-VEHICULOS_APP = ["coupe", "gt", "superbike"]
+# coupe, gt y superbike salen de las fotos de referencia de Miguel; x1 y corolla, del inventario de DRS.
+VEHICULOS_APP = ["coupe", "gt", "superbike", "x1", "corolla"]
 
 AVISO = "GENERADO por herramientas/sincronizar.py — no editar. Fuente: {src}"
 
@@ -107,7 +110,16 @@ def movimiento():
             src, out = MOVIMIENTO / "vehiculos" / nombre, dst / "vehiculos" / nombre
             out.write_bytes(src.read_bytes())
             salida.append(out)
-    viejos = [f for f in (dst / "vehiculos").iterdir() if f.stem.replace("_boceto", "") not in VEHICULOS_APP]
+    indice = {}
+    for n in VEHICULOS_APP:
+        texto = (MOVIMIENTO / "vehiculos" / f"{n}.js").read_text(encoding="utf-8")
+        d = json.loads(re.search(r"var d = (\{.*\});\n", texto).group(1))
+        indice[n] = {"w": d["w"], "h": d["h"], "meta": d.get("meta", {})}
+    idx = dst / "vehiculos" / "indice.js"
+    idx.write_text(f"/* {AVISO.format(src='Movimiento/app/vehiculos/*.js')} */\n"
+                   "window.DRS_VEHICULOS_INDICE = " + json.dumps(indice, ensure_ascii=False, separators=(",", ":")) + ";\n", encoding="utf-8")
+    salida.append(idx)
+    viejos = [f for f in (dst / "vehiculos").iterdir() if f.name != "indice.js" and f.stem.replace("_boceto", "") not in VEHICULOS_APP]
     for f in viejos:
         f.unlink()
     return salida

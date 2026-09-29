@@ -392,9 +392,11 @@
     : html`<h1 class="d d-44">${placaTxt(p.placa)}</h1><p class="t13">Buscando el vehículo en el registro. Consulta simulada.</p>`}
         </div>
         <div class="plano inf-plano">
-          ${dibujo(d, listo
-    ? { ancho: 380, dibujar: false, modo: p.revelar ? 'enciende' : 'ninguno' }
-    : { ancho: 380, modo: 'escaneo', ms: 1400, lecturas: DRS.bp.lecturas(d.forma, [`${d.marca} ${d.linea}`, `Modelo ${d.modelo}`, `${d.eventos.length} registros`]) })}
+          ${DRS.mov && DRS.mov.vehiculoDe(d.forma)
+    ? DRS.mov.consulta(d.forma, { buscando: !listo, revelar: listo && !!p.revelar, ms: 1500, clave: 'informe-previa' })
+    : dibujo(d, listo
+      ? { ancho: 380, dibujar: false, modo: p.revelar ? 'enciende' : 'ninguno' }
+      : { ancho: 380, modo: 'escaneo', ms: 1400, lecturas: DRS.bp.lecturas(d.forma, [`${d.marca} ${d.linea}`, `Modelo ${d.modelo}`, `${d.eventos.length} registros`]) })}
           <span class="inf-plano-placa">${placaTxt(p.placa)}</span>
           <span class="cap inf-plano-fuente">${listo ? `Consulta simulada · ${U.horaTxt(p.hora || horaAhora())}` : 'Escaneando…'}</span>
         </div>
@@ -654,7 +656,7 @@
         <div class="titulo"><div class="ceja">Informe completo · ${placaTxt(p.placa)}</div><h1 class="d d-44">${d.marca} ${d.lineaCompleta}</h1>
           <p class="t13">${d.modelo} · ${d.color} · ${num(d.km)} km en la última revisión${d.generico ? ' · resultado de ejemplo' : ''}</p>
           ${c ? html`<div class="inf-pagado">${UI.chipEstado('pos', 'Pagado')}<span class="cap">Ref. ${c.ref} · ${cuando(c)}</span></div>` : ''}</div>
-        <div class="plano inf-plano">${dibujo(d, { ancho: 380, dibujar: ctx.anim, modo: ctx.anim ? 'llega' : 'ninguno' })}<span class="inf-plano-placa">${placaTxt(p.placa)}</span><span class="cap inf-plano-fuente">Consulta simulada</span></div>
+        <div class="plano inf-plano">${DRS.mov && DRS.mov.vehiculoDe(d.forma) ? DRS.mov.entrada(d.forma, ctx.anim, 'informe') : dibujo(d, { ancho: 380, dibujar: ctx.anim, modo: ctx.anim ? 'llega' : 'ninguno' })}<span class="inf-plano-placa">${placaTxt(p.placa)}</span><span class="cap inf-plano-fuente">Consulta simulada</span></div>
         ${banda(d)}
         ${tiles(d)}
         ${advertencia()}

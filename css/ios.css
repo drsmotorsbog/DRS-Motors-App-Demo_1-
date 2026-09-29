@@ -89,7 +89,7 @@
 .bloqueo.entra{transform:translateY(-100%)}
 .bloqueo-fondo{position:absolute;inset:0;background:
   radial-gradient(120% 70% at 50% 18%, #1a2230 0%, #0c0e12 55%, #060708 100%);}
-.bloqueo-fondo svg{position:absolute;left:-40px;right:-40px;top:360px;width:calc(100% + 80px);opacity:.34}
+.bloqueo-fondo > svg{position:absolute;left:-40px;right:-40px;top:360px;width:calc(100% + 80px);opacity:.34}   /* el dibujo de respaldo (DRS.bp) */
 .bloqueo-fondo::after{content:"";position:absolute;inset:0;background:
   linear-gradient(rgba(91,147,196,.07) 1px, transparent 1px) 0 0/28px 28px,
   linear-gradient(90deg, rgba(91,147,196,.07) 1px, transparent 1px) 0 0/28px 28px;}

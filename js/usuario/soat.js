@@ -46,10 +46,15 @@
           <div class="campos-2"><div class="campo"><label class="cap" for="soat-placa">Placa</label><input id="soat-placa" value="HTR619" autocapitalize="characters" maxlength="6"></div>
           <div class="campo"><label class="cap" for="soat-doc">Documento del propietario</label><input id="soat-doc" value="52.318.774" inputmode="numeric"></div></div>
           <button class="btn btn-borde" data-a="soat-consultar" ${crudo(s.consultando ? 'disabled' : '')}>${ico('runt')}${s.consultando ? 'Consultando el RUNT…' : 'Consultar en el RUNT'}</button>
-          ${s.consultando ? html`<div class="veh-plano" style="position:relative;margin-top:12px;border:1px solid var(--linea)">${crudo(DRS.bp.vehiculo(OTRO, { ancho: 340, modo: 'escaneo', ms: 1500, lecturas: DRS.bp.lecturas(OTRO, [`${OTRO.marca} ${OTRO.linea.split(' ')[0]} · ${OTRO.modelo}`, `${OTRO.clase} · ${OTRO.carroceria}`, `${num(OTRO.cilindraje)} cc`]) }))}</div>` : ''}` : ''}
+          ${s.consultando ? html`<div class="veh-plano" style="position:relative;margin-top:12px;border:1px solid var(--linea)">${DRS.mov
+    ? DRS.mov.consulta(OTRO, { buscando: true, ms: 1700, clave: 'soat-otro', respaldo: { ancho: 340, modo: 'escaneo', ms: 1500 } })
+    : crudo(DRS.bp.vehiculo(OTRO, { ancho: 340, modo: 'escaneo', ms: 1500, lecturas: DRS.bp.lecturas(OTRO, [`${OTRO.marca} ${OTRO.linea.split(' ')[0]} · ${OTRO.modelo}`, `${OTRO.clase} · ${OTRO.carroceria}`, `${num(OTRO.cilindraje)} cc`]) }))}</div>` : ''}` : ''}
         ${v ? html`<article class="tarjeta" style="overflow:hidden">
           <div class="veh-top"><span class="ceja">Vehículo</span><span class="chip chip-luz">${ico('runt')}Datos del RUNT</span></div>
-          <div class="veh-plano">${crudo(DRS.bp.vehiculo(v, { ancho: 340, dibujar: false, modo: modoPlano }))}</div>
+          <div class="veh-plano">${DRS.mov
+    ? (revelar ? DRS.mov.consulta(v, { revelar: true, clave: 'soat-veh', respaldo: { ancho: 340, dibujar: false, modo: modoPlano } })
+      : DRS.mov.entrada(v, !!(ctx && ctx.anim), 'soat-veh', { respaldo: () => DRS.bp.vehiculo(v, { ancho: 340, dibujar: false, modo: modoPlano }) }))
+    : crudo(DRS.bp.vehiculo(v, { ancho: 340, dibujar: false, modo: modoPlano }))}</div>
           <div class="tarjeta-pad" style="border-top:1px solid var(--linea)"><dl class="datos" style="margin:0">
             <dt>Placa</dt><dd>${placaTxt(v.placa)}</dd><dt>Vehículo</dt><dd>${v.marca} ${v.linea} · ${v.modelo}</dd>
             <dt>Clase</dt><dd>${v.clase} · ${v.carroceria}</dd><dt>Servicio</dt><dd>${v.servicio}</dd><dt>Cilindraje</dt><dd>${num(v.cilindraje)} cc</dd></dl></div>
